@@ -24,7 +24,9 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -46,8 +48,9 @@ public class Server {
 	public static ServerSocketChannel socketChannel = null;
 
 	// Sever data
-	public static List<SocketChannel> list_clientSockets = null;
-	public static List<DataPackage> list_clientStates = null;
+	public static Map<Integer, SocketChannel> list_clientSockets = null;
+	public static Map<Integer, DataPackage> list_clientStates = null;
+	private static List<Integer> list_unusedIndices = null;
 	public static JList<String> list_clients = null;
 	public static DefaultListModel<String> list_clientsModel;
 
@@ -78,42 +81,82 @@ public class Server {
 
 					SocketChannel newClientSocket = null;
 					synchronized (socketChannel) {
-
-						socketChannel.configureBlocking(false);
 						newClientSocket = socketChannel.accept();
-						socketChannel.configureBlocking(true);
-
 					}
-					if (newClientSocket == null) {
-						Thread.sleep(100L);
-						continue;
-					}
+					ObjectInputStream ois = null;
+					ObjectOutputStream oos = null;
 
-					ObjectInputStream ois = new ObjectInputStream(newClientSocket.socket().getInputStream());
-					DataPackage dp = (DataPackage)ois.readObject();
-
-					ObjectOutputStream oos = new ObjectOutputStream(newClientSocket.socket().getOutputStream());
+					DataPackage dp = null;
+					String username = "";
 					int count = 0;
-					if (count < 3) {
+					while (count < 2 && username.toLowerCase().equals("")) {
 
-						DataPackage newClientPackage = new DataPackage(dp.getUsername(), 0, "Welcome to the server");
+						ois = new ObjectInputStream(newClientSocket.socket().getInputStream());
+						dp = (DataPackage)ois.readObject();
+						username = dp.getUsername();
+
+						for (Integer index : list_clientStates.keySet()) {
+
+							DataPackage clientData = list_clientStates.get(index);
+							if (clientData.getUsername().toLowerCase().equals(username.toLowerCase())) {
+
+								oos = new ObjectOutputStream(newClientSocket.socket().getOutputStream());
+								oos.flush();
+								oos.writeObject(new DataPackage(username, 0, "400: Username already choosen!"));
+								oos.flush();
+								oos.reset();
+								username = "";
+								break;
+
+							}
+
+						}
+						count++;
+
+					}
+
+					if (count < 2) {
+
+						DataPackage newClientPackage = new DataPackage(dp.getUsername(), 0, "100: Welcome to the server");
+						oos = new ObjectOutputStream(newClientSocket.socket().getOutputStream());
+						oos.flush();
 						oos.writeObject(newClientPackage);
+						oos.flush();
+						oos.reset();
 
 						synchronized (list_clientsModel) {
 							list_clientsModel.addElement(dp.getUsername() + " - " + newClientSocket.socket().getInetAddress().getHostAddress() + " - " + newClientSocket.socket().getInetAddress().getHostName());
 						}
-						list_clientStates.add(newClientPackage);
-						list_clientSockets.add(newClientSocket);
+
+						Integer index = null;
+						if (list_unusedIndices.size() > 0) {
+							index = list_unusedIndices.get(0);
+							list_unusedIndices.remove(0);
+						}
+						if (index == null) {
+							Integer maxIndex = new Integer(-1);
+							for (Integer key : list_clientStates.keySet()) {
+								if (key.intValue() > maxIndex.intValue())
+									maxIndex = key.intValue();
+							}
+							index = new Integer(maxIndex.intValue() + 1);
+						}
+						list_clientStates.put(index, newClientPackage);
+						list_clientSockets.put(index, newClientSocket);
 
 					}
 					else {
 
-						oos.writeObject(new DataPackage(dp.getUsername(), 2, "Cannot get valid user name. Try to connect again."));
+						oos = new ObjectOutputStream(newClientSocket.socket().getOutputStream());
+						oos.flush();
+						oos.writeObject(new DataPackage(dp.getUsername(), 1, "500: Connection failed!"));
+						oos.flush();
+						oos.reset();
 
 					}
 
 				}
-				catch (Exception e) {e.printStackTrace();}
+				catch (Exception e) {}
 
 			}
 
@@ -121,12 +164,104 @@ public class Server {
 
 	};
 
+	private static Runnable send = new Runnable() {
+
+		@Override
+		public void run() {
+
+			while(isRunning) {
+
+				ObjectOutputStream oos = null;
+				ArrayList<Integer>keys = new ArrayList<Integer>();
+				for (Integer temp_key : list_clientSockets.keySet()) {
+					if (temp_key != null) {
+						keys.add(temp_key);
+					}
+				}
+				for (Integer key : keys) {
+
+					if (list_clientSockets.keySet().contains(key)) {
+
+						try {
+
+							oos = new ObjectOutputStream(list_clientSockets.get(key).socket().getOutputStream());
+							oos.flush();
+							DataPackage client_state = list_clientStates.get(key);
+							oos.writeObject(client_state);
+							oos.flush();
+							oos.reset();
+
+							if (client_state.getState() == 1) {// Kicked by server
+
+								disconnectClient(key);
+
+							}
+							else if (client_state.getState() == 2) {// BasicServer Disconnected
+
+								disconnectClient(key);
+
+							}
+
+						}
+						catch (Exception ex) {disconnectClient(key);}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	};
+
+	public static synchronized void disconnectClient(Integer key) {
+
+		if (list_clientSockets.size() <= 0 || key.intValue() < 0 || !list_clientSockets.containsKey(key))
+			return;
+
+		try {
+
+			ObjectOutputStream oos = new ObjectOutputStream(list_clientSockets.get(key).socket().getOutputStream());
+			oos.flush();
+			oos.writeObject(new DataPackage(list_clientStates.get(key).getUsername(), 2, "300: Server Shutting Down!"));
+			oos.flush();
+			oos.reset();
+			list_clientSockets.get(key).close();
+
+		}
+		catch (IOException e) {}
+
+		DataPackage d = list_clientStates.get(key); 
+		list_clientStates.remove(key);
+		synchronized (list_clientsModel) {
+
+			for (int i = 0; i < list_clientsModel.size(); i++) {
+
+				String client = list_clientsModel.get(i);
+				if (client.split(" ")[0].toLowerCase().equals(d.getUsername().toLowerCase())) {
+
+					list_clientsModel.remove(i);
+					break;
+
+				}
+
+			}
+
+		}
+		list_clientSockets.remove(key);
+		list_unusedIndices.add(key);
+
+	}
+
 	private static void initLists() {
 
 		list_clientsModel = new DefaultListModel<String>();
 		list_clients = new JList<String>(list_clientsModel);
-		list_clientSockets = (List<SocketChannel>)Collections.synchronizedList(new ArrayList<SocketChannel>());
-		list_clientStates = (List<DataPackage>)Collections.synchronizedList(new ArrayList<DataPackage>());
+		list_clientSockets = (Map<Integer, SocketChannel>)Collections.synchronizedMap(new HashMap<Integer, SocketChannel>());
+		list_clientStates = (Map<Integer, DataPackage>)Collections.synchronizedMap(new HashMap<Integer, DataPackage>());
+		list_unusedIndices = (List<Integer>)Collections.synchronizedList(new ArrayList<Integer>());
+		list_unusedIndices.add(new Integer(0));
 
 	}
 
@@ -150,24 +285,24 @@ public class Server {
 			public void windowClosing(WindowEvent arg0) {
 
 				isRunning = false;
-				int i = 0;
-				for (SocketChannel clientSocket : list_clientSockets) {
-
-					try {
-						clientSocket.close();
-					}
-					catch (IOException e) {}
-					list_clientSockets.set(i, null);
-					i++;
-
-				}
 				try {
-					acceptThread.join();
+					acceptThread.interrupt();
+					acceptThread.join(3000L);
 					//receiveThread.join();
-					//sendThread.join();
+					sendThread.interrupt();
+					sendThread.join(3000L);
 					//gameThread.join();
 				}
 				catch (InterruptedException e) {}
+				while (list_clientSockets.size() > 0) {
+
+					for (Integer key : list_clientSockets.keySet()) {
+
+						disconnectClient(key);
+
+					}
+
+				}
 				System.exit(0);
 
 			}
@@ -202,9 +337,28 @@ public class Server {
 			public void actionPerformed(ActionEvent e) {
 
 				int selected = 0;
-				selected = list_clients.getSelectedIndex();
+				synchronized (list_clients) {
+					selected = list_clients.getSelectedIndex();
+				}
 
 				if (selected != -1) {
+
+					synchronized (list_clientsModel) {
+
+						String client = list_clientsModel.get(selected);
+						for (Integer key : list_clientStates.keySet()) {
+
+							DataPackage dp = list_clientStates.get(key);
+							if (client.split(" ")[0].toLowerCase().equals(dp.getUsername().toLowerCase())) {
+
+								list_clientStates.get(key).setState(2);
+								break;
+
+							}
+
+						}
+
+					}
 
 				}
 
@@ -328,13 +482,15 @@ public class Server {
 		try {
 
 		    socketChannel = ServerSocketChannel.open();
-		    socketChannel.socket().bind(new InetSocketAddress(ip_4, PORT));
+		    socketChannel.socket().bind(new InetSocketAddress(PORT));
 			isRunning = true;
 			acceptThread = new Thread(accept);
 			acceptThread.setDaemon(true);
 			acceptThread.start();
 			//receiveThread = new Thread(receive).start();
-			//sendThread = new Thread(send).start();
+			sendThread = new Thread(send);
+			sendThread.setDaemon(true);
+			sendThread.start();
 			//gameThread = new Thread(game).start();
 
 		}
