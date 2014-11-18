@@ -11,25 +11,50 @@ import java.nio.channels.SocketChannel;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+/**
+ * CLIENT STATES:
+ * 100 - All is good normal operations
+ * 200 - Invalid username
+ * 300 - Client is disconnecting
+ * 400 - Server is disconnecting Client
+ * 500 - Server is shuting down
+**/
 public class Client {
 
-	public static SocketChannel socketChannel;
-	public static int port = 4444;
-	public static String ip = "";
-	public static String username = "";
-	private static boolean isRunning = true;
+	private SocketChannel socketChannel;
+	private int port = 4444;
+	private String ip = "";
+	private String username = "";
+	private volatile boolean isRunning = false;
+	private Thread receiveThread = null;
+	private Thread sendThread = null;
+	private volatile DataPackage currentState = null;
+	private ObjectOutputStream oos = null;
+	private ObjectInputStream ois = null;
 
-	private static Runnable receive = new Runnable() {
+	private class SendThread extends Thread {
 
 		@Override
 		public void run() {
 
 			while (isRunning) {
 
+				/*try {
+					Thread.sleep(100l);
+				}
+				catch (InterruptedException e1) {}*/
+
 				try {
 
-					ObjectInputStream ois = new ObjectInputStream(socketChannel.socket().getInputStream());
-					/*DataPackage responseData = (DataPackage)*/ois.readObject();
+					synchronized (oos) {
+
+						oos.flush();
+						synchronized(currentState) {
+							oos.writeObject(currentState);
+						}
+						oos.flush();
+
+					}
 
 				} 
 				catch (Exception e) {}
@@ -38,14 +63,38 @@ public class Client {
 
 		}
 
-	};
+	}
 
-	public static void main(String[] args) {
+	private class ReceiveThread extends Thread {
 
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		@Override
+		public void run() {
+
+			while (isRunning) {
+
+				/*try {
+					Thread.sleep(100l);
+				}
+				catch (InterruptedException e1) {}*/
+
+				try {
+
+					synchronized (ois) {
+						synchronized (currentState) {
+							currentState = (DataPackage)ois.readObject();
+						}
+					}
+
+				} 
+				catch (Exception e) {}
+
+			}
+
 		}
-		catch(Exception ex) {}
+
+	}
+
+	public Client() {
 
 		try {
 
@@ -63,9 +112,10 @@ public class Client {
 
 			socketChannel = SocketChannel.open();
 			socketChannel.socket().connect(new InetSocketAddress(ip, port));
+			oos = new ObjectOutputStream(socketChannel.socket().getOutputStream());
+			ois = new ObjectInputStream(socketChannel.socket().getInputStream());
 
 			boolean nameOkay = false;
-			String response = "";
 			while (!nameOkay) {
 
 				String set_username = System.getProperty("user.name");
@@ -76,32 +126,37 @@ public class Client {
 				if (username.toLowerCase().equals(""))
 					continue;
 
-				ObjectOutputStream oos = new ObjectOutputStream(socketChannel.socket().getOutputStream());
-				oos.writeObject(new DataPackage(username, 0, ""));
 				oos.flush();
-				oos.reset();
+				oos.writeObject(new DataPackage(username, 100, ""));
+				oos.flush();
 
-				ObjectInputStream ois = new ObjectInputStream(socketChannel.socket().getInputStream());
 				DataPackage responseData = (DataPackage)ois.readObject();
-				response = responseData.getMessage();
-				if (responseData.getState() != 0)
-					System.exit(1);
-				if (response.substring(0, response.indexOf(":")).toLowerCase().equals("100")) {
+				if (responseData.getState() == 100) {
 					nameOkay = true;
 				}
-				else
+				else if (responseData.getState() == 200)
 					nameOkay = false;
+				else {
+					JOptionPane.showMessageDialog(null, responseData.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
+					System.exit(1);
+				}
 
-				Thread thread1 = new Thread(receive);
-				thread1.start();
-				JOptionPane.showMessageDialog(null, response.substring(response.indexOf(":") + 1), "Message", JOptionPane.INFORMATION_MESSAGE);
-				isRunning = false;
-				thread1.interrupt();
-				thread1.join(3000L);
+				if (nameOkay) {
+
+					isRunning = true;
+					currentState = new DataPackage(username, 100, "");
+					sendThread = new SendThread();
+					sendThread.setName("Client Send Thread");
+					sendThread.start();
+					receiveThread = new ReceiveThread();
+					receiveThread.setName("Client Receive Thread");
+					receiveThread.start();
+
+				}
+				JOptionPane.showMessageDialog(null, responseData.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
 
 			}
-			//new Thread(send).start();
-			
+			isRunning = false;
 
 		}
 		catch (Exception ex){
@@ -110,6 +165,16 @@ public class Client {
 			System.exit(1);
 
 		}
+
+	}
+
+	public static void main(String[] args) {
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch(Exception ex) {}
+		new Client();
 
 	}
 
