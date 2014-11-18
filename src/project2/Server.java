@@ -19,11 +19,10 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 
 import java.util.Enumeration;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -53,7 +52,7 @@ public class Server {
 	public final int PORT = 4444;
 	public String ip_4 = "";
 	public String ip_6 = "";
-	public ServerSocketChannel socketChannel = null;
+	public ServerSocket socket = null;
 
 	// Sever data
 	public CopyOnWriteArrayList<ClientThread> list_clientThreads = null;
@@ -69,13 +68,14 @@ public class Server {
 	public JButton disconnectBtn = null;
 
 	// Thread data
-	public volatile boolean isRunning = false;
+	public volatile boolean serverIsRunning = false;
 	public Thread acceptThread = null;
 	public Thread gameThread = null;
 
 	private class ClientThread extends Thread {
 
-		private SocketChannel socketChannel = null;
+		private Server main = null;
+		private Socket socket = null;
 
 		private ReceiveThread receiveThread = null;
 		private SendThread sendThread = null;
@@ -85,20 +85,25 @@ public class Server {
 		private ObjectOutputStream oos = null;
 		private ObjectInputStream ois = null;
 
-		public ClientThread(SocketChannel s, String username, ObjectOutputStream oos, ObjectInputStream ois) {
+		protected volatile boolean clientIsRunning = false;
 
-			socketChannel = s; 
+		public ClientThread(Socket s, String username, ObjectOutputStream oos, ObjectInputStream ois, Server m) {
+
+			main = m;
+			socket = s;
 			dataState = new DataPackage(username, 100, "");
 			this.oos = oos;
 			this.ois = ois;
 
 			sendThread = new SendThread(this);
 			sendThread.setName("Send Thread");
-			//sendThread.setDaemon(true);
+			sendThread.setDaemon(true);
 
 			receiveThread = new ReceiveThread(this);
 			receiveThread.setName("Receive Thread");
-			//receiveThread.setDaemon(true);
+			receiveThread.setDaemon(true);
+
+			clientIsRunning = true;
 
 		}
 
@@ -107,11 +112,15 @@ public class Server {
 
 			receiveThread.start();
 			sendThread.start();
-			while(isRunning) {
+			int state = 100;
+			while(serverIsRunning && clientIsRunning && state == 100) {
 				try {
 					Thread.sleep(100l);
 				}
 				catch (InterruptedException e1) {}
+				synchronized(dataState) {
+					state = dataState.getState();
+				}
 			}
 			receiveThread.interrupt();
 			try {
@@ -123,6 +132,7 @@ public class Server {
 				sendThread.join(100l);
 			}
 			catch (InterruptedException e) {}
+			main.clean();
 
 		}
 
@@ -144,13 +154,14 @@ public class Server {
 			return ois;
 		}
 
-		public synchronized SocketChannel getSocketChannel() {
-			return socketChannel;
+		public synchronized Socket getSocket() {
+			return socket;
 		}
 
 		public synchronized SendThread getSendThread() {
 			return sendThread;
 		}
+
 		public synchronized ReceiveThread getReceiveThread() {
 			return receiveThread;
 		}
@@ -159,47 +170,26 @@ public class Server {
 
     private class AcceptThread extends Thread {
 
-		public AcceptThread() {
+    	private Server main = null;
+		public AcceptThread(Server m) {
 			super();
+			main = m;
 		}
 
 		@Override
 		public void run() {
 
-			while (isRunning) {
-
-				/*try {
-					Thread.sleep(100l);
-				}
-				catch (InterruptedException e1) {}*/
+			while (serverIsRunning) {
 
 				try {
 
-					SocketChannel newClientSocket = null;
-					while (isRunning && newClientSocket == null) {
+					Socket newClientSocket = null;
+					newClientSocket = socket.accept();
+					if (newClientSocket == null)
+						continue;
 
-						socketChannel.configureBlocking(false);
-						newClientSocket = socketChannel.accept();
-						socketChannel.configureBlocking(true);
-
-						synchronized (list_clientThreads) {
-
-							int size = list_clientThreads.size();
-							for (int i = 0; i < size; i++) {
-
-								if (i >= 0 && i < list_clientThreads.size() &&
-								    (list_clientThreads.get(i).getDataState().getState() == 300 ||
-								     list_clientThreads.get(i).getDataState().getState() == 400 ||
-								     list_clientThreads.get(i).getDataState().getState() == 500))
-									disconnectClient(i);
-
-							}
-
-						}
-
-					}
-					ObjectInputStream ois = new ObjectInputStream(newClientSocket.socket().getInputStream());
-					ObjectOutputStream oos = new ObjectOutputStream(newClientSocket.socket().getOutputStream());
+					ObjectInputStream ois = new ObjectInputStream(newClientSocket.getInputStream());
+					ObjectOutputStream oos = new ObjectOutputStream(newClientSocket.getOutputStream());
 
 					DataPackage dp = null;
 					String username = "";
@@ -243,9 +233,9 @@ public class Server {
 						oos.flush();
 
 						synchronized (list_clientsModel) {
-							list_clientsModel.addElement(dp.getUsername() + " - " + newClientSocket.socket().getInetAddress().getHostAddress() + " - " + newClientSocket.socket().getInetAddress().getHostName());
+							list_clientsModel.addElement(dp.getUsername() + " - " + newClientSocket.getInetAddress().getHostAddress() + " - " + newClientSocket.getInetAddress().getHostName());
 						}
-						ClientThread newClient = new ClientThread(newClientSocket, username, oos, ois);
+						ClientThread newClient = new ClientThread(newClientSocket, username, oos, ois, main);
 						newClient.setName("Client Thread");
 						newClient.start();
 						list_clientThreads.add(newClient);
@@ -281,28 +271,35 @@ public class Server {
 		@Override
 		public void run() {
 
-			boolean done = false;
-			while(isRunning && !done) {
+			while(serverIsRunning && parrent.clientIsRunning) {
 
-				/*try {
-					Thread.sleep(100l);
+				try {
+					Thread.sleep(16l);
 				}
-				catch (InterruptedException e1) {}*/
+				catch (InterruptedException e1) {}
 
 				try {
 
 					parrent.getOos().flush();
-					parrent.getOos().writeObject(parrent.getDataState());
+					//System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\n");
+					DataPackage dp = null;
+					synchronized (parrent) {
+						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage());
+					}
+					parrent.getOos().writeObject(dp);
+					//System.out.println("AFTER WRITE");
 					parrent.getOos().flush();
-					if (parrent.getDataState().getState() == 300 ||
-						parrent.getDataState().getState() == 400 ||
-						parrent.getDataState().getState() == 500)
-						done = true;
+					if (parrent.getDataState().getState() != 100)
+						parrent.clientIsRunning = false;
 
 				}
-				catch (Exception e) {
-					done = true;
+				catch (IOException e) {
+
+					//System.out.println("WRITE ERROR: " + e.getMessage());
+					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
+					parrent.getDataState().setMessage("Server clossing Client.");
+
 				}
 
 			}
@@ -324,26 +321,29 @@ public class Server {
 		@Override
 		public void run() {
 
-			boolean done = false;
-			while(isRunning && !done) {
-
-				/*try {
-					Thread.sleep(100l);
-				}
-				catch (InterruptedException e1) {}*/
+			while(serverIsRunning && parrent.clientIsRunning) {
 
 				try {
 
-					parrent.setDataState((DataPackage)parrent.getOis().readObject());
-					if (parrent.getDataState().getState() == 300 ||
-						parrent.getDataState().getState() == 400 ||
-						parrent.getDataState().getState() == 500)
-						done = true;
+					//System.out.println("BEFORE READ");
+					DataPackage dp = null;
+					dp = (DataPackage)parrent.getOis().readObject();
+
+					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\n");
+					synchronized (parrent) {
+						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage()));
+					}
+					if (parrent.getDataState().getState() != 100)
+						parrent.clientIsRunning = false;
 
 				}
-				catch (Exception e) {
-					done = true;
+				catch (IOException|ClassNotFoundException e) {
+
+					//System.out.println("READ ERROR: " + e.getMessage());
+					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
+					parrent.getDataState().setMessage("Server closing client.");
+
 				}
 
 			}
@@ -361,12 +361,34 @@ public class Server {
 				synchronized (list_clientsModel) {
 					list_clientsModel.remove(index);
 				}
-				ClientThread t = list_clientThreads.get(index);
+				ClientThread ct = list_clientThreads.get(index);
+				if (ct.getDataState().getState() != 300 &&
+					ct.getDataState().getState() != 400 &&
+					ct.getDataState().getState() != 500) {
+
+					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, "Server is disconnecting the client."));
+
+				}
+				try {
+					ct.getOos().flush();
+					ct.getOos().writeObject(ct.getDataState());
+					ct.getOos().flush();
+				}
+				catch (IOException e1) {}
+
 				try {
 
-					t.interrupt();
-					t.join(100l);
-		
+					SendThread st = ct.getSendThread();
+					st.interrupt();
+					st.join(100l);
+					ReceiveThread rt = ct.getReceiveThread();
+					rt.interrupt();
+					rt.join(100l);
+					ct.getOis().close();
+					ct.getOos().close();
+					ct.getSocket().close();
+					ct.join(100l);
+
 				}
 				catch (Exception e) {}
 				list_clientThreads.remove(index);
@@ -404,12 +426,7 @@ public class Server {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 
-				isRunning = false;
-				acceptThread.interrupt();
-				try {
-					acceptThread.join(100l);
-				}
-				catch (InterruptedException e) {}
+				serverIsRunning = false;
 				synchronized (list_clientThreads) {
 
 					int size = list_clientThreads.size();
@@ -425,6 +442,14 @@ public class Server {
 					}
 
 				}
+				try {
+					socket.close();
+				}
+				catch (IOException e1) {}
+				try {
+					acceptThread.join(100l);
+				}
+				catch (InterruptedException e) {}
 				System.exit(0);
 
 			}
@@ -458,16 +483,21 @@ public class Server {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				int selected = 0;
-				synchronized (list_clients) {
-					selected = list_clients.getSelectedIndex();
+				synchronized (list_clientThreads) {
+
+					int selected = 0;
+					synchronized (list_clients) {
+						selected = list_clients.getSelectedIndex();
+					}
+
+					if (selected != -1) {
+
+						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, ""));
+
+					}
+
 				}
-
-				if (selected != -1) {
-
-					disconnectClient(selected);
-
-				}
+				clean();
 
 			}
 
@@ -572,6 +602,25 @@ public class Server {
 
 	}
 
+	public void clean() {
+
+		synchronized (list_clientThreads) {
+
+			int size = list_clientThreads.size();
+			for (int i = 0; i < size; i++) {
+
+				if (i >= 0 && i < list_clientThreads.size() &&
+				    (list_clientThreads.get(i).getDataState().getState() == 300 ||
+				     list_clientThreads.get(i).getDataState().getState() == 400 ||
+				     list_clientThreads.get(i).getDataState().getState() == 500))
+					disconnectClient(i);
+
+			}
+
+		}
+
+	}
+
 	public Server () {
 
 		//Init stuff
@@ -582,11 +631,11 @@ public class Server {
 		//Start the server
 		try {
 
-		    socketChannel = ServerSocketChannel.open();
-		    socketChannel.socket().bind(new InetSocketAddress(PORT));
-			isRunning = true;
-			acceptThread = new AcceptThread();
-			//acceptThread.setDaemon(true);
+		    socket = new ServerSocket();
+		    socket.bind(new InetSocketAddress(PORT));
+			serverIsRunning = true;
+			acceptThread = new AcceptThread(this);
+			acceptThread.setDaemon(true);
 			acceptThread.setName("Accept Thread");
 			acceptThread.start();
 			//gameThread = new Thread(game)

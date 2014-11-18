@@ -1,12 +1,13 @@
 package project2;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.channels.SocketChannel;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -21,7 +22,7 @@ import javax.swing.UIManager;
 **/
 public class Client {
 
-	private SocketChannel socketChannel;
+	private Socket socket;
 	private int port = 4444;
 	private String ip = "";
 	private String username = "";
@@ -39,25 +40,37 @@ public class Client {
 
 			while (isRunning) {
 
-				/*try {
-					Thread.sleep(100l);
+				try {
+					Thread.sleep(16l);
 				}
-				catch (InterruptedException e1) {}*/
+				catch (InterruptedException e1) {}
 
 				try {
 
-					synchronized (oos) {
+					oos.flush();
+					DataPackage dp = null;
+					synchronized(currentState) {
 
-						oos.flush();
-						synchronized(currentState) {
-							oos.writeObject(currentState);
-						}
-						oos.flush();
+						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage());
+						//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
 
 					}
+					oos.writeObject(dp);
+					//System.out.println("AFTER WRITE");
+					oos.flush();
 
-				} 
-				catch (Exception e) {}
+					synchronized(currentState) {
+						if (currentState.getState() != 100)
+							isRunning = false;
+					}
+
+				}
+				catch (IOException e) {
+
+					//System.out.println("WRITE ERROR: " + e.getMessage());
+					isRunning = false;
+
+				}
 
 			}
 
@@ -72,21 +85,23 @@ public class Client {
 
 			while (isRunning) {
 
-				/*try {
-					Thread.sleep(100l);
-				}
-				catch (InterruptedException e1) {}*/
-
 				try {
 
-					synchronized (ois) {
-						synchronized (currentState) {
-							currentState = (DataPackage)ois.readObject();
-						}
+					//System.out.println("BEFRORE READ");
+					DataPackage dp = null;
+					dp = (DataPackage)ois.readObject();
+					synchronized (currentState) {
+						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage());
+						//System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\n");
+						if (currentState.getState() != 100)
+							isRunning = false;
 					}
 
 				} 
-				catch (Exception e) {}
+				catch (IOException|ClassNotFoundException e) {
+					//System.out.println("READ ERROR: " + e.getMessage());
+						isRunning = false;
+				}
 
 			}
 
@@ -110,10 +125,10 @@ public class Client {
 			port = Integer.parseInt(ip.substring(ip.indexOf(":") + 1));
 			ip = ip.substring(0, ip.indexOf(":"));
 
-			socketChannel = SocketChannel.open();
-			socketChannel.socket().connect(new InetSocketAddress(ip, port));
-			oos = new ObjectOutputStream(socketChannel.socket().getOutputStream());
-			ois = new ObjectInputStream(socketChannel.socket().getInputStream());
+			socket = new Socket();
+			socket.connect(new InetSocketAddress(ip, port));
+			oos = new ObjectOutputStream(socket.getOutputStream());
+			ois = new ObjectInputStream(socket.getInputStream());
 
 			boolean nameOkay = false;
 			while (!nameOkay) {
@@ -157,6 +172,10 @@ public class Client {
 
 			}
 			isRunning = false;
+			sendThread.interrupt();
+			sendThread.join(100l);
+			receiveThread.interrupt();
+			receiveThread.join(100l);
 
 		}
 		catch (Exception ex){
