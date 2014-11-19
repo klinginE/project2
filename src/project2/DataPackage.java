@@ -5,9 +5,16 @@ import java.io.Serializable;
 public class DataPackage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	public static final String MSG_100 = "All Good";
+	public static final String MSG_300 = "Client is diconnecting";
+	public static final String MSG_400 = "Server is diconnecting";
+	public static final String MSG_500 = "Server is shutting down";
+
 	private String username = "";
 	private int state = 0;
 	private String message = "";
+	//private Gamestate gameState = null;
 
 	public DataPackage() {
 		super();
@@ -18,6 +25,14 @@ public class DataPackage implements Serializable {
 		this.state = state;
 		setMessage(msg);
 	}
+
+	/*public void setGameState(GameState gs) {
+		gameState = gs;
+	}
+
+	public GameState getGameState() {
+		return gameState;
+	}*/
 
 	public String getUsername() {
 		return username;

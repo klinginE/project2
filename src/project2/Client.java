@@ -52,7 +52,7 @@ public class Client {
 					synchronized(currentState) {
 
 						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage());
-						//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
+						System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
 
 					}
 					oos.writeObject(dp);
@@ -100,7 +100,7 @@ public class Client {
 				} 
 				catch (IOException|ClassNotFoundException e) {
 					//System.out.println("READ ERROR: " + e.getMessage());
-						isRunning = false;
+					isRunning = false;
 				}
 
 			}
@@ -146,7 +146,7 @@ public class Client {
 				oos.flush();
 
 				DataPackage responseData = (DataPackage)ois.readObject();
-				if (responseData.getState() == 100) {
+				if (responseData.getState() == 0) {
 					nameOkay = true;
 				}
 				else if (responseData.getState() == 200)
@@ -176,6 +176,13 @@ public class Client {
 			sendThread.join(100l);
 			receiveThread.interrupt();
 			receiveThread.join(100l);
+			currentState.setState(300);
+			currentState.setMessage(DataPackage.MSG_300);
+			oos.writeObject(currentState);
+			oos.flush();
+			oos.close();
+			ois.close();
+			socket.close();
 
 		}
 		catch (Exception ex){

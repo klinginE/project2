@@ -48,6 +48,9 @@ import javax.swing.UIManager;
 **/
 public class Server {
 
+	public final String MSG_000 = "Welcome to the server";
+	public final String MSG_200 = "Invalid Username";
+
 	// Socket data
 	public final int PORT = 4444;
 	public String ip_4 = "";
@@ -91,7 +94,7 @@ public class Server {
 
 			main = m;
 			socket = s;
-			dataState = new DataPackage(username, 100, "");
+			dataState = new DataPackage(username, 100, DataPackage.MSG_100);
 			this.oos = oos;
 			this.ois = ois;
 
@@ -212,7 +215,7 @@ public class Server {
 								if (clientData.getUsername().toLowerCase().equals(username.toLowerCase())) {
 
 									oos.flush();
-									oos.writeObject(new DataPackage(username, 200, "Username already choosen!"));
+									oos.writeObject(new DataPackage(username, 200, MSG_200));
 									oos.flush();
 									username = "";
 									break;
@@ -227,7 +230,7 @@ public class Server {
 
 					if (count < 2) {
 
-						DataPackage newClientPackage = new DataPackage(username, 100, "Welcome to the server!");
+						DataPackage newClientPackage = new DataPackage(username, 0, MSG_000);
 						oos.flush();
 						oos.writeObject(newClientPackage);
 						oos.flush();
@@ -244,7 +247,7 @@ public class Server {
 					else {
 
 						oos.flush();
-						oos.writeObject(new DataPackage(dp.getUsername(), 400, "Connection failed!"));
+						oos.writeObject(new DataPackage(dp.getUsername(), 400, DataPackage.MSG_400));
 						oos.flush();
 
 					}
@@ -298,7 +301,7 @@ public class Server {
 					//System.out.println("WRITE ERROR: " + e.getMessage());
 					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
-					parrent.getDataState().setMessage("Server clossing Client.");
+					parrent.getDataState().setMessage(DataPackage.MSG_400);
 
 				}
 
@@ -342,7 +345,7 @@ public class Server {
 					//System.out.println("READ ERROR: " + e.getMessage());
 					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
-					parrent.getDataState().setMessage("Server closing client.");
+					parrent.getDataState().setMessage(DataPackage.MSG_400);
 
 				}
 
@@ -366,7 +369,7 @@ public class Server {
 					ct.getDataState().getState() != 400 &&
 					ct.getDataState().getState() != 500) {
 
-					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, "Server is disconnecting the client."));
+					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400));
 
 				}
 				try {
@@ -434,6 +437,7 @@ public class Server {
 
 						for (int i = 0; i < size; i++) {
 
+							list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500));
 							disconnectClient(i);
 
 						}
@@ -492,7 +496,7 @@ public class Server {
 
 					if (selected != -1) {
 
-						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, ""));
+						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400));
 
 					}
 
