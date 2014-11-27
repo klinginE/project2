@@ -52,7 +52,7 @@ public class Client {
 					synchronized(currentState) {
 
 						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage());
-						System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
+						//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
 
 					}
 					oos.writeObject(dp);
