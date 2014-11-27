@@ -48,9 +48,6 @@ import javax.swing.UIManager;
 **/
 public class Server {
 
-	public final String MSG_000 = "Welcome to the server";
-	public final String MSG_200 = "Invalid Username";
-
 	// Socket data
 	public final int PORT = 4444;
 	public String ip_4 = "";
@@ -58,6 +55,10 @@ public class Server {
 	public ServerSocket socket = null;
 
 	// Sever data
+	private final int MAX_CLIENTS = 4;
+	private int numClients = 0;
+	public final String MSG_000 = "Welcome to the server";
+	public final String MSG_200 = "Invalid Username";
 	public CopyOnWriteArrayList<ClientThread> list_clientThreads = null;
 	public JList<String> list_clients = null;
 	public DefaultListModel<String> list_clientsModel = null;
@@ -187,7 +188,10 @@ public class Server {
 				try {
 
 					Socket newClientSocket = null;
+					if (numClients >= MAX_CLIENTS)
+						continue;
 					newClientSocket = socket.accept();
+					numClients++;
 					if (newClientSocket == null)
 						continue;
 
@@ -395,7 +399,8 @@ public class Server {
 				}
 				catch (Exception e) {}
 				list_clientThreads.remove(index);
-	
+				numClients--;
+
 			}
 
 		}
@@ -437,8 +442,12 @@ public class Server {
 
 						for (int i = 0; i < size; i++) {
 
-							list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500));
-							disconnectClient(i);
+							if (i >=  0  && i < list_clientThreads.size()) {
+
+								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500));
+								disconnectClient(i);
+
+							}
 
 						}
 						size = list_clientThreads.size();
