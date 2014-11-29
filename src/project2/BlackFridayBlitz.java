@@ -13,9 +13,9 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final int MAX_WINDOW_WIDTH = 1000;
 	public static final int MAX_WINDOW_HEIGHT = 640;
 	public static final int SINGLE_PLAYER_GAME_STATE_ID = 0;
-	private static final boolean FPS_ON = false;
+	private static final boolean FPS_ON = true;
 
-	public static final String BACKGROUND_PNG = "project2/20141110_100259.png";
+	public static final String BACKGROUND_PNG = "project2/shelves.png";
 	public static final String STANDIN_PLAYER_PNG = "project2/standinPlayer.png";
 
 	public BlackFridayBlitz(String name) {
