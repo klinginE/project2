@@ -171,7 +171,10 @@ public class Client {
 				JOptionPane.showMessageDialog(null, responseData.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
 
 			}
-			isRunning = false;
+			
+			while(isRunning) {
+				Thread.sleep(100l);
+			}
 			sendThread.interrupt();
 			sendThread.join(100l);
 			receiveThread.interrupt();
@@ -191,6 +194,16 @@ public class Client {
 			System.exit(1);
 
 		}
+
+	}
+
+	public void stopClient() {
+		isRunning = false;
+	}
+
+	public String getUsername() {
+
+		return username;
 
 	}
 
