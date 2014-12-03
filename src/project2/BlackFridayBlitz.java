@@ -13,6 +13,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final int MAX_WINDOW_WIDTH = 1000;
 	public static final int MAX_WINDOW_HEIGHT = 640;
 	public static final int SINGLE_PLAYER_GAME_STATE_ID = 0;
+	public static final int MULTI_PLAYER_GAME_STATE_ID = 1;
 	private static final boolean FPS_ON = true;
 
 	public static final String BACKGROUND_PNG = "project2/shelves.png";
@@ -31,6 +32,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		container.setShowFPS(FPS_ON);
 		ResourceManager.loadImage(BACKGROUND_PNG);
 		ResourceManager.loadImage(STANDIN_PLAYER_PNG);
+		//addState(new MultiPlayerGameState());
 		addState(new SinglePlayerGameState());
 
 	}

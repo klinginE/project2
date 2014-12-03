@@ -32,6 +32,20 @@ public class Cart extends Entity {
 		setX(worldX);
 		setY(worldY);
 		jumpY = getY();
+		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
+
+			if (getX() > MAX_SCREEN_X)
+				setX(MAX_SCREEN_X);
+			if (getX() < MIN_SCREEN_X)
+				setX(MIN_SCREEN_X);
+
+		}
+		if (worldX < MIN_WORLD_X) {
+
+			worldX = MIN_WORLD_X;
+			currentSpeed = 0;
+
+		}
 
 	}
 

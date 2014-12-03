@@ -171,18 +171,6 @@ public class Client {
 				JOptionPane.showMessageDialog(null, responseData.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
 
 			}
-			isRunning = false;
-			sendThread.interrupt();
-			sendThread.join(100l);
-			receiveThread.interrupt();
-			receiveThread.join(100l);
-			currentState.setState(300);
-			currentState.setMessage(DataPackage.MSG_300);
-			oos.writeObject(currentState);
-			oos.flush();
-			oos.close();
-			ois.close();
-			socket.close();
 
 		}
 		catch (Exception ex){
@@ -191,6 +179,40 @@ public class Client {
 			System.exit(1);
 
 		}
+
+	}
+
+	public void stopClient() {
+
+		isRunning = false;
+		sendThread.interrupt();
+		try {
+			sendThread.join(100l);
+		}
+		catch (InterruptedException e) {}
+		receiveThread.interrupt();
+		try {
+			receiveThread.join(100l);
+		}
+		catch (InterruptedException e) {}
+		currentState.setState(300);
+		currentState.setMessage(DataPackage.MSG_300);
+		try {
+
+			oos.writeObject(currentState);
+			oos.flush();
+			oos.close();
+			ois.close();
+			socket.close();
+
+		}
+		catch (IOException e) {}
+
+	}
+
+	public String getUsername() {
+
+		return username;
 
 	}
 
