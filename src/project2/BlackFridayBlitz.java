@@ -15,8 +15,11 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final int SINGLE_PLAYER_GAME_STATE_ID = 0;
 	private static final boolean FPS_ON = true;
 
-	public static final String BACKGROUND_PNG = "project2/shelves.png";
-	public static final String STANDIN_PLAYER_PNG = "project2/standinPlayer.png";
+	public static final String BACKGROUND_PNG = "resource/shelves.jpg";
+	public static final String PLAYER1_PNG = "resource/scooterRed.png";
+	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
+	public static final String PLAYER3_PNG = "resource/scooterRobot.png";
+	public static final String PLAYER4_PNG = "resource/scooterPumpkin.png";
 
 	public BlackFridayBlitz(String name) {
 
@@ -30,7 +33,10 @@ public class BlackFridayBlitz extends StateBasedGame {
 
 		container.setShowFPS(FPS_ON);
 		ResourceManager.loadImage(BACKGROUND_PNG);
-		ResourceManager.loadImage(STANDIN_PLAYER_PNG);
+		ResourceManager.loadImage(PLAYER1_PNG);
+		ResourceManager.loadImage(PLAYER2_PNG);
+		ResourceManager.loadImage(PLAYER3_PNG);
+		ResourceManager.loadImage(PLAYER4_PNG);
 		addState(new SinglePlayerGameState());
 
 	}

@@ -18,7 +18,7 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 
-		c = new Cart(BlackFridayBlitz.STANDIN_PLAYER_PNG, 50.0f, 275.0f);
+		c = new Cart(BlackFridayBlitz.PLAYER4_PNG, 50.0f, 275.0f);
 
 	}
 
