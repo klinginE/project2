@@ -34,8 +34,9 @@ public class MultiPlayerGameState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
-		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);		
+		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		float scaleY = screenHeight / (float)background.getHeight();
+		windowX = players.get(0).getPlayerCart().getWorldX();
 		g.translate(-1.0f * (windowX - players.get(0).getPlayerCart().MIN_SCREEN_X), 0.0f);
 		g.scale(1.0f, scaleY);
 		for (int i = 0; i < 40; i++)
@@ -48,7 +49,8 @@ public class MultiPlayerGameState extends BasicGameState {
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-		
+		players.get(0).getPlayerCart().update(container, game, delta);
+		windowX = players.get(0).getPlayerCart().getWorldX();
 	}
 
 	@Override

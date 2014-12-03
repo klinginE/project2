@@ -32,8 +32,8 @@ public class BlackFridayBlitz extends StateBasedGame {
 		container.setShowFPS(FPS_ON);
 		ResourceManager.loadImage(BACKGROUND_PNG);
 		ResourceManager.loadImage(STANDIN_PLAYER_PNG);
-		addState(new MultiPlayerGameState());
-		//addState(new SinglePlayerGameState());
+		//addState(new MultiPlayerGameState());
+		addState(new SinglePlayerGameState());
 
 	}
 

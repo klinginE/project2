@@ -8,7 +8,7 @@ public class Player {
 	public Player() {
 
 		super();
-		playerCart = new Cart(BlackFridayBlitz.STANDIN_PLAYER_PNG, 50.0f, 275.0f);
+		playerCart = new Cart(BlackFridayBlitz.STANDIN_PLAYER_PNG, 0, 275.0f);
 
 	}
 
