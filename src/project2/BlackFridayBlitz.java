@@ -16,7 +16,9 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final int MULTI_PLAYER_GAME_STATE_ID = 1;
 	private static final boolean FPS_ON = true;
 
-	public static final String BACKGROUND_PNG = "resource/shelves.jpg";
+	public static final String BACKGROUND_JPG = "resource/shelves.jpg";
+	public static final String CHECKERED_FLAG_PNG = "resource/checkeredFlag.png";
+	public static final String CHECKOUT_JPG = "resource/storeCheckout.jpg";
 	public static final String PLAYER1_PNG = "resource/scooterRed.png";
 	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
 	public static final String PLAYER3_PNG = "resource/scooterRobot.png";
@@ -33,7 +35,9 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public void initStatesList(GameContainer container) throws SlickException {
 
 		container.setShowFPS(FPS_ON);
-		ResourceManager.loadImage(BACKGROUND_PNG);
+		ResourceManager.loadImage(BACKGROUND_JPG);
+		ResourceManager.loadImage(CHECKERED_FLAG_PNG);
+		ResourceManager.loadImage(CHECKOUT_JPG);
 		ResourceManager.loadImage(PLAYER1_PNG);
 		ResourceManager.loadImage(PLAYER2_PNG);
 		ResourceManager.loadImage(PLAYER3_PNG);

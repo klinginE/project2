@@ -11,13 +11,15 @@ import jig.ResourceManager;
 
 public class Cart extends Entity {
 
-	private final float MAX_SPEED = 1600.0f;
+	private final float MAX_SPEED = 1000.0f;
 	public final float MIN_SCREEN_X = 400.0f;
 	private final float MAX_SCREEN_X = (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - MIN_SCREEN_X;
 	private final float MIN_WORLD_X = MIN_SCREEN_X;
+	private final int MAX_SPEED_UPS = 10;
+	private float BOOST = 10.0f;
 	private float currentSpeed = 0.0f;
 	private float accelerationRate = 4.0f;
-	private float boost = 0.0f;
+	private int numSpeedUps = 0;
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
 	private float jumpY = 0.0f;
@@ -51,7 +53,14 @@ public class Cart extends Entity {
 
 	@Override
 	public void render(Graphics g) {
+
+		if (jumpY > getY())
+			g.rotate(getX(), getY(), 25.0f);
+		if (jumpY < getY())
+			g.rotate(getX(), getY(), -45.0f);
 		super.render(g);
+		g.resetTransform();
+
 	}
 
 	public void setJumpPoint(float jPoint) {
@@ -67,38 +76,52 @@ public class Cart extends Entity {
 
 	}
 
+	public void addSpeedUp() {
+
+		if (numSpeedUps < MAX_SPEED_UPS)
+			numSpeedUps++;
+
+	}
+
 	public void update(GameContainer container, StateBasedGame game, int delta) {
 
 		Input input = container.getInput();
+		float additionalSpeed = 0.0f;
 		if (currentSpeed > MAX_SPEED || input.isKeyDown(Input.KEY_LEFT)) {
+
 			currentSpeed -= accelerationRate;
 			if (currentSpeed < (-1.0f * MAX_SPEED))
 				currentSpeed = (-1.0f * MAX_SPEED);
+
 		}
 		if (currentSpeed < (-1.0f * MAX_SPEED) || input.isKeyDown(Input.KEY_RIGHT)) {
+
+			if (input.isKeyDown(Input.KEY_RIGHT) && currentSpeed >= 500.0f)
+				additionalSpeed = 500.0f;
 			currentSpeed += accelerationRate;
 			if (currentSpeed > MAX_SPEED)
 				currentSpeed = MAX_SPEED;
+
 		}
 		if (getY() > jumpY) {
 
-			setY(getY() - (Math.abs(currentSpeed) * (delta / 1000.0f)));
+			setY(getY() - (accelerationRate * 1.5f));
 			if (getY() < jumpY)
 				setY(jumpY);
 
 		}
 		if (getY() < jumpY) {
 
-			setY(getY() + (Math.abs(currentSpeed) * (delta / 1000.0f)));
+			setY(getY() + (accelerationRate * 2.0f));
 			if (getY() > jumpY)
 				setY(jumpY);
 
 		}
 
-		worldX += ((currentSpeed + boost) * (delta / 1000.0f));
+		worldX += ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f));
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
-			setX(getX() + ((currentSpeed + boost) * (delta / 1000.0f)));
+			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f)));
 			if (getX() > MAX_SCREEN_X)
 				setX(MAX_SCREEN_X);
 			if (getX() < MIN_SCREEN_X)
