@@ -12,8 +12,8 @@ import jig.ResourceManager;
 public class Cart extends Entity {
 
 	private final float MAX_SPEED = 1000.0f;
-	public final float MIN_SCREEN_X = 400.0f;
-	private final float MAX_SCREEN_X = (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - MIN_SCREEN_X;
+	public final float MIN_SCREEN_X = 100.0f;
+	public float MAX_SCREEN_X = 200.0f;
 	private final float MIN_WORLD_X = MIN_SCREEN_X;
 	private final int MAX_SPEED_UPS = 10;
 	private float BOOST = 10.0f;
@@ -140,6 +140,11 @@ public class Cart extends Entity {
 	public float getWorldX() {
 
 		return worldX;
+
+	}
+	public void setWorldX(float wx) {
+
+		worldX = wx;
 
 	}
 
