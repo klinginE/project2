@@ -12,13 +12,13 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class SinglePlayerGameState extends BasicGameState {
 
-	Cart c = null;
+	Player player = null;
 	float windowX = 0.0f;
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 
-		c = new Cart(BlackFridayBlitz.PLAYER4_PNG, 50.0f, 275.0f);
+		player = new Player();
 
 	}
 
@@ -33,26 +33,26 @@ public class SinglePlayerGameState extends BasicGameState {
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);		
 		float scaleY = screenHeight / (float)background.getHeight();
-		g.translate(-1.0f * (windowX - c.MIN_SCREEN_X), 0.0f);
+		g.translate(-1.0f * (windowX - player.getPlayerCart().MIN_SCREEN_X), 0.0f);
 		g.scale(1.0f, scaleY);
 		for (int i = 0; i < 40; i++)
 			g.drawImage(background, i * background.getWidth(), 0.0f);
 		g.scale(1.0f, 1.0f/scaleY);
-		g.translate((windowX - c.MIN_SCREEN_X), 0.0f);
-		c.render(g);
+		g.translate((windowX - player.getPlayerCart().MIN_SCREEN_X), 0.0f);
+		player.getPlayerCart().render(g);
 
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 
-		c.update(container, game, delta); 
-		windowX = c.getWorldX();
+		player.getPlayerCart().update(container, game, delta); 
+		windowX = player.getPlayerCart().getWorldX();
 		Input input = container.getInput();
-		if (input.isKeyPressed(Input.KEY_UP) && c.getY() == c.getJumpPoint())
-			c.setJumpPoint(c.getY() - 175.0f);
-		if (input.isKeyPressed(Input.KEY_DOWN) && c.getY() == c.getJumpPoint())
-			c.setJumpPoint(c.getY() + 175.0f);
+		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint())
+			player.getPlayerCart().setJumpPoint(player.getPlayerCart().getY() - 175.0f);
+		if (input.isKeyPressed(Input.KEY_DOWN) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint())
+			player.getPlayerCart().setJumpPoint(player.getPlayerCart().getY() + 175.0f);
 
 	}
 
