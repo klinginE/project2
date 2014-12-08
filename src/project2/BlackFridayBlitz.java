@@ -16,11 +16,12 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final int MENU_STATE = 1;
 	public static final int SINGLE_PLAYER_GAME_STATE_ID = 2;
 	public static final int MULTI_PLAYER_GAME_STATE_ID = 3;
-	public static final int RESULTS_STATE = 4;
+	public static final int SP_RESULTS_STATE = 4;
+	public static final int MP_RESULTS_STATE = 5;
 	
 	private static final boolean FPS_ON = true;
 
-	public static final String BACKGROUND_JPG = "resource/shelves.jpg";
+	public static final String BACKGROUND_JPG = "resource/shelf.png";
 	public static final String CHECKERED_FLAG_PNG = "resource/checkeredFlag.png";
 	public static final String CHECKOUT_JPG = "resource/Self-Checkout.jpg";
 	public static final String TRAFFICLIGHT_PNG = "resource/trafficlight.png";
@@ -57,7 +58,8 @@ public class BlackFridayBlitz extends StateBasedGame {
 		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
 		//addState(new MultiPlayerGameState());
-
+		addState(new SinglePlayerResultsState());
+		//addState(new MultiPlayerResultsState());
 	}
 
 	public static void main(String[] args) {

@@ -672,7 +672,6 @@ public class Server {
 		}
 		catch(Exception ex) {}
 		new Server();
-		new BlackFridayBlitzServer();
 
 	}
 

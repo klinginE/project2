@@ -14,7 +14,10 @@ public class SinglePlayerGameState extends BasicGameState {
 
 	private Player player = null;
 	private long timer = 0;
+	private long pauseTimer;
+	private float finalTime;
 	private int cart;
+	private int finish = 0;
 	
 	public void setPlayer(int c){
 		cart = c;
@@ -95,10 +98,20 @@ public class SinglePlayerGameState extends BasicGameState {
 		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 			player.getPlayerCart().setJumpPoint(400.0f);
 		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128) {
+			if (finish == 0) {
+				finish = 1;
+			finalTime = timer;
+			pauseTimer = timer + 3000;
+			}
+			if (timer > pauseTimer){
+				((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(player, finalTime);
+			}
 			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
 			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128);
 			return;
 		}
+		
+		
 
 		Input input = container.getInput();
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint())
