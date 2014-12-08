@@ -95,7 +95,7 @@ public class Server {
 
 			main = m;
 			socket = s;
-			dataState = new DataPackage(username, 100, DataPackage.MSG_100);
+			dataState = new DataPackage(username, 100, DataPackage.MSG_100, new GameState());
 			this.oos = oos;
 			this.ois = ois;
 
@@ -219,7 +219,7 @@ public class Server {
 								if (clientData.getUsername().toLowerCase().equals(username.toLowerCase())) {
 
 									oos.flush();
-									oos.writeObject(new DataPackage(username, 200, MSG_200));
+									oos.writeObject(new DataPackage(username, 200, MSG_200, null));
 									oos.flush();
 									username = "";
 									break;
@@ -234,7 +234,7 @@ public class Server {
 
 					if (count < 2) {
 
-						DataPackage newClientPackage = new DataPackage(username, 0, MSG_000);
+						DataPackage newClientPackage = new DataPackage(username, 0, MSG_000, null);
 						oos.flush();
 						oos.writeObject(newClientPackage);
 						oos.flush();
@@ -251,7 +251,7 @@ public class Server {
 					else {
 
 						oos.flush();
-						oos.writeObject(new DataPackage(dp.getUsername(), 400, DataPackage.MSG_400));
+						oos.writeObject(new DataPackage(dp.getUsername(), 400, DataPackage.MSG_400, null));
 						oos.flush();
 
 					}
@@ -291,7 +291,7 @@ public class Server {
 					//System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\n");
 					DataPackage dp = null;
 					synchronized (parrent) {
-						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage());
+						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage(), parrent.getDataState().getGameState());
 					}
 					parrent.getOos().writeObject(dp);
 					//System.out.println("AFTER WRITE");
@@ -338,7 +338,7 @@ public class Server {
 
 					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\n");
 					synchronized (parrent) {
-						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage()));
+						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState()));
 					}
 					if (parrent.getDataState().getState() != 100)
 						parrent.clientIsRunning = false;
@@ -373,7 +373,7 @@ public class Server {
 					ct.getDataState().getState() != 400 &&
 					ct.getDataState().getState() != 500) {
 
-					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400));
+					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400, ct.getDataState().getGameState()));
 
 				}
 				try {
@@ -444,7 +444,7 @@ public class Server {
 
 							if (i >=  0  && i < list_clientThreads.size()) {
 
-								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500));
+								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500, list_clientThreads.get(i).getDataState().getGameState()));
 								disconnectClient(i);
 
 							}
@@ -505,7 +505,7 @@ public class Server {
 
 					if (selected != -1) {
 
-						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400));
+						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400, list_clientThreads.get(selected).getDataState().getGameState()));
 
 					}
 
@@ -672,6 +672,7 @@ public class Server {
 		}
 		catch(Exception ex) {}
 		new Server();
+		new BlackFridayBlitzServer();
 
 	}
 

@@ -45,6 +45,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER3_PNG);
 		ResourceManager.loadImage(PLAYER4_PNG);
 		addState(new SinglePlayerGameState());
+		//addState(new MultiPlayerGameState());
 
 	}
 
