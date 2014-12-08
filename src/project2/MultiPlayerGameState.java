@@ -20,7 +20,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 
 		players = new ArrayList<Player>();
-		players.add(new Player());
+		//players.add(new Player());
 		players.get(0).connectToServer();
 
 	}

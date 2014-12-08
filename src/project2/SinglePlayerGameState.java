@@ -14,17 +14,21 @@ public class SinglePlayerGameState extends BasicGameState {
 
 	private Player player = null;
 	private long timer = 0;
+	private int cart;
+	
+	public void setPlayer(int c){
+		cart = c;
+		return;
+	}
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-
-		player = new Player();
 
 	}
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
-
+		player = new Player(cart);
 	}
 
 	@Override
