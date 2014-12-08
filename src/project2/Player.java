@@ -8,7 +8,7 @@ public class Player {
 	public Player() {
 
 		super();
-		playerCart = new Cart(BlackFridayBlitz.STANDIN_PLAYER_PNG, 0, 275.0f);
+		playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
 
 	}
 
@@ -17,6 +17,12 @@ public class Player {
 		if (playerClient != null)
 			return playerClient.getUsername();
 		return "";
+
+	}
+
+	public void resetCart() {
+
+		playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
 
 	}
 
