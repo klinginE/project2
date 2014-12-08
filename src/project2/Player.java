@@ -5,10 +5,10 @@ public class Player {
 	private Cart playerCart = null;
 	private Client playerClient = null;
 
-	public Player() {
+	public Player(float y) {
 
 		super();
-		playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
+		playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, y);
 
 	}
 

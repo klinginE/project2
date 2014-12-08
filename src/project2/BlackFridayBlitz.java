@@ -20,6 +20,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String CHECKERED_FLAG_PNG = "resource/checkeredFlag.png";
 	public static final String CHECKOUT_JPG = "resource/Self-Checkout.jpg";
 	public static final String TRAFFICLIGHT_PNG = "resource/trafficlight.png";
+	public static final String SPEEDUP_PNG = "resource/speedup.png";
 	public static final String PLAYER1_PNG = "resource/scooterRed.png";
 	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
 	public static final String PLAYER3_PNG = "resource/scooterRobot.png";

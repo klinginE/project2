@@ -19,6 +19,7 @@ public class Cart extends Entity {
 	private float BOOST = 10.0f;
 	private float currentSpeed = 0.0f;
 	private float accelerationRate = 4.0f;
+	private float decelerationRate = 16.0f;
 	private int numSpeedUps = 0;
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
@@ -65,7 +66,6 @@ public class Cart extends Entity {
 
 	public void setJumpPoint(float jPoint) {
 
-		if (jPoint >= 100 && jPoint <= 450)
 			jumpY = jPoint;
 
 	}
@@ -87,21 +87,29 @@ public class Cart extends Entity {
 
 		Input input = container.getInput();
 		float additionalSpeed = 0.0f;
-		if (currentSpeed > MAX_SPEED || input.isKeyDown(Input.KEY_LEFT)) {
+		if (currentSpeed > MAX_SPEED)
+			currentSpeed = MAX_SPEED;
+		if (currentSpeed < (-1.0f * MAX_SPEED))
+			currentSpeed = (-1.0f * MAX_SPEED);
 
-			currentSpeed -= accelerationRate;
-			if (currentSpeed < (-1.0f * MAX_SPEED))
-				currentSpeed = (-1.0f * MAX_SPEED);
-
+			if(input.isKeyDown(Input.KEY_LEFT)) {
+				if(currentSpeed > 0) 
+					currentSpeed -= decelerationRate;
+				else currentSpeed -= accelerationRate;
+			}
+			
+	
+		if (input.isKeyDown(Input.KEY_RIGHT)) {
+			if(currentSpeed < 0)
+				currentSpeed += decelerationRate;
+			else currentSpeed +=  accelerationRate;
+		
 		}
-		if (currentSpeed < (-1.0f * MAX_SPEED) || input.isKeyDown(Input.KEY_RIGHT)) {
-
-			if (input.isKeyDown(Input.KEY_RIGHT) && currentSpeed >= 500.0f)
-				additionalSpeed = 500.0f;
-			currentSpeed += accelerationRate;
-			if (currentSpeed > MAX_SPEED)
-				currentSpeed = MAX_SPEED;
-
+		if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
+			if(currentSpeed > 0)
+				currentSpeed -= accelerationRate;
+			else currentSpeed += accelerationRate;
+			
 		}
 		if (getY() > jumpY) {
 
