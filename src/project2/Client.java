@@ -51,7 +51,7 @@ public class Client {
 					DataPackage dp = null;
 					synchronized(currentState) {
 
-						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage());
+						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameState());
 						//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
 
 					}
@@ -91,7 +91,7 @@ public class Client {
 					DataPackage dp = null;
 					dp = (DataPackage)ois.readObject();
 					synchronized (currentState) {
-						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage());
+						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState());
 						//System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\n");
 						if (currentState.getState() != 100)
 							isRunning = false;
@@ -109,7 +109,7 @@ public class Client {
 
 	}
 
-	public Client() {
+	public Client(GameState initGameState) {
 
 		try {
 
@@ -142,7 +142,7 @@ public class Client {
 					continue;
 
 				oos.flush();
-				oos.writeObject(new DataPackage(username, 100, ""));
+				oos.writeObject(new DataPackage(username, 100, "", null));
 				oos.flush();
 
 				DataPackage responseData = (DataPackage)ois.readObject();
@@ -159,7 +159,7 @@ public class Client {
 				if (nameOkay) {
 
 					isRunning = true;
-					currentState = new DataPackage(username, 100, "");
+					currentState = new DataPackage(username, 100, "", initGameState);
 					sendThread = new SendThread();
 					sendThread.setName("Client Send Thread");
 					sendThread.start();
@@ -216,13 +216,19 @@ public class Client {
 
 	}
 
+	public DataPackage getCurrentState() {
+
+		return currentState;
+
+	}
+
 	public static void main(String[] args) {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch(Exception ex) {}
-		new Client();
+		new Client(null);
 
 	}
 

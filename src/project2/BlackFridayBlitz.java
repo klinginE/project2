@@ -23,6 +23,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String BACKGROUND_JPG = "resource/shelves.jpg";
 	public static final String CHECKERED_FLAG_PNG = "resource/checkeredFlag.png";
 	public static final String CHECKOUT_JPG = "resource/Self-Checkout.jpg";
+	public static final String TRAFFICLIGHT_PNG = "resource/trafficlight.png";
 	public static final String PLAYER1_PNG = "resource/scooterRed.png";
 	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
 	public static final String PLAYER3_PNG = "resource/scooterRobot.png";
@@ -44,6 +45,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		container.setShowFPS(FPS_ON);
 		ResourceManager.loadImage(BACKGROUND_JPG);
 		ResourceManager.loadImage(CHECKERED_FLAG_PNG);
+		ResourceManager.loadImage(TRAFFICLIGHT_PNG);
 		ResourceManager.loadImage(CHECKOUT_JPG);
 		ResourceManager.loadImage(PLAYER1_PNG);
 		ResourceManager.loadImage(PLAYER2_PNG);
@@ -54,6 +56,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		addState(new TitleState());
 		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
+		//addState(new MultiPlayerGameState());
 
 	}
 

@@ -28,6 +28,12 @@ public class Player {
 
 	}
 
+	public Client getPlayerClient() {
+
+		return playerClient;
+
+	}
+
 	public void resetCart() {
 
 		playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
@@ -42,8 +48,13 @@ public class Player {
 
 	public void connectToServer() {
 
-		if (playerClient == null)
-			playerClient = new Client();
+		if (playerClient == null) {
+
+			GameState gs = new GameState();
+			gs.addCart(playerCart);
+			playerClient = new Client(gs);
+
+		}
 
 	}
 
