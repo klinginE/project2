@@ -13,7 +13,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class SinglePlayerGameState extends BasicGameState {
 
 	private Player player = null;
-	private long timer = 0;
+	private long timmer = 0;
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
@@ -49,6 +49,15 @@ public class SinglePlayerGameState extends BasicGameState {
 			g.drawImage(background, (float)(i * background.getWidth()), 0.0f);
 		g.scale(1.0f, 1.0f/scaleY);
 
+		if (timmer <= 1000)
+			g.drawImage(ResourceManager.getImage(BlackFridayBlitz.TRAFFICLIGHT_PNG).getSubImage(0, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
+		if (timmer > 1000 && timmer <= 2000)
+			g.drawImage(ResourceManager.getImage(BlackFridayBlitz.TRAFFICLIGHT_PNG).getSubImage(32, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
+		if (timmer > 2000 && timmer <= 3000)
+			g.drawImage(ResourceManager.getImage(BlackFridayBlitz.TRAFFICLIGHT_PNG).getSubImage(64, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
+		if (timmer > 3000)
+			g.drawImage(ResourceManager.getImage(BlackFridayBlitz.TRAFFICLIGHT_PNG).getSubImage(96, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
+
 		// Draw flag
 		g.drawImage(flag, (float)(numPannels * background.getWidth()), 0.0f);
 
@@ -61,7 +70,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		g.resetTransform();
 
 		// Print time
-		g.drawString("Time: " + timer / 1000 + " sec", (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
+		g.drawString("Time: " + timmer / 1000 + " sec", (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
 
 		// Draw the player
 		player.getPlayerCart().render(g);
@@ -71,19 +80,21 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 
-		timer += (long)delta;
-		if (timer < 3000l)
+		timmer += (long)delta;
+		if (timmer < 3000l) {
+			container.getInput().clearControlPressedRecord();
+			container.getInput().clearKeyPressedRecord();
 			return;
+		}
 		player.getPlayerCart().update(container, game, delta);
-		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 256) {
+		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 			player.getPlayerCart().setJumpPoint(400.0f);
-			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 350;
-		}
-		float scaleY = (float)(BlackFridayBlitz.MAX_WINDOW_WIDTH / (float)ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG).getHeight());
-		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 256 + ((float)ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG).getWidth() / scaleY)) {
-			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 256 + ((float)ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG).getWidth() / scaleY));
+		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128) {
+			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
+			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128);
 			return;
 		}
+
 		Input input = container.getInput();
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint())
 			player.getPlayerCart().setJumpPoint(player.getPlayerCart().getY() - 175.0f);
