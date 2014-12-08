@@ -7,6 +7,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/home/ericklinginsmith/git/JIG-readonly/lib/lwjgl-2.9.0/native/linux"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/ericklinginsmith/git/JIG-readonly/lib/slick.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kaden/git/jig/lib/slick.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
