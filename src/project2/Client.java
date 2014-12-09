@@ -51,8 +51,8 @@ public class Client {
 					DataPackage dp = null;
 					synchronized(currentState) {
 
-						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameState());
-						//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
+						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameData());
+						System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
 
 					}
 					oos.writeObject(dp);
@@ -91,8 +91,8 @@ public class Client {
 					DataPackage dp = null;
 					dp = (DataPackage)ois.readObject();
 					synchronized (currentState) {
-						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState());
-						//System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\n");
+						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameData());
+						System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\n");
 						if (currentState.getState() != 100)
 							isRunning = false;
 					}
@@ -112,6 +112,11 @@ public class Client {
 	public Client(GameState initGameState) {
 
 		try {
+
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			}
+			catch(Exception ex) {}
 
 			String local;
 			try {
@@ -179,6 +184,8 @@ public class Client {
 			System.exit(1);
 
 		}
+		while(isRunning);
+		stopClient();
 
 	}
 
@@ -219,6 +226,22 @@ public class Client {
 	public DataPackage getCurrentState() {
 
 		return currentState;
+
+	}
+
+	public Object getGameData() {
+
+		return currentState.getGameData();
+
+	}
+
+	public void setGameData(Object data) {
+
+		synchronized(currentState) {
+
+			currentState.setGameData(data);
+
+		}
 
 	}
 
