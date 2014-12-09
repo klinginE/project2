@@ -12,12 +12,16 @@ import org.newdawn.slick.state.StateBasedGame;
 public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
+	
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 
-		player = new Player();
-	    player.connectToServer();
+
+	//players = new ArrayList<Player>();
+	//players.add(new Player());
+	//players.get(0).connectToServer();
+
 
 	}
 
@@ -33,7 +37,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		Cart myCart = gameState.playerCarts.get(player.getUsername());
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
-		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_JPG);
+		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);

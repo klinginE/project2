@@ -5,10 +5,18 @@ public class Player {
 	private Cart playerCart = null;
 	private Client playerClient = null;
 
-	public Player() {
+	public Player(int cart) {
 
 		super();
-		playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
+		if (cart == 0){
+			playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
+		} else if (cart == 1){
+			playerCart = new Cart(BlackFridayBlitz.PLAYER2_PNG, 0, 275.0f);
+		} else if (cart == 2){
+			playerCart = new Cart(BlackFridayBlitz.PLAYER3_PNG, 0, 275.0f);
+		} else if (cart == 3){
+			playerCart = new Cart(BlackFridayBlitz.PLAYER4_PNG, 0, 275.0f);
+		}
 
 	}
 
