@@ -15,7 +15,7 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Player player = null;
 	private long timer = 0;
 	private long pauseTimer;
-	private float finalTime;
+	private long finalTime;
 	private int cart;
 	private int finish = 0;
 	
@@ -33,6 +33,8 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 		player = new Player(cart);
+		timer = 0;
+		finish = 0;
 	}
 
 	@Override
@@ -40,7 +42,7 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
-		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_JPG);
+		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
@@ -101,10 +103,12 @@ public class SinglePlayerGameState extends BasicGameState {
 			if (finish == 0) {
 				finish = 1;
 			finalTime = timer;
+			System.out.print(timer);
 			pauseTimer = timer + 3000;
 			}
 			if (timer > pauseTimer){
-				((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(player, finalTime);
+				((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(cart, finalTime);
+				game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
 			}
 			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
 			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128);

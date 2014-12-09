@@ -36,7 +36,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		GameState gameState = player.getPlayerClient().getCurrentState().getGameState();
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
-		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_JPG);
+		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);

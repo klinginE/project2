@@ -13,9 +13,11 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class TitleState extends BasicGameState {
+	Image bg;
 	Image button;
 	Image button2;
 	Image title;
+	Image back;
 	Image[] cartImg;
 	int players = 0;
 	int cart = 0;
@@ -30,6 +32,8 @@ public class TitleState extends BasicGameState {
 		@Override
 		public void init(GameContainer container, StateBasedGame game)
 				throws SlickException {
+			bg = new Image(BlackFridayBlitz.TITLEBG_JPG);
+			back = new Image(BlackFridayBlitz.BACK_PNG);
 			button = new Image(BlackFridayBlitz.BUTTON_PNG);
 			button2 = new Image(BlackFridayBlitz.BUTTON2_PNG);
 			title = new Image(BlackFridayBlitz.TITLE_PNG);
@@ -43,12 +47,14 @@ public class TitleState extends BasicGameState {
 		
 		@Override
 		public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+			bg.draw(0,0);
 			title.draw(175, 50);
 			button.draw(415,300);			
 			button2.draw(340, 500);
 			g.setColor(myColor);
 			if (players == 0){
 				g.drawString("Single Player", 430, 310);
+				back.draw(445, 390);
 				cartImg[cart].draw(470, 400);				
 			} else {
 				g.drawString("Multi Player", 435,310);
