@@ -67,6 +67,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		//addState(new MultiPlayerGameState());
 		addState(new SinglePlayerResultsState());
 		//addState(new MultiPlayerResultsState());
+
 	}
 
 	public static void main(String[] args) {
