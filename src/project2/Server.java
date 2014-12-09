@@ -142,7 +142,7 @@ public class Server {
 
 		private ReceiveThread receiveThread = null;
 		private SendThread sendThread = null;
-		private GameThread gameThreadReference = null;
+		//private GameThread gameThreadReference = null;
 
 		private DataPackage dataState = null;
 
@@ -151,7 +151,7 @@ public class Server {
 
 		protected volatile boolean clientIsRunning = false;
 
-		public ClientThread(Socket s, String username, ObjectOutputStream oos, ObjectInputStream ois, Server m, GameThread game) {
+		public ClientThread(Socket s, String username, ObjectOutputStream oos, ObjectInputStream ois, Server m) {
 
 			main = m;
 			socket = s;
@@ -167,7 +167,7 @@ public class Server {
 			receiveThread.setName("Receive Thread");
 			receiveThread.setDaemon(true);
 
-			gameThreadReference = game;
+			//gameThreadReference = game;
 
 			clientIsRunning = true;
 
@@ -210,7 +210,7 @@ public class Server {
 			synchronized (this.dataState) {
 				this.dataState = dataState;
 				System.out.println(this.dataState.getGameData());
-				gameThreadReference.setGameState((GameState)this.dataState.getGameData());
+				//gameThreadReference.setGameState((GameState)this.dataState.getGameData());
 			}
 		}
 
@@ -239,13 +239,13 @@ public class Server {
     private class AcceptThread extends Thread {
 
     	private Server main = null;
-    	private GameThread gameThread = null;
+    	//private GameThread gameThread = null;
 
-		public AcceptThread(Server m, GameThread game) {
+		public AcceptThread(Server m) {
 
 			super();
 			main = m;
-			gameThread = game;
+			//gameThread = game;
 
 		}
 
@@ -311,7 +311,7 @@ public class Server {
 						synchronized (list_clientsModel) {
 							list_clientsModel.addElement(dp.getUsername() + " - " + newClientSocket.getInetAddress().getHostAddress() + " - " + newClientSocket.getInetAddress().getHostName());
 						}
-						ClientThread newClient = new ClientThread(newClientSocket, username, oos, ois, main, gameThread);
+						ClientThread newClient = new ClientThread(newClientSocket, username, oos, ois, main);
 						newClient.setName("Client Thread");
 						newClient.start();
 						list_clientThreads.add(newClient);
@@ -716,9 +716,9 @@ public class Server {
 		    socket = new ServerSocket();
 		    socket.bind(new InetSocketAddress(PORT));
 			serverIsRunning = true;
-			gameThread = new GameThread();
-			gameThread.start();
-			acceptThread = new AcceptThread(this, gameThread);
+			//gameThread = new GameThread();
+			//gameThread.start();
+			acceptThread = new AcceptThread(this);
 			acceptThread.setDaemon(true);
 			acceptThread.setName("Accept Thread");
 			acceptThread.start();
