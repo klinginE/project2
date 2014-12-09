@@ -39,17 +39,18 @@ public class SinglePlayerResultsState extends BasicGameState {
 	@Override
 	public void enter(GameContainer arg0, StateBasedGame arg1)
 			throws SlickException {
-
-			try {
-				awtFont = Font.createFont(java.awt.Font.TRUETYPE_FONT, ResourceLoader.getResourceAsStream(BlackFridayBlitz.RECEIPT_FONT));
-				awtFont = awtFont.deriveFont(java.awt.Font.PLAIN, 12);
-			} catch (FontFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+		bg = new Image(BlackFridayBlitz.CHECKOUT_JPG);
+		try {
+			awtFont = Font.createFont(java.awt.Font.TRUETYPE_FONT, ResourceLoader.getResourceAsStream(BlackFridayBlitz.RECEIPT_FONT));
+			awtFont = awtFont.deriveFont(java.awt.Font.PLAIN, 12);
+		} catch (FontFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 			
 		font = new UnicodeFont(awtFont);
 		font.addAsciiGlyphs();
@@ -65,6 +66,7 @@ public class SinglePlayerResultsState extends BasicGameState {
 	@Override
 	public void render(GameContainer c, StateBasedGame arg1, Graphics g)
 			throws SlickException {
+		bg.draw(0,0);
 		receipt.draw(348, 25);
 		g.setFont(font);
 		if (player == 0){
