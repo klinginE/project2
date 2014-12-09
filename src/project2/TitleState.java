@@ -78,7 +78,7 @@ public class TitleState extends BasicGameState {
 				}
 			}
 			
-			if (((posX > 470) && (posX < 470 + 80)) && ((posY > 400) && (posY < 400 + 80))){
+			if (((posX > 445) && (posX < 545)) && ((posY > 390) && (posY < 490))){
 				if (players == 0){
 					if (container.getInput().isMousePressed(0)){
 						if (cart < 3){
