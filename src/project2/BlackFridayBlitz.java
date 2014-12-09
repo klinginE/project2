@@ -12,8 +12,12 @@ public class BlackFridayBlitz extends StateBasedGame {
 
 	public static final int MAX_WINDOW_WIDTH = 1000;
 	public static final int MAX_WINDOW_HEIGHT = 640;
-	public static final int SINGLE_PLAYER_GAME_STATE_ID = 0;
-	public static final int MULTI_PLAYER_GAME_STATE_ID = 1;
+	public static final int TITLE_STATE = 0;
+	public static final int MENU_STATE = 1;
+	public static final int SINGLE_PLAYER_GAME_STATE_ID = 2;
+	public static final int MULTI_PLAYER_GAME_STATE_ID = 3;
+	public static final int RESULTS_STATE = 4;
+	
 	private static final boolean FPS_ON = true;
 
 	public static final String BACKGROUND_JPG = "resource/shelves.jpg";
@@ -25,6 +29,9 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
 	public static final String PLAYER3_PNG = "resource/scooterRobot.png";
 	public static final String PLAYER4_PNG = "resource/scooterPumpkin.png";
+	public static final String TITLE_PNG = "resource/logo.png";
+	public static final String BUTTON_PNG = "resource/button.png";
+	public static final String BUTTON2_PNG = "resource/button2.png";
 
 	public BlackFridayBlitz(String name) {
 
@@ -45,6 +52,10 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER2_PNG);
 		ResourceManager.loadImage(PLAYER3_PNG);
 		ResourceManager.loadImage(PLAYER4_PNG);
+		ResourceManager.loadImage(TITLE_PNG);
+		ResourceManager.loadImage(BUTTON_PNG);
+		addState(new TitleState());
+		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
 		//addState(new MultiPlayerGameState());
 

@@ -12,6 +12,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
+	
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
