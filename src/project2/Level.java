@@ -28,7 +28,7 @@ public class Level {
 		numXpixels = length*1000; 
 		int spawnPoints = numXpixels/250;
 		
-		for(int i = 0; i < platformY.size(); i++) {
+		/*for(int i = 0; i < platformY.size(); i++) {
 			for(int j = 0; i < spawnPoints; j++) {
 				int randomNumber = random.nextInt(100);	
 				if(randomNumber >= 75 && randomNumber < 85)
@@ -37,7 +37,7 @@ public class Level {
 					//powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, i*numXpixels, platformY.get(i)));
 					;
 			}
-		}	
+		}	*/
 	}
 
 	public ArrayList<Speedup> getSpeedups() {
