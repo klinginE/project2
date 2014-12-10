@@ -1,6 +1,7 @@
 package project2;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Level {
@@ -25,16 +26,16 @@ public class Level {
 		
 		//speedups.add(new Speedup(BlackFridayBlitz.SPEEDUP_PNG, 800, platformY.get(1)));
 		numXpixels = length*1000; 
-		spawnPoints = numXpixels/250;
+		int spawnPoints = numXpixels/250;
 		
 		for(int i = 0; i < platformY.size(); i++) {
 			for(int j = 0; i < spawnPoints; j++) {
 				int randomNumber = random.nextInt(100);	
 				if(randomNumber >= 75 && randomNumber < 85)
-					speedups.add(BlackFridayBlitz.SPEEDUP_PNG, i*numXPixels, platformY.get(i));
+					speedups.add( new Speedup(BlackFridayBlitz.SPEEDUP_PNG, i*numXpixels, platformY.get(i)));
 				if(randomNumber >= 85 && randomNumber < 100)
-					//powerups.add(BlackFridayBlitz.POWERUP_PNG, i*numXPixels, platformY.get(randomPlat));
-					
+					//powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, i*numXpixels, platformY.get(i)));
+					;
 			}
 		}	
 	}

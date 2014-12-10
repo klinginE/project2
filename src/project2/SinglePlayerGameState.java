@@ -31,13 +31,13 @@ public class SinglePlayerGameState extends BasicGameState {
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 		platform = 1;
 		level = new Level(10);
-		player = new Player(level.platformY.get(platform));
+		player = new Player(level.platformY.get(platform), cart);
 		
 	}
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
-		player = new Player(cart);
+		player = new Player(level.platformY.get(platform), cart);
 	}
 
 	@Override

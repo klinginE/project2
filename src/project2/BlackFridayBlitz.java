@@ -47,6 +47,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(BACKGROUND_JPG);
 		ResourceManager.loadImage(CHECKERED_FLAG_PNG);
 		ResourceManager.loadImage(TRAFFICLIGHT_PNG);
+		ResourceManager.loadImage(SPEEDUP_PNG);
 		ResourceManager.loadImage(CHECKOUT_JPG);
 		ResourceManager.loadImage(PLAYER1_PNG);
 		ResourceManager.loadImage(PLAYER2_PNG);
