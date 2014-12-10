@@ -17,11 +17,8 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 
-
-	//players = new ArrayList<Player>();
-	//players.add(new Player());
-	//players.get(0).connectToServer();
-
+		//player = new Player();
+	    player.connectToServer();
 
 	}
 

@@ -6,17 +6,18 @@ public class Player {
 	private Client playerClient = null;
 	private Powerup powerup;
 
-	public Player(int cart) {
+	public Player(float y, int cart) {
 
 		super();
+
 		if (cart == 0){
-			playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, 275.0f);
+			playerCart = new Cart(BlackFridayBlitz.PLAYER1_PNG, 0, y);
 		} else if (cart == 1){
-			playerCart = new Cart(BlackFridayBlitz.PLAYER2_PNG, 0, 275.0f);
+			playerCart = new Cart(BlackFridayBlitz.PLAYER2_PNG, 0, y);
 		} else if (cart == 2){
-			playerCart = new Cart(BlackFridayBlitz.PLAYER3_PNG, 0, 275.0f);
+			playerCart = new Cart(BlackFridayBlitz.PLAYER3_PNG, 0, y);
 		} else if (cart == 3){
-			playerCart = new Cart(BlackFridayBlitz.PLAYER4_PNG, 0, 275.0f);
+			playerCart = new Cart(BlackFridayBlitz.PLAYER4_PNG, 0, y);
 		}
 	}
 
