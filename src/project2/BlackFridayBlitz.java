@@ -11,7 +11,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class BlackFridayBlitz extends StateBasedGame {
 
 	public static final int MAX_WINDOW_WIDTH = 1000;
-	public static final int MAX_WINDOW_HEIGHT = 640;
+	public static final int MAX_WINDOW_HEIGHT = 740;
 	public static final int TITLE_STATE = 0;
 	public static final int MENU_STATE = 1;
 	public static final int SINGLE_PLAYER_GAME_STATE_ID = 2;
@@ -26,6 +26,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String CHECKERED_FLAG_PNG = "resource/checkeredFlag.png";
 	public static final String CHECKOUT_JPG = "resource/Self-Checkout.jpg";
 	public static final String TRAFFICLIGHT_PNG = "resource/trafficlight.png";
+	public static final String SPEEDUP_PNG = "resource/speedup.png";
 	public static final String PLAYER1_PNG = "resource/scooterRed.png";
 	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
 	public static final String PLAYER3_PNG = "resource/scooterRobot.png";
@@ -51,6 +52,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(BACKGROUND_PNG);
 		ResourceManager.loadImage(CHECKERED_FLAG_PNG);
 		ResourceManager.loadImage(TRAFFICLIGHT_PNG);
+		ResourceManager.loadImage(SPEEDUP_PNG);
 		ResourceManager.loadImage(CHECKOUT_JPG);
 		ResourceManager.loadImage(PLAYER1_PNG);
 		ResourceManager.loadImage(PLAYER2_PNG);

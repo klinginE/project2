@@ -67,19 +67,19 @@ public class SinglePlayerResultsState extends BasicGameState {
 	public void render(GameContainer c, StateBasedGame arg1, Graphics g)
 			throws SlickException {
 		bg.draw(0,0);
-		receipt.draw(348, 25);
+		receipt.draw(348, 100);
 		g.setFont(font);
 		if (player == 0){
-			g.drawString("Grandpa", 393, 215);
+			g.drawString("Grandpa", 393, 290);
 		} else if (player == 1) {
-			g.drawString("Zombie", 393, 215);
+			g.drawString("Zombie", 393, 290);
 		} else if (player == 2) {
-			g.drawString("Robot", 393, 215);
+			g.drawString("Robot", 393, 290);
 		} else if (player == 3) {
-			g.drawString("Scarecrow", 393, 215);
+			g.drawString("Scarecrow", 393, 290);
 		}
 		
-		g.drawString(finalTime, 473, 215);
+		g.drawString(finalTime, 473, 290);
 		
 	}
 
@@ -88,7 +88,7 @@ public class SinglePlayerResultsState extends BasicGameState {
 		BlackFridayBlitz bb = (BlackFridayBlitz)game;
 		int posX = container.getInput().getMouseX();
 		int posY = container.getInput().getMouseY();
-		if (((posX > 44 + 348) && (posX < 260 + 348)) && ((posY > 389+25) && (posY < 453+25))){
+		if (((posX > 44 + 348) && (posX < 260 + 348)) && ((posY > 389+100) && (posY < 453+100))){
 			if (container.getInput().isMousePressed(0)){
 				game.enterState(BlackFridayBlitz.TITLE_STATE);
 			}

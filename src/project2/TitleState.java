@@ -1,14 +1,12 @@
 package project2;
 
-import java.util.Iterator;
+
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -47,7 +45,9 @@ public class TitleState extends BasicGameState {
 		
 		@Override
 		public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+			g.scale(1.0f, ((float)BlackFridayBlitz.MAX_WINDOW_HEIGHT/(float)bg.getHeight()));
 			bg.draw(0,0);
+			g.resetTransform();
 			title.draw(175, 50);
 			button.draw(415,300);			
 			button2.draw(340, 500);
@@ -63,7 +63,6 @@ public class TitleState extends BasicGameState {
 
 		@Override
 		public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-			BlackFridayBlitz bb = (BlackFridayBlitz)game;
 			int posX = container.getInput().getMouseX();
 			int posY = container.getInput().getMouseY();
 			

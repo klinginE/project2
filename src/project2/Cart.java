@@ -20,6 +20,7 @@ public class Cart extends Entity {
 	private static final int MAX_SPEED_UPS = 10;
 	private static final float BOOST = 10.0f;
 	private static final float ACCELERATION_RATE = 4.0f;
+	private static final float DECCELERATION_RATE = 16.0f;
 
 	private float currentSpeed = 0.0f;
 	private int numSpeedUps = 0;
@@ -42,6 +43,7 @@ public class Cart extends Entity {
 		public static final int MAX_SPEED_UPS_S = MAX_SPEED_UPS;
 		public static final float BOOST_S = BOOST;
 		public static final float ACCELERATION_RATE_S = ACCELERATION_RATE;
+		public static final float DECCELERATION_RATE_S = DECCELERATION_RATE;
 
 		public float x_s = 0.0f;
 		public float y_s = 0.0f;
@@ -88,7 +90,8 @@ public class Cart extends Entity {
 
 		super();
 		Image i = ResourceManager.getImage(cartImage);
-		addImage(i);
+		addImageWithBoundingBox(i);
+		//addImage(i);
 		worldX = w_x;
 		worldY = w_y;
 		setX(worldX);
@@ -126,7 +129,6 @@ public class Cart extends Entity {
 
 	public void setJumpPoint(float jPoint) {
 
-		if (jPoint >= 100 && jPoint <= 450)
 			jumpY = jPoint;
 
 	}
@@ -164,24 +166,34 @@ public class Cart extends Entity {
 
 	}
 
-	public void update(GameContainer container, StateBasedGame game, int delta) {
+	public void update(Input input, StateBasedGame game, int delta) {
 
-		Input input = container.getInput();
 		float additionalSpeed = 0.0f;
-		if (currentSpeed > MAX_SPEED || input.isKeyDown(Input.KEY_LEFT)) {
+		if (currentSpeed > MAX_SPEED)
+			currentSpeed = MAX_SPEED;
+		if (currentSpeed < (-1.0f * MAX_SPEED))
+			currentSpeed = (-1.0f * MAX_SPEED);
 
-			currentSpeed -= ACCELERATION_RATE;
-			if (currentSpeed < (-1.0f * MAX_SPEED))
-				currentSpeed = (-1.0f * MAX_SPEED);
-
-		}
-		if (currentSpeed < (-1.0f * MAX_SPEED) || input.isKeyDown(Input.KEY_RIGHT)) {
-
-			if (input.isKeyDown(Input.KEY_RIGHT) && currentSpeed >= 500.0f)
-				additionalSpeed = 500.0f;
-			currentSpeed += ACCELERATION_RATE;
-			if (currentSpeed > MAX_SPEED)
-				currentSpeed = MAX_SPEED;
+		if (input != null) {
+			if(input.isKeyDown(Input.KEY_LEFT)) {
+				if(currentSpeed > 0) 
+					currentSpeed -= DECCELERATION_RATE;
+				else currentSpeed -= ACCELERATION_RATE;
+			}
+				
+		
+			if (input.isKeyDown(Input.KEY_RIGHT)) {
+				if(currentSpeed < 0)
+					currentSpeed += DECCELERATION_RATE;
+				else currentSpeed +=  ACCELERATION_RATE;
+			
+			}
+			if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
+				if(currentSpeed > 0)
+					currentSpeed -= ACCELERATION_RATE;
+				else currentSpeed += ACCELERATION_RATE;
+				
+			}
 
 		}
 		if (getY() > jumpY) {
