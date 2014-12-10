@@ -3,23 +3,26 @@ package project2;
 import org.newdawn.slick.Image;
 
 import jig.Entity;
+import jig.ResourceManager;
 
 public class Powerup extends Entity {
 	
-	int type;
-	Image[] icon;
-	int weaponToggle = 0;
-	
-	public Powerup(int type){
-		this.type = type;
-	}
-	
-	public void toggleWeapon(){
-		if (weaponToggle == 0){
-			weaponToggle = 1;
-		} else {
-			weaponToggle = 0;
-		}
-	}
+	private float worldX = 0.0f;
+	private float worldY = 0.0f;
+	private boolean active;
 
+	
+	public Powerup(String PowerupImage, float w_x, float w_y) {
+
+		super();
+		active = true;
+		Image i = ResourceManager.getImage(PowerupImage);
+		addImageWithBoundingBox(i);
+		worldX = w_x;
+		worldY = w_y;
+		setX(worldX);
+		setY(worldY);		
+	}	
+	
+	
 }

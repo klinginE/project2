@@ -24,7 +24,7 @@ public class Speedup extends Entity {
 	public Speedup(String SpeedupImage, float w_x, float w_y) {
 
 		super();
-		active = false;
+		active = true;
 		Image i = ResourceManager.getImage(SpeedupImage);
 		addImageWithBoundingBox(i);
 		worldX = w_x;

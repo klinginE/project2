@@ -4,7 +4,8 @@ public class Player {
 
 	private Cart playerCart = null;
 	private Client playerClient = null;
-	private Powerup powerup;
+	private int powerupType = -1;
+	int weaponToggle = 0;
 
 	public Player(float y, int cart) {
 
@@ -28,6 +29,17 @@ public class Player {
 		return "";
 
 	}
+	
+	public void toggleWeapon(){
+		if (weaponToggle == 0){
+			weaponToggle = 1;
+		} else {
+			weaponToggle = 0;
+		}
+	}
+	public int getWeaponToggle(){
+		return weaponToggle;
+	}
 
 	public Client getPlayerClient() {
 
@@ -49,14 +61,12 @@ public class Player {
 
 	}
 	
-	public Powerup getPowerup(){
-		if (powerup != null){
-		return powerup;
-		} else return null;
+	public int getPowerup(){		
+		return powerupType;
 	}
 	
 	public void setPowerup(int type){
-		powerup = new Powerup(type);
+		powerupType = type;
 	}
 
 	public void connectToServer() {

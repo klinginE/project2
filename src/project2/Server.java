@@ -112,7 +112,7 @@ public class Server {
 
 					}
 					Cart c = currentGameState.playerCarts.get(key);
-					c.update(currentGameState.containers.get(key), currentGameState.games.get(key), currentGameState.deltas.get(key));
+					//c.update(currentGameState.containers.get(key), currentGameState.games.get(key), currentGameState.deltas.get(key));
 					if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 						c.setJumpPoint(400.0f);
 					if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128) {

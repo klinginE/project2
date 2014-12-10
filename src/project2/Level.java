@@ -18,11 +18,13 @@ public class Level {
 		this.length = length;
 		speedups = new ArrayList<Speedup>();
 		platformY = new ArrayList<Float>();
-		platformY.add((float) BlackFridayBlitz.MAX_WINDOW_HEIGHT - 40); //floor
-		platformY.add(515.0f - 40); //1st platform
-		platformY.add(370.0f - 40); //2nd platform
-		platformY.add(235.0f - 40); //3rd platform
-		platformY.add(100.0f - 40); //4th platform
+		platformY.add(520.0f); //floor
+		platformY.add(358.0f); //1st platform
+		platformY.add(213.0f); //2nd platform
+		platformY.add(70.0f); //3rd platform
+		
+		
+		
 		
 		//speedups.add(new Speedup(BlackFridayBlitz.SPEEDUP_PNG, 800, platformY.get(1)));
 		numXpixels = length*1000; 
