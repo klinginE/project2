@@ -43,6 +43,8 @@ public class Player {
 
 	public Cart getPlayerCart() {
 
+		if (playerClient != null)
+			playerCart = ((GameState)playerClient.getGameData()).playerCarts.get(getUsername());
 		return playerCart;
 
 	}
@@ -51,9 +53,10 @@ public class Player {
 
 		if (playerClient == null) {
 
-			GameState gs = new GameState();
-			gs.addCart(playerCart);
-			playerClient = new Client(gs);
+			playerClient = new Client(null);
+			GameState ps = new GameState();
+			ps.playerCarts.put(getUsername(), playerCart);
+			playerClient.setGameData(ps);
 
 		}
 

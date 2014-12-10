@@ -19,7 +19,10 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Level level = null;
 	private int platform;
 	private long timer = 0;
+	private long pauseTimer;
+	private long finalTime;
 	private int cart;
+	private int finish = 0;
 	
 	public void setPlayer(int c){
 		cart = c;
@@ -38,6 +41,9 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 		player = new Player(level.platformY.get(platform), cart);
+		timer = 0;
+		finish = 0;
+
 	}
 
 	@Override
@@ -45,7 +51,7 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
-		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_JPG);
+		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
@@ -102,11 +108,25 @@ public class SinglePlayerGameState extends BasicGameState {
 		player.getPlayerCart().update(container, game, delta);
 		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 			player.getPlayerCart().setJumpPoint(400.0f);
+
 		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 128) {
+
+			if (finish == 0) {
+				finish = 1;
+			finalTime = timer;
+			System.out.print(timer);
+			pauseTimer = timer + 3000;
+			}
+			if (timer > pauseTimer){
+				((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(cart, finalTime);
+				game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
+			}
 			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
 			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 128);
 			return;
 		}
+		
+		
 
 		Input input = container.getInput();
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
