@@ -37,6 +37,10 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String BACK_PNG = "resource/back.png";
 	public static final String RECEIPT_JPG = "resource/receipt.jpg";
 	public static final String RECEIPT_FONT = "resource/fakereceipt.ttf";
+	public static final String WPICON_BOWLING_BALL_PNG = "bowlingball.png";
+	public static final String WPICON_FIREWORK_PNG = "resource/firework.png";
+	public static final String WPICON_PLASTICBAG_PNG = "resource/fallingplasticbag.png";
+	public static final String WPICON_BATTERY_PNG = "resource/battery.png";
 
 	public BlackFridayBlitz(String name) {
 
