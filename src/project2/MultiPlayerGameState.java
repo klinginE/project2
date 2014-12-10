@@ -17,16 +17,13 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 
-
-	//players = new ArrayList<Player>();
-	//players.add(new Player());
-	//players.get(0).connectToServer();
-
-
 	}
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
+
+		player = new Player(0);
+		player.connectToServer();
 
 	}
 
@@ -41,7 +38,6 @@ public class MultiPlayerGameState extends BasicGameState {
 		if (myCart == null)
 			return;
 
-		System.out.println("Got this far");
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
 		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
@@ -102,7 +98,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public int getID() {
 
-		return BlackFridayBlitz.SINGLE_PLAYER_GAME_STATE_ID;
+		return BlackFridayBlitz.MULTI_PLAYER_GAME_STATE_ID;
 
 	}
 
