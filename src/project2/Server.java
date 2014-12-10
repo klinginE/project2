@@ -38,8 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
-import org.newdawn.slick.Input;
-
 /**
  * CLIENT STATES:
  * 100 - All is good normal operations
@@ -98,7 +96,7 @@ public class Server {
 
 			while (serverIsRunning) { 
 
-				if (currentGameState == null || currentGameState.playerCarts == null)
+				/*if (currentGameState == null || currentGameState.playerCarts == null)
 					continue;
 
 				for (String key : currentGameState.playerCarts.keySet()) {
@@ -127,7 +125,7 @@ public class Server {
 					if (input.isKeyPressed(Input.KEY_DOWN) && c.getY() == c.getJumpPoint())
 						c.setJumpPoint(c.getY() + 175.0f);
 	
-				}
+				}*/
 
 			}
 
@@ -155,7 +153,7 @@ public class Server {
 
 			main = m;
 			socket = s;
-			dataState = new DataPackage(username, 100, DataPackage.MSG_100, new GameState());
+			dataState = new DataPackage(username, 100, DataPackage.MSG_100);
 			this.oos = oos;
 			this.ois = ois;
 
@@ -208,9 +206,10 @@ public class Server {
 
 		public synchronized void setDataState(DataPackage dataState) {
 			synchronized (this.dataState) {
+
 				this.dataState = dataState;
-				System.out.println(this.dataState.getGameData());
 				//gameThreadReference.setGameState((GameState)this.dataState.getGameData());
+
 			}
 		}
 
@@ -288,7 +287,7 @@ public class Server {
 								if (clientData.getUsername().toLowerCase().equals(username.toLowerCase())) {
 
 									oos.flush();
-									oos.writeObject(new DataPackage(username, 200, MSG_200, null));
+									oos.writeObject(new DataPackage(username, 200, MSG_200));
 									oos.flush();
 									username = "";
 									break;
@@ -303,7 +302,7 @@ public class Server {
 
 					if (count < 2) {
 
-						DataPackage newClientPackage = new DataPackage(username, 0, MSG_000, null);
+						DataPackage newClientPackage = new DataPackage(username, 0, MSG_000);
 						oos.flush();
 						oos.writeObject(newClientPackage);
 						oos.flush();
@@ -320,7 +319,7 @@ public class Server {
 					else {
 
 						oos.flush();
-						oos.writeObject(new DataPackage(dp.getUsername(), 400, DataPackage.MSG_400, null));
+						oos.writeObject(new DataPackage(dp.getUsername(), 400, DataPackage.MSG_400));
 						oos.flush();
 
 					}
@@ -357,10 +356,10 @@ public class Server {
 				try {
 
 					parrent.getOos().flush();
-					System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\n");
+					//System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\twrite gameState: " + parrent.getDataState().getGameData() + "\n");
 					DataPackage dp = null;
 					synchronized (parrent) {
-						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage(), parrent.getDataState().getGameData());
+						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage(), parrent.getDataState().getGameState());
 					}
 					parrent.getOos().writeObject(dp);
 					//System.out.println("AFTER WRITE");
@@ -371,7 +370,7 @@ public class Server {
 				}
 				catch (IOException e) {
 
-					//System.out.println("WRITE ERROR: " + e.getMessage());
+					System.out.println("WRITE ERROR: " + e.getMessage());
 					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
 					parrent.getDataState().setMessage(DataPackage.MSG_400);
@@ -405,9 +404,9 @@ public class Server {
 					DataPackage dp = null;
 					dp = (DataPackage)parrent.getOis().readObject();
 
-					System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\n");
+					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\tread gameState: " + dp.getGameData() + "\n");
 					synchronized (parrent) {
-						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameData()));
+						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState()));
 					}
 					if (parrent.getDataState().getState() != 100)
 						parrent.clientIsRunning = false;
@@ -415,7 +414,7 @@ public class Server {
 				}
 				catch (IOException|ClassNotFoundException e) {
 
-					//System.out.println("READ ERROR: " + e.getMessage());
+					System.out.println("READ ERROR: " + e.getMessage());
 					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
 					parrent.getDataState().setMessage(DataPackage.MSG_400);
@@ -442,7 +441,7 @@ public class Server {
 					ct.getDataState().getState() != 400 &&
 					ct.getDataState().getState() != 500) {
 
-					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400, ct.getDataState().getGameData()));
+					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400, ct.getDataState().getGameState()));
 
 				}
 				try {
@@ -513,7 +512,7 @@ public class Server {
 
 							if (i >=  0  && i < list_clientThreads.size()) {
 
-								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500, list_clientThreads.get(i).getDataState().getGameData()));
+								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500, list_clientThreads.get(i).getDataState().getGameState()));
 								disconnectClient(i);
 
 							}
@@ -574,7 +573,7 @@ public class Server {
 
 					if (selected != -1) {
 
-						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400, list_clientThreads.get(selected).getDataState().getGameData()));
+						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400, list_clientThreads.get(selected).getDataState().getGameState()));
 
 					}
 
@@ -718,6 +717,7 @@ public class Server {
 			serverIsRunning = true;
 			//gameThread = new GameThread();
 			//gameThread.start();
+
 			acceptThread = new AcceptThread(this);
 			acceptThread.setDaemon(true);
 			acceptThread.setName("Accept Thread");

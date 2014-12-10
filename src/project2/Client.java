@@ -12,6 +12,9 @@ import java.net.UnknownHostException;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.state.StateBasedGame;
+
 /**
  * CLIENT STATES:
  * 100 - All is good normal operations
@@ -51,8 +54,8 @@ public class Client {
 					DataPackage dp = null;
 					synchronized(currentState) {
 
-						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameData());
-						System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\n");
+						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameState());
+						System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\twrite game data: " + currentState.getGameState() + "\n");
 
 					}
 					oos.writeObject(dp);
@@ -67,7 +70,7 @@ public class Client {
 				}
 				catch (IOException e) {
 
-					//System.out.println("WRITE ERROR: " + e.getMessage());
+					System.out.println("WRITE ERROR: " + e.getMessage());
 					isRunning = false;
 
 				}
@@ -91,15 +94,15 @@ public class Client {
 					DataPackage dp = null;
 					dp = (DataPackage)ois.readObject();
 					synchronized (currentState) {
-						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameData());
-						System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\n");
+						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState());
+						System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\tgame data: " + currentState.getGameState() + "\n");
 						if (currentState.getState() != 100)
 							isRunning = false;
 					}
 
 				} 
 				catch (IOException|ClassNotFoundException e) {
-					//System.out.println("READ ERROR: " + e.getMessage());
+					System.out.println("READ ERROR: " + e.getMessage());
 					isRunning = false;
 				}
 
@@ -109,7 +112,7 @@ public class Client {
 
 	}
 
-	public Client(GameState initGameState) {
+	public Client() {
 
 		try {
 
@@ -147,7 +150,7 @@ public class Client {
 					continue;
 
 				oos.flush();
-				oos.writeObject(new DataPackage(username, 100, "", null));
+				oos.writeObject(new DataPackage(username, 100, DataPackage.MSG_100));
 				oos.flush();
 
 				DataPackage responseData = (DataPackage)ois.readObject();
@@ -164,7 +167,7 @@ public class Client {
 				if (nameOkay) {
 
 					isRunning = true;
-					currentState = new DataPackage(username, 100, "", initGameState);
+					currentState = new DataPackage(username, 100, DataPackage.MSG_100);
 					sendThread = new SendThread();
 					sendThread.setName("Client Send Thread");
 					sendThread.start();
@@ -173,7 +176,9 @@ public class Client {
 					receiveThread.start();
 
 				}
+
 				JOptionPane.showMessageDialog(null, responseData.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
+				//stopClient();
 
 			}
 
@@ -184,8 +189,6 @@ public class Client {
 			System.exit(1);
 
 		}
-		while(isRunning);
-		stopClient();
 
 	}
 
@@ -229,29 +232,36 @@ public class Client {
 
 	}
 
-	public Object getGameData() {
+	public GameState getGameState() {
 
-		return currentState.getGameData();
+		return currentState.getGameState();
 
 	}
 
-	public void setGameData(Object data) {
+	public void setGameState(GameState state) {
 
 		synchronized(currentState) {
 
-			currentState.setGameData(data);
+			currentState.setGameState(state);
 
 		}
 
 	}
 
+	public void updateGameState (String username, Cart cart, GameContainer container, StateBasedGame game, int delta) {
+
+		synchronized (currentState) {
+			currentState.getGameState().addGame(username, cart, container, game, delta);
+		}
+
+	}
 	public static void main(String[] args) {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch(Exception ex) {}
-		new Client(null);
+		new Client();
 
 	}
 
