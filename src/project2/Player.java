@@ -1,5 +1,7 @@
 package project2;
 
+import project2.Cart.CartState;
+
 public class Player {
 
 	private Cart playerCart = null;
@@ -34,8 +36,8 @@ public class Player {
 
 	public Cart getPlayerCart() {
 
-		if (playerClient != null)
-			playerCart = ((GameState)playerClient.getGameData()).playerCarts.get(getUsername());
+		if (playerClient != null && playerClient.getGameState() != null && playerClient.getGameState().playerCarts != null && playerClient.getGameState().playerCarts.get(getUsername()) != null)
+			playerCart = playerClient.getGameState().playerCarts.get(getUsername()).getCart();
 		return playerCart;
 
 	}
@@ -44,10 +46,10 @@ public class Player {
 
 		if (playerClient == null) {
 
-			playerClient = new Client(null);
+			playerClient = new Client();
 			GameState ps = new GameState();
-			ps.playerCarts.put(getUsername(), playerCart);
-			playerClient.setGameData(ps);
+			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getJumpPoint(), playerCart.getImageString()));
+			playerClient.setGameState(ps);
 
 		}
 
