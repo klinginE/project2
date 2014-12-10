@@ -69,7 +69,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		float scaleY = (screenHeight - 100.0f) / (float)background.getHeight();
 
 		// Translate background
-		g.translate(-1.0f * (player.getPlayerCart().getWorldX() - player.getPlayerCart().MIN_SCREEN_X), 0.0f);
+		g.translate(-1.0f * (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X), 0.0f);
 
 		// Draw background
 		g.scale(1.0f, scaleY);

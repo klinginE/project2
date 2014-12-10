@@ -14,30 +14,39 @@ public class DataPackage implements Serializable {
 	private String username = "";
 	private int state = 0;
 	private String message = "";
-	private Object gameData = null;
+	private GameState gameState = null;
 
 	public DataPackage() {
 		super();
 	}
-	public DataPackage(String name, int state, String msg, Object data) {
+
+	public DataPackage(String name, int state, String msg) {
 
 		super();
 		username = name;
 		this.state = state;
 		message = msg;
-		gameData = data;
+		gameState = new GameState();
 
 	}
 
-	public void setGameData(Object data) {
+	public DataPackage(String name, int state, String msg, GameState gs) {
+		super();
+		username = name;
+		message = msg;
+		this.state = state;
+		gameState = gs;
+	}
 
-		gameData = data;
+	public void setGameState(GameState state) {
+
+		gameState = state;
 
 	}
 
-	public Object getGameData() {
+	public GameState getGameState() {
 
-		return gameData;
+		return gameState;
 
 	}
 

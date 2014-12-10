@@ -70,7 +70,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		addState(new TitleState());
 		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
-		//addState(new MultiPlayerGameState());
+		addState(new MultiPlayerGameState());
 		addState(new SinglePlayerResultsState());
 		//addState(new MultiPlayerResultsState());
 
