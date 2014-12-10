@@ -1,5 +1,7 @@
 package project2;
 
+import java.util.concurrent.TimeUnit;
+
 import jig.ResourceManager;
 
 import org.newdawn.slick.GameContainer;
@@ -18,10 +20,15 @@ public class SinglePlayerGameState extends BasicGameState {
 	private long finalTime;
 	private int cart;
 	private int finish = 0;
+	private Image back;
 	
 	public void setPlayer(int c){
 		cart = c;
 		return;
+	}
+	
+	public String realTime(long time){		
+			return String.format("%02d:%02d.%02d", TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)), (time - (TimeUnit.MILLISECONDS.toSeconds(time) * 1000)));			
 	}
 
 
@@ -35,19 +42,20 @@ public class SinglePlayerGameState extends BasicGameState {
 		player = new Player(cart);
 		timer = 0;
 		finish = 0;
+		finalTime = 0;
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
-
+		Image back = ResourceManager.getImage(BlackFridayBlitz.BACK_PNG);
 		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
 
-		float scaleY = screenHeight / (float)background.getHeight();
+		float scaleY = (screenHeight - 100.0f) / (float)background.getHeight();
 
 		// Translate background
 		g.translate(-1.0f * (player.getPlayerCart().getWorldX() - player.getPlayerCart().MIN_SCREEN_X), 0.0f);
@@ -78,10 +86,21 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Undo transforms
 		g.resetTransform();
+		
+		// draw powerup area
+		if (finalTime == 0){
+		back.draw(25,640);
+		}
 
 		// Print time
-		g.drawString("Time: " + timer / 1000 + " sec", (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
-
+		if (timer > 3000){
+			if (finalTime != 0){
+				g.drawString("Time: " + realTime(finalTime), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);	
+			} else {
+				g.drawString("Time: " + realTime(timer - 3000), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
+			}
+		
+		}
 		// Draw the player
 		player.getPlayerCart().render(g);
 
@@ -102,8 +121,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128) {
 			if (finish == 0) {
 				finish = 1;
-			finalTime = timer;
-			System.out.print(timer);
+			finalTime = timer - 3000;
 			pauseTimer = timer + 3000;
 			}
 			if (timer > pauseTimer){
