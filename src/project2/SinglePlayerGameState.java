@@ -17,6 +17,8 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Player player = null;
 
 	private Level level = null;
+	ArrayList<Speedup> speedups;
+	//ArrayList<Powerup> powerups;
 	private int platform;
 	private long timer = 0;
 	private long pauseTimer;
@@ -41,6 +43,7 @@ public class SinglePlayerGameState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 
 		level = new Level(10);
+		speedups =  level.getSpeedups();
 		player = new Player(level.platformY.get(platform), cart);
 		timer = 0;
 		finish = 0;
@@ -80,7 +83,10 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
-
+		// Draw items
+		for(int i = 0; i < speedups.size(); i++)
+			speedups.get(i).render(g);
+		
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
@@ -94,7 +100,7 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Draw the player
 		player.getPlayerCart().render(g);
-
+		
 	}
 
 	@Override
