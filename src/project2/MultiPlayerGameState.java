@@ -17,21 +17,28 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 
-		//player = new Player();
-	    player.connectToServer();
-
 	}
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
+
+		Level level = new Level(3);
+		player = new Player(level.platformY.get(1), 0);
+		player.connectToServer();
 
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
-		GameState gameState = (GameState)(player.getPlayerClient().getGameData());
-		Cart myCart = gameState.playerCarts.get(player.getUsername());
+		GameState gameState = (GameState)(player.getPlayerClient().getGameState());
+		if (gameState == null)
+			return;
+
+		Cart myCart = player.getPlayerCart();
+		if (myCart == null)
+			return;
+
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
 		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
@@ -43,7 +50,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		float scaleY = screenHeight / (float)background.getHeight();
 
 		// Translate background
-		g.translate(-1.0f * (myCart.getWorldX() - myCart.MIN_SCREEN_X), 0.0f);
+		g.translate(-1.0f * (myCart.getWorldX() - Cart.MIN_SCREEN_X), 0.0f);
 
 		// Draw background
 		g.scale(1.0f, scaleY);
@@ -77,23 +84,22 @@ public class MultiPlayerGameState extends BasicGameState {
 
 		// Draw the player
 		for (String user : gameState.playerCarts.keySet())
-			gameState.playerCarts.get(user).render(g);
+			gameState.playerCarts.get(user).getCart().render(g);
 
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 
-		((GameState)player.getPlayerClient().getGameData()).containers.put(player.getUsername(), container);
-		((GameState)player.getPlayerClient().getGameData()).games.put(player.getUsername(), game);
-		((GameState)player.getPlayerClient().getGameData()).deltas.put(player.getUsername(), new Integer(delta));
+		//System.out.println("updateing state");
+		player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, game, delta);
 
 	}
 
 	@Override
 	public int getID() {
 
-		return BlackFridayBlitz.SINGLE_PLAYER_GAME_STATE_ID;
+		return BlackFridayBlitz.MULTI_PLAYER_GAME_STATE_ID;
 
 	}
 
