@@ -14,7 +14,6 @@ public class Powerup extends Entity {
 	private boolean active;
 	Random spawn = new Random();
 	Image image;
-	Image[] itemIcon;
 	int type;
 	
 
@@ -29,19 +28,14 @@ public class Powerup extends Entity {
 		worldY = w_y;
 		setX(worldX);
 		setY(worldY);	
-		itemIcon = new Image[4];
-		itemIcon[0] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
-		itemIcon[1] = ResourceManager.getImage(BlackFridayBlitz.WPICON_FIREWORK_PNG);
-		itemIcon[2] = ResourceManager.getImage(BlackFridayBlitz.WPICON_PLASTICBAG_PNG);
-		itemIcon[3] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
+
 		
 		
 		
 	}	
 	
-	public void pickup(){
-		type = spawn.nextInt(4);
-		active = false;
+	public int pickup(){
+		return spawn.nextInt(4);
 	}
 	
 }

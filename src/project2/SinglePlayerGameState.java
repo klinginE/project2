@@ -1,6 +1,8 @@
 package project2;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import jig.ResourceManager;
@@ -26,6 +28,8 @@ public class SinglePlayerGameState extends BasicGameState {
 	private int cart;
 	private int finish = 0;
 	private Image back;
+	private ArrayList<Powerup> powerups = new ArrayList<Powerup>();
+	Image[] itemIcon;
 	
 	public void setPlayer(int c){
 		cart = c;
@@ -40,6 +44,11 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 		platform = 1;
+		itemIcon = new Image[4];
+		itemIcon[0] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
+		itemIcon[1] = ResourceManager.getImage(BlackFridayBlitz.WPICON_FIREWORK_PNG);
+		itemIcon[2] = ResourceManager.getImage(BlackFridayBlitz.WPICON_PLASTICBAG_PNG);
+		itemIcon[3] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
 		//player = new Player(level.platformY.get(platform), cart);
 		
 	}
@@ -61,10 +70,10 @@ public class SinglePlayerGameState extends BasicGameState {
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 		Image back = ResourceManager.getImage(BlackFridayBlitz.BACK_PNG);
 		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
-		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
-		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
+		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);	
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
 		Input input = container.getInput();
+		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 
 		float scaleY = (screenHeight - 100.0f) / (float)background.getHeight();
 
@@ -89,6 +98,13 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
+		
+		// draw powerups
+		for(Iterator<Powerup> br = powerups.iterator(); br.hasNext();){
+			Powerup pow = br.next();
+			//pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
+			pow.render(g);		
+		}
 
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
@@ -101,6 +117,9 @@ public class SinglePlayerGameState extends BasicGameState {
 		// draw powerup area
 		if (finalTime == 0){
 		back.draw(25,640);
+		if (player.getPowerup() != -1){
+			itemIcon[player.getPowerup()].draw(45, 660);
+			}
 		}
 		
 		//DEBUG: print mouse position
@@ -153,7 +172,7 @@ public class SinglePlayerGameState extends BasicGameState {
 			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
 			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 200);
 			return;
-		}		
+		}
 		
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
 			if(platform < level.platformY.size() - 1) {
@@ -166,6 +185,21 @@ public class SinglePlayerGameState extends BasicGameState {
 				platform--; 
 				player.getPlayerCart().setJumpPoint(level.platformY.get(platform));
 			}
+		}
+		if (input.isKeyPressed(Input.KEY_SPACE) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint() && player.getPowerup() != -1) {
+			player.fireWeapon();
+		}
+		
+		for(Iterator<Powerup> br = powerups.iterator(); br.hasNext();){
+			Powerup pow = br.next();
+			
+			pow.setX(pow.getX() - (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
+			//System.out.println(pow.getX()+" ,"+ player.getPlayerCart().getX());
+			if (player.getPlayerCart().collides(pow) != null && player.getPowerup() == -1){
+				player.setPowerup(pow.pickup());
+				br.remove();		
+			}		
+			pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
 		}
 		
 	}

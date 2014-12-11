@@ -27,6 +27,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String CHECKOUT_JPG = "resource/Self-Checkout.jpg";
 	public static final String TRAFFICLIGHT_PNG = "resource/trafficlight.png";
 	public static final String SPEEDUP_PNG = "resource/speedup.png";
+	public static final String POWERUP_PNG = "resource/baglight.png";
 	public static final String PLAYER1_PNG = "resource/scooterRed.png";
 	public static final String PLAYER2_PNG = "resource/scooterZombie.png";
 	public static final String PLAYER3_PNG = "resource/scooterRobot.png";
@@ -37,7 +38,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String BACK_PNG = "resource/back.png";
 	public static final String RECEIPT_JPG = "resource/receipt.jpg";
 	public static final String RECEIPT_FONT = "resource/fakereceipt.ttf";
-	public static final String WPICON_BOWLING_BALL_PNG = "bowlingball.png";
+	public static final String WPICON_BOWLING_BALL_PNG = "resource/bowlingball.png";
 	public static final String WPICON_FIREWORK_PNG = "resource/firework.png";
 	public static final String WPICON_PLASTICBAG_PNG = "resource/fallingplasticbag.png";
 	public static final String WPICON_BATTERY_PNG = "resource/battery.png";
@@ -57,6 +58,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(CHECKERED_FLAG_PNG);
 		ResourceManager.loadImage(TRAFFICLIGHT_PNG);
 		ResourceManager.loadImage(SPEEDUP_PNG);
+		ResourceManager.loadImage(POWERUP_PNG);
 		ResourceManager.loadImage(CHECKOUT_JPG);
 		ResourceManager.loadImage(PLAYER1_PNG);
 		ResourceManager.loadImage(PLAYER2_PNG);
@@ -67,6 +69,10 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(BUTTON_PNG);
 		ResourceManager.loadImage(BACK_PNG);
 		ResourceManager.loadImage(RECEIPT_JPG);
+		ResourceManager.loadImage(WPICON_BOWLING_BALL_PNG);
+		ResourceManager.loadImage(WPICON_FIREWORK_PNG);
+		ResourceManager.loadImage(WPICON_PLASTICBAG_PNG);
+		ResourceManager.loadImage(WPICON_BATTERY_PNG);
 		addState(new TitleState());
 		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
