@@ -38,6 +38,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
+import org.newdawn.slick.Input;
+
 /**
  * CLIENT STATES:
  * 100 - All is good normal operations
@@ -73,8 +75,65 @@ public class Server {
 
 	// Thread data
 	public volatile boolean serverIsRunning = false;
-	public Thread acceptThread = null;
-	public Thread gameThread = null;
+	public AcceptThread acceptThread = null;
+	public GameThread gameThread = null;
+
+	private class GameThread extends Thread {
+
+		private GameState currentGameState = null;
+
+		public void setGameState(GameState gs) {
+
+			currentGameState = gs;
+
+		}
+		public GameState getGameState() {
+
+			return currentGameState;
+
+		}
+
+		@Override
+		public void run() {
+
+			while (serverIsRunning) { 
+
+				if (currentGameState == null || currentGameState.playerCarts == null)
+					continue;
+
+				for (String key : currentGameState.playerCarts.keySet()) {
+	
+					currentGameState.timer += (long)currentGameState.deltas.get(key).intValue();
+					if (currentGameState.timer < 3000l) {
+
+						currentGameState.containers.get(key).getInput().clearControlPressedRecord();
+						currentGameState.containers.get(key).getInput().clearKeyPressedRecord();
+						return;
+
+					}
+					Cart c = currentGameState.playerCarts.get(key);
+					//c.update(currentGameState.containers.get(key), currentGameState.games.get(key), currentGameState.deltas.get(key));
+					if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
+						c.setJumpPoint(400.0f);
+					if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128) {
+						c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
+						c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128);
+						return;
+					}
+	
+					Input input = currentGameState.containers.get(key).getInput();
+					if (input.isKeyPressed(Input.KEY_UP) && c.getY() == c.getJumpPoint())
+						c.setJumpPoint(c.getY() - 175.0f);
+					if (input.isKeyPressed(Input.KEY_DOWN) && c.getY() == c.getJumpPoint())
+						c.setJumpPoint(c.getY() + 175.0f);
+	
+				}
+
+			}
+
+		}
+
+	}
 
 	private class ClientThread extends Thread {
 
@@ -83,6 +142,7 @@ public class Server {
 
 		private ReceiveThread receiveThread = null;
 		private SendThread sendThread = null;
+		//private GameThread gameThreadReference = null;
 
 		private DataPackage dataState = null;
 
@@ -106,6 +166,8 @@ public class Server {
 			receiveThread = new ReceiveThread(this);
 			receiveThread.setName("Receive Thread");
 			receiveThread.setDaemon(true);
+
+			//gameThreadReference = game;
 
 			clientIsRunning = true;
 
@@ -147,6 +209,8 @@ public class Server {
 		public synchronized void setDataState(DataPackage dataState) {
 			synchronized (this.dataState) {
 				this.dataState = dataState;
+				System.out.println(this.dataState.getGameData());
+				//gameThreadReference.setGameState((GameState)this.dataState.getGameData());
 			}
 		}
 
@@ -175,9 +239,14 @@ public class Server {
     private class AcceptThread extends Thread {
 
     	private Server main = null;
+    	//private GameThread gameThread = null;
+
 		public AcceptThread(Server m) {
+
 			super();
 			main = m;
+			//gameThread = game;
+
 		}
 
 		@Override
@@ -288,10 +357,10 @@ public class Server {
 				try {
 
 					parrent.getOos().flush();
-					//System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\n");
+					System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\n");
 					DataPackage dp = null;
 					synchronized (parrent) {
-						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage(), parrent.getDataState().getGameState());
+						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage(), parrent.getDataState().getGameData());
 					}
 					parrent.getOos().writeObject(dp);
 					//System.out.println("AFTER WRITE");
@@ -336,9 +405,9 @@ public class Server {
 					DataPackage dp = null;
 					dp = (DataPackage)parrent.getOis().readObject();
 
-					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\n");
+					System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\n");
 					synchronized (parrent) {
-						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState()));
+						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameData()));
 					}
 					if (parrent.getDataState().getState() != 100)
 						parrent.clientIsRunning = false;
@@ -373,7 +442,7 @@ public class Server {
 					ct.getDataState().getState() != 400 &&
 					ct.getDataState().getState() != 500) {
 
-					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400, ct.getDataState().getGameState()));
+					ct.setDataState(new DataPackage(ct.getDataState().getUsername(), 400, DataPackage.MSG_400, ct.getDataState().getGameData()));
 
 				}
 				try {
@@ -444,7 +513,7 @@ public class Server {
 
 							if (i >=  0  && i < list_clientThreads.size()) {
 
-								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500, list_clientThreads.get(i).getDataState().getGameState()));
+								list_clientThreads.get(i).setDataState(new DataPackage(list_clientThreads.get(i).getDataState().getUsername(), 500, DataPackage.MSG_500, list_clientThreads.get(i).getDataState().getGameData()));
 								disconnectClient(i);
 
 							}
@@ -505,7 +574,7 @@ public class Server {
 
 					if (selected != -1) {
 
-						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400, list_clientThreads.get(selected).getDataState().getGameState()));
+						list_clientThreads.get(selected).setDataState(new DataPackage(list_clientThreads.get(selected).getDataState().getUsername(), 400, DataPackage.MSG_400, list_clientThreads.get(selected).getDataState().getGameData()));
 
 					}
 
@@ -647,11 +716,12 @@ public class Server {
 		    socket = new ServerSocket();
 		    socket.bind(new InetSocketAddress(PORT));
 			serverIsRunning = true;
+			//gameThread = new GameThread();
+			//gameThread.start();
 			acceptThread = new AcceptThread(this);
 			acceptThread.setDaemon(true);
 			acceptThread.setName("Accept Thread");
 			acceptThread.start();
-			//gameThread = new Thread(game)
 
 		}
 		catch (IOException e) {
@@ -672,7 +742,6 @@ public class Server {
 		}
 		catch(Exception ex) {}
 		new Server();
-		//new BlackFridayBlitzServer();
 
 	}
 

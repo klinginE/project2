@@ -14,7 +14,6 @@ public class Speedup extends Entity {
 	private float timer = 0.0f;
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
-	private float jumpY = 0.0f;
 	private boolean active;
 
 	public Speedup(String SpeedupImage, float w_x, float w_y) {
@@ -27,6 +26,7 @@ public class Speedup extends Entity {
 		worldY = w_y;
 		setX(worldX);
 		setY(worldY);
+		
 		
 
 	}
@@ -64,6 +64,10 @@ public class Speedup extends Entity {
 	}
 	public boolean getActive() {
 		return active;
+	}
+
+	public void setActive(boolean b) {
+		active = b;
 	}
 
 }

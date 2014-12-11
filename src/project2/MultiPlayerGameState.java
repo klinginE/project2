@@ -12,6 +12,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
+	
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
@@ -29,10 +30,11 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
-		GameState gameState = player.getPlayerClient().getCurrentState().getGameState();
+		GameState gameState = (GameState)(player.getPlayerClient().getGameData());
+		Cart myCart = gameState.playerCarts.get(player.getUsername());
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
 
-		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_JPG);
+		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
@@ -41,7 +43,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		float scaleY = screenHeight / (float)background.getHeight();
 
 		// Translate background
-		g.translate(-1.0f * (player.getPlayerCart().getWorldX() - player.getPlayerCart().MIN_SCREEN_X), 0.0f);
+		g.translate(-1.0f * (myCart.getWorldX() - myCart.MIN_SCREEN_X), 0.0f);
 
 		// Draw background
 		g.scale(1.0f, scaleY);
@@ -50,13 +52,13 @@ public class MultiPlayerGameState extends BasicGameState {
 			g.drawImage(background, (float)(i * background.getWidth()), 0.0f);
 		g.scale(1.0f, 1.0f/scaleY);
 
-		if (gameState.timmer <= 1000)
+		if (gameState.timer <= 1000)
 			g.drawImage(light.getSubImage(0, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
-		if (gameState.timmer > 1000 && gameState.timmer <= 2000)
+		if (gameState.timer > 1000 && gameState.timer <= 2000)
 			g.drawImage(light.getSubImage(32, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
-		if (gameState.timmer > 2000 && gameState.timmer <= 3000)
+		if (gameState.timer > 2000 && gameState.timer <= 3000)
 			g.drawImage(light.getSubImage(64, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
-		if (gameState.timmer > 3000)
+		if (gameState.timer > 3000)
 			g.drawImage(light.getSubImage(96, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
 
 		// Draw flag
@@ -71,20 +73,20 @@ public class MultiPlayerGameState extends BasicGameState {
 		g.resetTransform();
 
 		// Print time
-		g.drawString("Time: " + gameState.timmer / 1000 + " sec", (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
+		g.drawString("Time: " + gameState.timer / 1000 + " sec", (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
 
 		// Draw the player
-		for (Cart c : gameState.playerCarts)
-			c.render(g);
+		for (String user : gameState.playerCarts.keySet())
+			gameState.playerCarts.get(user).render(g);
 
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 
-		/*player.getPlayerClient().getCurrentState().getGameState().container = container;
-		player.getPlayerClient().getCurrentState().getGameState().game = game;
-		player.getPlayerClient().getCurrentState().getGameState().delta = delta;*/
+		((GameState)player.getPlayerClient().getGameData()).containers.put(player.getUsername(), container);
+		((GameState)player.getPlayerClient().getGameData()).games.put(player.getUsername(), game);
+		((GameState)player.getPlayerClient().getGameData()).deltas.put(player.getUsername(), new Integer(delta));
 
 	}
 
