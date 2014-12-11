@@ -1,9 +1,14 @@
 package project2;
 
-import java.util.ArrayList;
 
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+import jig.Collision;
+import jig.Entity;
 import jig.ResourceManager;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -18,17 +23,22 @@ public class SinglePlayerGameState extends BasicGameState {
 
 	private Level level = null;
 	ArrayList<Speedup> speedups;
-	//ArrayList<Powerup> powerups;
+	ArrayList<Powerup> powerups;
 	private int platform;
 	private long timer = 0;
 	private long pauseTimer;
 	private long finalTime;
 	private int cart;
 	private int finish = 0;
+	private Image back;
 	
 	public void setPlayer(int c){
 		cart = c;
 		return;
+	}
+	
+	public String realTime(long time){		
+			return String.format("%02d:%02d.%02d", TimeUnit.MILLISECONDS.toMinutes(time), TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)), (time - (TimeUnit.MILLISECONDS.toSeconds(time) * 1000)));			
 	}
 
 
@@ -44,9 +54,11 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		level = new Level(10);
 		speedups =  level.getSpeedups();
+		powerups = level.getPowerups();
 		player = new Player(level.platformY.get(platform), cart);
 		timer = 0;
 		finish = 0;
+		finalTime = 0;
 
 	}
 
@@ -54,13 +66,14 @@ public class SinglePlayerGameState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
 		float screenHeight = (float)BlackFridayBlitz.MAX_WINDOW_HEIGHT;
-
+		Image back = ResourceManager.getImage(BlackFridayBlitz.BACK_PNG);
 		Image background = ResourceManager.getImage(BlackFridayBlitz.BACKGROUND_PNG);
 		Image flag = ResourceManager.getImage(BlackFridayBlitz.CHECKERED_FLAG_PNG);
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
+		Input input = container.getInput();
 
-		float scaleY = screenHeight / (float)background.getHeight();
+		float scaleY = (screenHeight - 100.0f) / (float)background.getHeight();
 
 		// Translate background
 		g.translate(-1.0f * (player.getPlayerCart().getWorldX() - player.getPlayerCart().MIN_SCREEN_X), 0.0f);
@@ -86,6 +99,8 @@ public class SinglePlayerGameState extends BasicGameState {
 		// Draw items
 		for(int i = 0; i < speedups.size(); i++)
 			speedups.get(i).render(g);
+		for(int i = 0; i < powerups.size(); i++)
+			powerups.get(i).render(g);
 		
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
@@ -94,10 +109,25 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Undo transforms
 		g.resetTransform();
-
+		
+		// draw powerup area
+		if (finalTime == 0){
+		back.draw(25,640);
+		}
+		
+		//DEBUG: print mouse position
+		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
+		g.drawString("speed: "+player.getPlayerCart().getCurrentSpeed(), 0, 50);
 		// Print time
-		g.drawString("Time: " + timer / 1000 + " sec", (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 16.0f);
-
+		if (timer > 3000){
+			g.setColor(Color.white);
+			if (finalTime != 0){
+				g.drawString("Time: " + realTime(finalTime), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
+			} else {
+				g.drawString("Time: " + realTime(timer - 3000), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);
+			}
+			g.resetTransform();
+		}
 		// Draw the player
 		player.getPlayerCart().render(g);
 		
@@ -105,23 +135,27 @@ public class SinglePlayerGameState extends BasicGameState {
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+		
+		Input input = container.getInput();
 
 		timer += (long)delta;
 		if (timer < 3000l) {
-			container.getInput().clearControlPressedRecord();
-			container.getInput().clearKeyPressedRecord();
+			input.clearControlPressedRecord();
+			input.clearKeyPressedRecord();
 			return;
 		}
-		player.getPlayerCart().update(container, game, delta);
+		if (finish == 1) {
+			input = null;
+		}
+		player.getPlayerCart().update(input, game, delta);
 		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
-			player.getPlayerCart().setJumpPoint(400.0f);
+			player.getPlayerCart().setJumpPoint(440.0f);
 
-		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 128) {
+		if (player.getPlayerCart().getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 200) {
 
 			if (finish == 0) {
 				finish = 1;
-			finalTime = timer;
-			System.out.print(timer);
+			finalTime = timer - 3000;
 			pauseTimer = timer + 3000;
 			}
 			if (timer > pauseTimer){
@@ -129,13 +163,10 @@ public class SinglePlayerGameState extends BasicGameState {
 				game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
 			}
 			player.getPlayerCart().MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
-			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 128);
+			player.getPlayerCart().setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * level.getLength() + 200);
 			return;
-		}
+		}		
 		
-		
-
-		Input input = container.getInput();
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
 			if(platform < level.platformY.size() - 1) {
 				platform++;
@@ -148,6 +179,26 @@ public class SinglePlayerGameState extends BasicGameState {
 				player.getPlayerCart().setJumpPoint(level.platformY.get(platform));
 			}
 		}
+		
+		
+		for(Speedup speedup : speedups) {
+			if(speedup.getActive() && speedup.getX() >= player.getPlayerCart().getWorldX() - player.getPlayerCart().getX()
+					&& speedup.getX() <= player.getPlayerCart().getWorldX() + 1000 - player.getPlayerCart().getX()) {
+				speedup.setX(speedup.getX() + (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) -player.getPlayerCart().getWorldX());
+				System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
+				
+				Collision c = speedup.collides(player.getPlayerCart());
+				speedup.setX(speedup.getX()- (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) + player.getPlayerCart().getWorldX());
+				
+				if(c != null) {
+					speedup.setActive(false);
+					player.getPlayerCart().addSpeedUp();
+				}
+			}
+		}
+			
+		
+		
 	}
 	
 	

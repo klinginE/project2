@@ -4,6 +4,8 @@ public class Player {
 
 	private Cart playerCart = null;
 	private Client playerClient = null;
+	private int powerupType = -1;
+	int weaponToggle = 0;
 
 	public Player(float y, int cart) {
 
@@ -18,7 +20,6 @@ public class Player {
 		} else if (cart == 3){
 			playerCart = new Cart(BlackFridayBlitz.PLAYER4_PNG, 0, y);
 		}
-
 	}
 
 	public String getUsername() {
@@ -27,6 +28,17 @@ public class Player {
 			return playerClient.getUsername();
 		return "";
 
+	}
+	
+	public void toggleWeapon(){
+		if (weaponToggle == 0){
+			weaponToggle = 1;
+		} else {
+			weaponToggle = 0;
+		}
+	}
+	public int getWeaponToggle(){
+		return weaponToggle;
 	}
 
 	public Client getPlayerClient() {
@@ -47,6 +59,14 @@ public class Player {
 			playerCart = ((GameState)playerClient.getGameData()).playerCarts.get(getUsername());
 		return playerCart;
 
+	}
+	
+	public int getPowerup(){		
+		return powerupType;
+	}
+	
+	public void setPowerup(int type){
+		powerupType = type;
 	}
 
 	public void connectToServer() {

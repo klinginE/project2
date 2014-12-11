@@ -24,12 +24,14 @@ public class Cart extends Entity {
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
 	private float jumpY = 0.0f;
+	private boolean keyleft, keyright;
 
 	public Cart(String cartImage, float w_x, float w_y) {
 
 		super();
 		Image i = ResourceManager.getImage(cartImage);
-		addImage(i);
+		addImageWithBoundingBox(i);
+		//addImage(i);
 		worldX = w_x;
 		worldY = w_y;
 		setX(worldX);
@@ -83,33 +85,35 @@ public class Cart extends Entity {
 
 	}
 
-	public void update(GameContainer container, StateBasedGame game, int delta) {
+	public void update(Input input, StateBasedGame game, int delta) {
 
-		Input input = container.getInput();
 		float additionalSpeed = 0.0f;
 		if (currentSpeed > MAX_SPEED)
 			currentSpeed = MAX_SPEED;
 		if (currentSpeed < (-1.0f * MAX_SPEED))
 			currentSpeed = (-1.0f * MAX_SPEED);
 
+		if (input != null) {
 			if(input.isKeyDown(Input.KEY_LEFT)) {
 				if(currentSpeed > 0) 
 					currentSpeed -= decelerationRate;
 				else currentSpeed -= accelerationRate;
 			}
-			
-	
-		if (input.isKeyDown(Input.KEY_RIGHT)) {
-			if(currentSpeed < 0)
-				currentSpeed += decelerationRate;
-			else currentSpeed +=  accelerationRate;
+				
 		
-		}
-		if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
-			if(currentSpeed > 0)
-				currentSpeed -= accelerationRate;
-			else currentSpeed += accelerationRate;
+			if (input.isKeyDown(Input.KEY_RIGHT)) {
+				keyright = true;
+				if(currentSpeed < 0)
+					currentSpeed += decelerationRate;
+				else currentSpeed +=  accelerationRate;
 			
+			}
+			if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
+				if(currentSpeed > 0)
+					currentSpeed -= accelerationRate;
+				else currentSpeed += accelerationRate;
+				
+			}
 		}
 		if (getY() > jumpY) {
 
@@ -125,8 +129,11 @@ public class Cart extends Entity {
 				setY(jumpY);
 
 		}
-
-		worldX += ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f));
+			
+		float boost = 0.0f;
+		if(keyright)
+			boost = BOOST * numSpeedUps;
+		worldX += ((currentSpeed + boost + additionalSpeed) * (delta / 1000.0f));
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
 			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f)));
@@ -160,6 +167,11 @@ public class Cart extends Entity {
 
 		return worldY;
 
+	}
+
+	public float getCurrentSpeed() {
+		// TODO Auto-generated method stub
+		return currentSpeed;
 	}
 
 }

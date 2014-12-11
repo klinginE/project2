@@ -8,7 +8,8 @@ public class Level {
 
 	int length, numXpixels, dspawnPoint;
 	ArrayList<Float> platformY;
-	ArrayList<Speedup> speedups; //coords of speedups
+	ArrayList<Speedup> speedups;
+	ArrayList<Powerup> powerups;
 	Random random = new Random();
 	
 
@@ -17,12 +18,15 @@ public class Level {
 		
 		this.length = length;
 		speedups = new ArrayList<Speedup>();
+		powerups = new ArrayList<Powerup>();
 		platformY = new ArrayList<Float>();
-		//platformY.add((float) BlackFridayBlitz.MAX_WINDOW_HEIGHT - 40); //floor
-		platformY.add(520.0f); //1st platform
-		platformY.add(358.0f); //2nd platform
-		platformY.add(213.0f); //3rd platform
-		platformY.add(70.0f); //4th platform
+		platformY.add(520.0f); //floor
+		platformY.add(358.0f); //1st platform
+		platformY.add(213.0f); //2nd platform
+		platformY.add(70.0f); //3rd platform
+		
+		
+		
 		
 		//speedups.add(new Speedup(BlackFridayBlitz.SPEEDUP_PNG, 800, platformY.get(1)));
 		numXpixels = length*1000; 
@@ -38,7 +42,7 @@ public class Level {
 					speedups.add( new Speedup(BlackFridayBlitz.SPEEDUP_PNG, j*250, platformY.get(i)-20));
 					}
 				if(randomNumber >= 85 && randomNumber < 100)
-					//powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, i*numXpixels, platformY.get(i)));
+					powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, j*250, platformY.get(i)-43));
 					;
 			}
 		}	
@@ -47,7 +51,9 @@ public class Level {
 	public ArrayList<Speedup> getSpeedups() {
 		return speedups;
 	}
-
+	public ArrayList<Powerup> getPowerups() {
+		return powerups;
+	}
 
 	public int getLength() {
 		return length;
