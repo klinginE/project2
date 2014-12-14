@@ -72,7 +72,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		flag = flag.getSubImage(0, 0, 256, flag.getHeight());
 		Image checkout = ResourceManager.getImage(BlackFridayBlitz.CHECKOUT_JPG);
 		Input input = container.getInput();
-
+		
 		float scaleY = (screenHeight - 100.0f) / (float)background.getHeight();
 
 		// Translate background
@@ -96,6 +96,10 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
+		
+		// Draw progress
+		
+		
 		// Draw items
 		for(int i = 0; i < speedups.size(); i++)
 			speedups.get(i).render(g);
@@ -115,12 +119,16 @@ public class SinglePlayerGameState extends BasicGameState {
 		back.draw(25,640);
 		}
 		
-		//DEBUG: print mouse position
+		//DEBUG: print mouse position and speed
 		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
-		g.drawString("speed: "+player.getPlayerCart().getCurrentSpeed(), 0, 50);
+		g.drawString("speed: "+(int)player.getPlayerCart().getCurrentSpeed(), 0, 50);
+		// draw progress bar
+		g.setColor(Color.white);
+		g.drawLine(150, 700, 750, 700);
+		g.drawImage(ResourceManager.getImage(player.getPlayerCart().getImageString()), 150 + 600.0f/(float)(level.numXpixels+200)*player.getPlayerCart().getWorldX(), 650);
 		// Print time
 		if (timer > 3000){
-			g.setColor(Color.white);
+			
 			if (finalTime != 0){
 				g.drawString("Time: " + realTime(finalTime), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
 			} else {
@@ -185,7 +193,7 @@ public class SinglePlayerGameState extends BasicGameState {
 			if(speedup.getActive() && speedup.getX() >= player.getPlayerCart().getWorldX() - player.getPlayerCart().getX()
 					&& speedup.getX() <= player.getPlayerCart().getWorldX() + 1000 - player.getPlayerCart().getX()) {
 				speedup.setX(speedup.getX() + (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) -player.getPlayerCart().getWorldX());
-				System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
+				//System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
 				
 				Collision c = speedup.collides(player.getPlayerCart());
 				speedup.setX(speedup.getX()- (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) + player.getPlayerCart().getWorldX());

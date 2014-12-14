@@ -18,7 +18,8 @@ public class Cart extends Entity {
 	public float MAX_SCREEN_X = 200.0f;
 	private static final float MIN_WORLD_X = MIN_SCREEN_X;
 	private static final int MAX_SPEED_UPS = 10;
-	private static final float BOOST = 10.0f;
+	private static final float BOOST = 20.0f;
+	private static final float BOOST_ACCEL = .3f;
 	private static final float ACCELERATION_RATE = 4.0f;
 	private static final float DECCELERATION_RATE = 16.0f;
 
@@ -170,11 +171,6 @@ public class Cart extends Entity {
 	public void update(Input input, StateBasedGame game, int delta) {
 
 		float additionalSpeed = 0.0f;
-		if (currentSpeed > MAX_SPEED)
-			currentSpeed = MAX_SPEED;
-		if (currentSpeed < (-1.0f * MAX_SPEED))
-			currentSpeed = (-1.0f * MAX_SPEED);
-
 		if (input != null) {
 			if(input.isKeyDown(Input.KEY_LEFT)) {
 				if(currentSpeed > 0) 
@@ -187,15 +183,22 @@ public class Cart extends Entity {
 				keyright = true;
 				if(currentSpeed < 0)
 					currentSpeed += DECCELERATION_RATE;
-				else currentSpeed +=  ACCELERATION_RATE;
+				else currentSpeed +=  ACCELERATION_RATE + numSpeedUps * BOOST_ACCEL;
 			
 			}
 			if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
 				if(currentSpeed > 0)
 					currentSpeed -= ACCELERATION_RATE;
 				else currentSpeed += ACCELERATION_RATE;
+				if(currentSpeed <= 4 && currentSpeed >= -4) //set to 0 to stop toggle
+					currentSpeed = 0;
 				
 			}
+			
+			if (currentSpeed > MAX_SPEED + (numSpeedUps * BOOST))
+				currentSpeed = MAX_SPEED + (numSpeedUps * BOOST);
+			if (currentSpeed < (-1.0f * MAX_SPEED)) // can't boost backwards
+				currentSpeed = (-1.0f * MAX_SPEED);
 
 		}
 		if (getY() > jumpY) {
@@ -216,10 +219,10 @@ public class Cart extends Entity {
 		float boost = 0.0f;
 		if(keyright)
 			boost = BOOST * numSpeedUps;
-		worldX += ((currentSpeed + boost + additionalSpeed) * (delta / 1000.0f));
+		worldX += ((currentSpeed + additionalSpeed) * (delta / 1000.0f));
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
-			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f)));
+			setX(getX() + ((currentSpeed + additionalSpeed) * (delta / 1000.0f)));
 			if (getX() > MAX_SCREEN_X)
 				setX(MAX_SCREEN_X);
 			if (getX() < MIN_SCREEN_X)
