@@ -85,16 +85,17 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(ARROWD_PNG);
 		addState(new TitleState());
 		//addState(new MenuState());
+		addState(new TitleState());
 		addState(new SinglePlayerGameState());
-		addState(new MultiPlayerGameState());
 		addState(new SinglePlayerResultsState());
+		addState(new MultiPlayerGameState());
 		//addState(new MultiPlayerResultsState());
 
 	}
 
 	public static void main(String[] args) {
 
-		AppGameContainer app;
+		AppGameContainer app = null;
 		try {
 
 			app = new AppGameContainer(new BlackFridayBlitz("Black Friday Blitz"));

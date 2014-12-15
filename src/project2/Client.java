@@ -13,7 +13,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.state.StateBasedGame;
 
 /**
  * CLIENT STATES:
@@ -28,7 +27,7 @@ public class Client {
 	private Socket socket;
 	private int port = 4444;
 	private String ip = "";
-	private String username = "";
+	private String username = "";	
 	private volatile boolean isRunning = false;
 	private Thread receiveThread = null;
 	private Thread sendThread = null;
@@ -38,26 +37,38 @@ public class Client {
 
 	private class SendThread extends Thread {
 
+		private volatile long lastKnownFrame = -1;
+
 		@Override
 		public void run() {
 
 			while (isRunning) {
 
 				try {
-					Thread.sleep(16l);
-				}
-				catch (InterruptedException e1) {}
 
-				try {
+					DataPackage dataState = null;
+					synchronized(currentState) {
+						dataState = currentState;
+					}
+					long frame = lastKnownFrame;
+					GameState gs = dataState.getGameState();
+					if (dataState != null &&
+						gs != null &&
+						gs.frames != null &&
+						gs.frames.containsKey(dataState.getUsername()) &&
+						gs.frames.get(dataState.getUsername()) != null)
+						frame = gs.frames.get(dataState.getUsername()).longValue();
+
+					if (frame == lastKnownFrame)
+						continue;
+					lastKnownFrame = frame;
 
 					oos.flush();
 					DataPackage dp = null;
-					synchronized(currentState) {
 
-						dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameState());
-						System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\twrite game data: " + currentState.getGameState() + "\n");
+					dp = new DataPackage(dataState.getUsername(), dataState.getState(), dataState.getMessage(), dataState.getGameState());
+					//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\twrite game data: " + currentState.getGameState() + "\n");
 
-					}
 					oos.writeObject(dp);
 					//System.out.println("AFTER WRITE");
 					oos.flush();
@@ -83,6 +94,8 @@ public class Client {
 
 	private class ReceiveThread extends Thread {
 
+		private volatile long lastKnownFrame = -1;
+
 		@Override
 		public void run() {
 
@@ -93,11 +106,27 @@ public class Client {
 					//System.out.println("BEFRORE READ");
 					DataPackage dp = null;
 					dp = (DataPackage)ois.readObject();
+
+					long frame = lastKnownFrame;
+					GameState gs = dp.getGameState();
+					if (dp != null &&
+						dp.getGameState() != null &&
+						gs.frames != null &&
+						gs.frames.containsKey(dp.getUsername()) &&
+						gs.frames.get(dp.getUsername()) != null)
+						frame = gs.frames.get(dp.getUsername()).longValue();
+
+					if (frame == lastKnownFrame)
+						continue;
+					lastKnownFrame = frame;
+
 					synchronized (currentState) {
+
 						currentState = new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState());
-						System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\tgame data: " + currentState.getGameState() + "\n");
+						//System.out.println("read username: " + currentState.getUsername() + "\tread state: " + currentState.getState() + "\tread message: " + currentState.getMessage() + "\tgame data: " + currentState.getGameState() + "\n");
 						if (currentState.getState() != 100)
 							isRunning = false;
+
 					}
 
 				} 
@@ -136,6 +165,7 @@ public class Client {
 			socket = new Socket();
 			socket.connect(new InetSocketAddress(ip, port));
 			oos = new ObjectOutputStream(socket.getOutputStream());
+			oos.flush();
 			ois = new ObjectInputStream(socket.getInputStream());
 
 			boolean nameOkay = false;
@@ -159,6 +189,11 @@ public class Client {
 				}
 				else if (responseData.getState() == 200)
 					nameOkay = false;
+				else if (responseData.getState() == 50) {
+					nameOkay = false;
+					currentState = new DataPackage(username, 50, DataPackage.MSG_050);
+					break;
+				}
 				else {
 					JOptionPane.showMessageDialog(null, responseData.getMessage(), "Message", JOptionPane.INFORMATION_MESSAGE);
 					System.exit(1);
@@ -195,16 +230,26 @@ public class Client {
 	public void stopClient() {
 
 		isRunning = false;
-		sendThread.interrupt();
-		try {
-			sendThread.join(100l);
+
+		if (sendThread != null) {
+
+			sendThread.interrupt();
+			try {
+				sendThread.join(100l);
+			}
+			catch (InterruptedException e) {}
+
 		}
-		catch (InterruptedException e) {}
-		receiveThread.interrupt();
-		try {
-			receiveThread.join(100l);
+
+		if (receiveThread != null) {
+
+			receiveThread.interrupt();
+			try {
+				receiveThread.join(100l);
+			}
+			catch (InterruptedException e) {}
+
 		}
-		catch (InterruptedException e) {}
 		currentState.setState(300);
 		currentState.setMessage(DataPackage.MSG_300);
 		try {
@@ -248,10 +293,12 @@ public class Client {
 
 	}
 
-	public void updateGameState (String username, Cart cart, GameContainer container, StateBasedGame game, int delta) {
+	public void updateGameState (String username, Cart cart, GameContainer container, long frame) {
 
 		synchronized (currentState) {
-			currentState.getGameState().addGame(username, cart, container, game, delta);
+			GameState gs = currentState.getGameState();
+			gs.addGame(username, cart, container, frame);
+			currentState.setGameState(gs);
 		}
 
 	}

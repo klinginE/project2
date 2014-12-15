@@ -94,6 +94,9 @@ public class TitleState extends BasicGameState {
 						((SinglePlayerGameState)game.getState(BlackFridayBlitz.SINGLE_PLAYER_GAME_STATE_ID)).setPlayer(cart);
 						game.enterState(BlackFridayBlitz.SINGLE_PLAYER_GAME_STATE_ID);
 					}
+					else {
+						game.enterState(BlackFridayBlitz.MULTI_PLAYER_GAME_STATE_ID);
+					}
 				}
 			}
 		}

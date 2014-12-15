@@ -22,10 +22,10 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Player player = null;
 
 	private Level level = null;
+
 	ArrayList<Speedup> speedups;
 	ArrayList<Powerup> powerups;
 	ArrayList<Weapon> weapons;
-	private int platform;
 	private long timer = 0;
 	private long pauseTimer;
 	private long finalTime;
@@ -33,8 +33,9 @@ public class SinglePlayerGameState extends BasicGameState {
 	private int finish = 0;
 	Image[] itemIcon;
 	Image[] toggleIcon;
-	
-	public void setPlayer(int c){
+	private Image back;
+
+	public void setPlayer(int c) {
 		cart = c;
 		return;
 	}
@@ -46,7 +47,6 @@ public class SinglePlayerGameState extends BasicGameState {
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-		platform = 1;
 		itemIcon = new Image[4];
 		toggleIcon = new Image[6];
 		itemIcon[0] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BATTERY_PNG);
@@ -66,9 +66,8 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		level = new Level(50);
 		speedups =  level.getSpeedups();
-		powerups = level.getPowerups();
 		weapons = new ArrayList<Weapon>();
-		player = new Player(level.platformY.get(platform), cart);
+		player = new Player(level.platformY.get(1), cart);
 		timer = 0;
 		finish = 0;
 		finalTime = 0;
@@ -126,8 +125,8 @@ public class SinglePlayerGameState extends BasicGameState {
 		g.resetTransform();
 		
 		// draw powerup area
-		if (finalTime == 0){
-		back.draw(25,640);
+		if (25 + back.getWidth() + player.getPlayerCart().getWorldX() - player.getPlayerCart().getX() / 2.0f <= level.getLength() * 1000 && finish == 0) {
+			back.draw(25,640);
 		}
 		if (player.getPowerup() != -1){
 			itemIcon[player.getPowerup()].draw(45, 660);
@@ -187,7 +186,7 @@ public class SinglePlayerGameState extends BasicGameState {
 				br.remove();
 		}
 		
-		player.getPlayerCart().update(input, game, delta);
+		player.getPlayerCart().update(input, delta);
 		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 			player.getPlayerCart().setJumpPoint(440.0f);
 
@@ -208,15 +207,15 @@ public class SinglePlayerGameState extends BasicGameState {
 		}
 		
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
-			if(platform < level.platformY.size() - 1) {
-				platform++;
-				player.getPlayerCart().setJumpPoint(level.platformY.get(platform));
+			if(player.getPlayerCart().getPlatform() < level.platformY.size() - 1) {
+				player.getPlayerCart().setPlatform(player.getPlayerCart().getPlatform() + 1);
+				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
 			}
 		}
 		if (input.isKeyPressed(Input.KEY_DOWN) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
-			if(platform > 0) {
-				platform--; 
-				player.getPlayerCart().setJumpPoint(level.platformY.get(platform));
+			if(player.getPlayerCart().getPlatform() > 0) {
+				player.getPlayerCart().setPlatform(player.getPlayerCart().getPlatform() - 1);
+				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
 			}
 		}
 		if (input.isKeyPressed(Input.KEY_SPACE) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint() && player.getPowerup() != -1) {
