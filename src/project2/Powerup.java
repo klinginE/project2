@@ -1,28 +1,96 @@
 package project2;
 
+import java.io.Serializable;
+
 import org.newdawn.slick.Image;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
 
 public class Powerup extends Entity {
-	
+
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
-	private boolean active;
+	private boolean active = true;
+	private String imageString = "";
 
-	
+	public static class PowerupState implements Serializable {
+
+		private static final long serialVersionUID = 2547080137547610618L;
+		public float worldX_s = 0.0f;
+		public float worldY_s = 0.0f;
+		public boolean active_s = true;
+		public String imageString_s = "";
+		public float width_s = 0.0f;
+		public float height_s = 0.0f;
+
+		public PowerupState(String iString, float w_x, float w_y, boolean act, float w, float h) {
+
+			super();
+			worldX_s = w_x;
+			worldY_s = w_y;
+			active_s = act;
+			imageString_s = iString;
+			width_s = w;
+			height_s = h;
+
+		}
+
+		public Powerup getPowerup(boolean withImage) {
+			
+			Powerup powup = null;
+
+			if (withImage)
+				powup = new Powerup(imageString_s, worldX_s, worldY_s);
+			else
+				powup = new Powerup(imageString_s, worldX_s, worldY_s, width_s, height_s);
+			powup.active = active_s;
+			
+			return powup;
+
+		}
+
+	}
+
 	public Powerup(String PowerupImage, float w_x, float w_y) {
 
 		super();
 		active = true;
-		Image i = ResourceManager.getImage(PowerupImage);
+		imageString = PowerupImage;
+		Image i = ResourceManager.getImage(imageString);
 		addImageWithBoundingBox(i);
 		worldX = w_x;
 		worldY = w_y;
 		setX(worldX);
-		setY(worldY);		
-	}	
-	
-	
+		setY(worldY);
+
+	}
+
+	public Powerup(String PowerupImage, float w_x, float w_y, float width, float height) {
+
+		super();
+		active = true;
+		imageString = PowerupImage;
+		addShape(new ConvexPolygon(width, height));
+		worldX = w_x;
+		worldY = w_y;
+		setX(worldX);
+		setY(worldY);
+
+	}
+
+	public float getWorldX() {
+		return worldX;
+	}
+	public float getWorldY() {
+		return worldY;
+	}
+	public boolean getActive() {
+		return active;
+	}
+	public String getImageString() {
+		return imageString;
+	}
+
 }

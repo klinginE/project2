@@ -3,16 +3,18 @@ package project2;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.newdawn.slick.GameContainer;
+
+import project2.Cart.CartState;
 
 /**
  * CLIENT STATES:
@@ -66,6 +68,8 @@ public class Client {
 					oos.flush();
 					DataPackage dp = null;
 
+					if (dataState.getGameState().inputs.get(dataState.getUsername()).get("up").booleanValue() == true)
+						System.out.println("Client writing frame: " + dataState.getGameState().frames.get(dataState.getUsername()) + " input: " + dataState.getGameState().inputs.get(dataState.getUsername()));
 					dp = new DataPackage(dataState.getUsername(), dataState.getState(), dataState.getMessage(), dataState.getGameState());
 					//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\twrite game data: " + currentState.getGameState() + "\n");
 
@@ -296,8 +300,19 @@ public class Client {
 	public void updateGameState (String username, Cart cart, GameContainer container, long frame) {
 
 		synchronized (currentState) {
-			GameState gs = currentState.getGameState();
+			GameState gs = new GameState();
+			gs.playerCarts = new HashMap<String, CartState>(currentState.getGameState().playerCarts);
+			gs.inputs = new HashMap<String, HashMap<String, Boolean>>(currentState.getGameState().inputs);
+			gs.frames = new HashMap<String, Long>(currentState.getGameState().frames);
+			gs.level = currentState.getGameState().level;
+			gs.timer = currentState.getGameState().timer;
+			gs.pauseTimer = currentState.getGameState().pauseTimer;
+			gs.finalTime = currentState.getGameState().finalTime;
+			gs.finish = currentState.getGameState().finish;
 			gs.addGame(username, cart, container, frame);
+
+			if (gs.inputs.get(getUsername()).get("up").booleanValue() == true)
+				System.out.println("update frame: " + frame + " input: " + gs.inputs.get(getUsername()));
 			currentState.setGameState(gs);
 		}
 

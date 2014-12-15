@@ -7,6 +7,7 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Input;
 
 import project2.Cart.CartState;
+import project2.Level.LevelState;
 
 public class GameState implements Serializable {
 
@@ -15,20 +16,34 @@ public class GameState implements Serializable {
 	public HashMap<String, CartState> playerCarts = null;
 	public HashMap<String, HashMap<String, Boolean>> inputs = null;
 	public HashMap<String, Long> frames = null;
+	public LevelState level = null;
 	public long timer = 0;
+	public long pauseTimer = 0;
+	public long finalTime = 0;
+	public int finish = 0;
 
+	public GameState(Level l) {
+
+		super();
+		playerCarts = new HashMap<String, CartState>();
+		inputs = new HashMap<String, HashMap<String, Boolean>>();
+		frames = new HashMap<String, Long>();
+		level = new LevelState(l.length, l.numXpixels, l.dspawnPoint, l.platformY, l.speedups, l.powerups);
+
+	}
 	public GameState() {
 
 		super();
 		playerCarts = new HashMap<String, CartState>();
 		inputs = new HashMap<String, HashMap<String, Boolean>>();
 		frames = new HashMap<String, Long>();
+		level = null;
 
 	}
 
 	public void addGame(String username, Cart cart, GameContainer container, long frame) {
 
-		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString()));
+		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString(), cart.MAX_SCREEN_X));
 		frames.put(username, new Long(frame));
 
 		HashMap<String, Boolean> inputMap = new HashMap<String, Boolean>();
@@ -68,19 +83,18 @@ public class GameState implements Serializable {
 
 	public String toString() {
 
-		return playerCarts.toString() + "\n" + inputs.toString() + "\n" + frames.toString() + "\n" + timer;
+		return playerCarts.toString() + "\n" + inputs.toString() + "\n" + frames.toString() + "\n" + level.length_s + "\n" + timer;
 
 	}
 
 	public static GameState toObject(String gs) {
 
-		GameState newGs = new GameState();
-
 		String[] parts = gs.split("\n");
 		String carts = parts[0].substring(1);
 		String inputs = parts[1].substring(1);
 		String frames = parts[2].substring(1);
-		long time = Long.parseLong(parts[3]);
+		int length = Integer.parseInt(parts[3]);
+		long time = Long.parseLong(parts[4]);
 
 		HashMap<String, CartState>hashCarts = new HashMap<String, CartState>();
 		String[] values = carts.split("=");
@@ -93,7 +107,7 @@ public class GameState implements Serializable {
 			String[] nums = values[i].split(",");
 			CartState cs = null;
 			if (nums.length > 10)
-				cs = new CartState(Float.parseFloat(nums[0].substring(1)), Float.parseFloat(nums[1]), Float.parseFloat(nums[2]), Float.parseFloat(nums[3]), Integer.parseInt(nums[4]), Float.parseFloat(nums[5]), Float.parseFloat(nums[6]), Float.parseFloat(nums[7]), Integer.parseInt(nums[8]), Float.parseFloat(nums[9]), nums[10].split("\\}")[0]);
+				//cs = new CartState(Float.parseFloat(nums[0].substring(1)), Float.parseFloat(nums[1]), Float.parseFloat(nums[2]), Float.parseFloat(nums[3]), Integer.parseInt(nums[4]), Float.parseFloat(nums[5]), Float.parseFloat(nums[6]), Float.parseFloat(nums[7]), Integer.parseInt(nums[8]), Float.parseFloat(nums[9]), nums[10].split("\\}")[0]);
 			hashCarts.put(username, cs);
 			i++;
 
@@ -135,7 +149,9 @@ public class GameState implements Serializable {
 			i++;
 
 		}
-
+		
+		Level l = new Level(length);
+		GameState newGs = new GameState(l);
 		newGs.playerCarts = hashCarts;
 		newGs.inputs = hashInputs;
 		newGs.frames = hashFrames;

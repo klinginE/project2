@@ -56,7 +56,7 @@ public class Cart extends Entity {
 		public float jumpY_s = 0.0f;
 		public String imageString_s = "";
 
-		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float wx, float wy, int plat, float jy, String iStr) {
+		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float wx, float wy, int plat, float jy, String iStr, float maxScreen) {
 
 			super();
 			x_s = x;
@@ -70,6 +70,7 @@ public class Cart extends Entity {
 			platform_s = plat;
 			jumpY_s = jy;
 			imageString_s = iStr;
+			MAX_SCREEN_X_S = maxScreen;
 
 		}
 
@@ -93,6 +94,7 @@ public class Cart extends Entity {
 			c.setCurrentSpeed(currentSpeed_s);
 			c.setPlatform(platform_s);
 			c.setJumpPoint(jumpY_s);
+			c.MAX_SCREEN_X = MAX_SCREEN_X_S;
 			return c;
 
 		}
@@ -218,7 +220,6 @@ public class Cart extends Entity {
 
 	public void update(HashMap<String, Boolean> inputs, long delta) {
 
-		float additionalSpeed = 0.0f;
 		if (currentSpeed > MAX_SPEED)
 			currentSpeed = MAX_SPEED;
 		if (currentSpeed < (-1.0f * MAX_SPEED))
@@ -261,10 +262,10 @@ public class Cart extends Entity {
 
 		}
 
-		worldX += ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f));
+		worldX += ((currentSpeed + (BOOST * numSpeedUps)) * (delta / 1000.0f));
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
-			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f)));
+			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps)) * (delta / 1000.0f)));
 			if (getX() > MAX_SCREEN_X)
 				setX(MAX_SCREEN_X);
 			if (getX() < MIN_SCREEN_X)
@@ -282,7 +283,6 @@ public class Cart extends Entity {
 
 	public void update(Input input, int delta) {
 
-		float additionalSpeed = 0.0f;
 		if (currentSpeed > MAX_SPEED)
 			currentSpeed = MAX_SPEED;
 		if (currentSpeed < (-1.0f * MAX_SPEED))
@@ -329,10 +329,10 @@ public class Cart extends Entity {
 		float boost = 0.0f;
 		if(keyright)
 			boost = BOOST * numSpeedUps;
-		worldX += ((currentSpeed + boost + additionalSpeed) * (delta / 1000.0f));
+		worldX += ((currentSpeed + boost) * (delta / 1000.0f));
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
-			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f)));
+			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) ) * (delta / 1000.0f)));
 			if (getX() > MAX_SCREEN_X)
 				setX(MAX_SCREEN_X);
 			if (getX() < MIN_SCREEN_X)

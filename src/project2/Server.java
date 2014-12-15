@@ -21,6 +21,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -36,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
+import jig.Collision;
 import jig.Entity;
 
 import org.newdawn.slick.GameContainer;
@@ -45,6 +47,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import project2.Cart.CartState;
+import project2.Speedup.SpeedupState;
 
 /**
  * CLIENT STATES:
@@ -110,9 +113,6 @@ public class Server {
 
 			private GameState currentGameState = null;
 			private volatile long frame = 0;
-			private int finish = 0;
-			private float finalTimer = 0.0f;
-			private float pauseTimer = 0.0f;
 
 			@Override
 			public void init(GameContainer container, StateBasedGame game) throws SlickException {
@@ -157,72 +157,100 @@ public class Server {
 				frame++;
 
 				//System.out.println("delta: " + delta);
+				GameState myState = null;
 				synchronized(currentGameState) {
+					myState = currentGameState;
+				}
+				myState.timer += delta;
+				
+				if (myState.timer >= 3000l) {
 
-					currentGameState.timer += delta;
-					if (currentGameState.timer >= 3000l) {
+					for (String key : myState.frames.keySet()) {
 	
-						for (String key : currentGameState.frames.keySet()) {
+						if (myState.finish == 1) {
+							myState.inputs.put(key, null);
+						}
+	
+						Cart c = myState.playerCarts.get(key).getCart(false);
+						HashMap<String, Boolean> inputs = myState.inputs.get(key);
+						c.update(inputs, delta);
+
+						if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
+							c.setJumpPoint(440.0f);
+
+						if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200) {
 		
-							if (finish == 1) {
-								currentGameState.inputs.put(key, null);
+							if (myState.finish == 0) {
+	
+								myState.finish = 1;
+								myState.finalTime = myState.timer - 3000;
+								myState.pauseTimer = myState.timer + 3000;
+	
 							}
-		
-							Cart c = currentGameState.playerCarts.get(key).getCart(false);
-							HashMap<String, Boolean> inputs = currentGameState.inputs.get(key);
-							c.update(inputs, delta);
-							if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
-								c.setJumpPoint(440.0f);
-			
-							/*if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 200) {//level.getLength()
-			
-								if (finish == 0) {
-		
-									finish = 1;
-									finalTimer = currentGameState.timer - 3000;
-									pauseTimer = currentGameState.timer + 3000;
-		
-								}
-								if (currentGameState.timer > pauseTimer) {
-		
-									//((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(cart, finalTime);
-									//game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
-		
-								}
-								c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
-								c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 200);//level.getLength()
-								return;
-		
-							}*/
-							
-							if (inputs.get("up") && c.getY() == c.getJumpPoint()) {
-		
-								if(c.getPlatform() < 3) {//level.platformY.size() - 1
-		
-									c.setPlatform(c.getPlatform() + 1);
-									c.setJumpPoint(200.0f);//level.platformY.get(platform)
-		
-								}
-		
+							if (myState.timer > myState.pauseTimer) {
+	
+								//((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(cart, finalTime);
+								//game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
+	
 							}
-		
-							if (inputs.get("down") && c.getY() == c.getJumpPoint()) {
-		
-								if(c.getPlatform() > 0) {
-		
-									c.setPlatform(c.getPlatform() - 1);
-									c.setJumpPoint(400.0f);//level.platformY.get(platform)
-		
-								}
-		
+							c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
+							c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200);
+
+							myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
+							continue;
+	
+						}
+						
+						if (inputs.get("up") && c.getY() == c.getJumpPoint()) {
+	
+							if(c.getPlatform() < myState.level.platformY_s.size() - 1) {
+	
+								c.setPlatform(c.getPlatform() + 1);
+								c.setJumpPoint(myState.level.platformY_s.get(c.getPlatform()));
+	
 							}
 	
-							currentGameState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString()));
+						}
+	
+						if (inputs.get("down") && c.getY() == c.getJumpPoint()) {
+	
+							if(c.getPlatform() > 0) {
+	
+								c.setPlatform(c.getPlatform() - 1);
+								c.setJumpPoint(myState.level.platformY_s.get(c.getPlatform()));
+	
+							}
 	
 						}
 
+						ArrayList<SpeedupState> newSpeedupStates = new ArrayList<SpeedupState>();
+						for(SpeedupState speedupState : myState.level.speedups_s) {
+							Speedup speedup = speedupState.getSpeedup(false);
+							if(speedup.getActive() && speedup.getX() >= c.getWorldX() - c.getX()
+									&& speedup.getX() <= c.getWorldX() + 1000 - c.getX()) {
+								speedup.setX(speedup.getX() + (c.getCoarseGrainedMaxX()/2.0f) - c.getWorldX());
+								//System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
+								
+								Collision col = speedup.collides(c);
+								speedup.setX(speedup.getX()- (c.getCoarseGrainedMaxX()/2.0f) + c.getWorldX());
+								
+								if(col != null) {
+									speedup.setActive(false);
+									c.addSpeedUp();
+								}
+							}
+							newSpeedupStates.add(new SpeedupState(speedup.getImageString(), speedup.getTimer(), speedup.getWorldX(), speedup.getWorldY(), speedup.getActive(), speedup.getCoarseGrainedWidth(), speedup.getCoarseGrainedHeight()));
+
+						}
+						myState.level.speedups_s = newSpeedupStates;
+						myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
+
 					}
 
+				}
+
+				synchronized(currentGameState) {
+					currentGameState = myState;
 				}
 
 				synchronized(list_clientThreads) {
@@ -234,7 +262,11 @@ public class Server {
 							gs.inputs = new HashMap<String, HashMap<String, Boolean>>(currentGameState.inputs);
 							gs.frames = new HashMap<String, Long>(currentGameState.frames);
 							gs.frames.put(ct.getDataState().getUsername(), new Long(frame));
+							gs.level = currentGameState.level;
 							gs.timer = currentGameState.timer;
+							gs.pauseTimer = currentGameState.pauseTimer;
+							gs.finalTime = currentGameState.finalTime;
+							gs.finish = currentGameState.finish;
 							//System.out.println("server timer: " + currentGameState.timer);
 						}
 						ct.setGameState(gs);
@@ -250,9 +282,6 @@ public class Server {
 					currentGameState = new GameState();
 				}
 				frame = 0;
-				finish = 0;
-				finalTimer = 0.0f;
-				pauseTimer = 0.0f;
 
 			}
 
@@ -267,6 +296,9 @@ public class Server {
 				synchronized(currentGameState) {
 					currentGameState.inputs.put(name, gs.inputs.get(name));
 				}
+				synchronized(currentGameState) {
+					currentGameState.level = gs.level;
+				}
 
 				synchronized(currentGameState) {
 
@@ -275,7 +307,10 @@ public class Server {
 					currentGameState.frames.put(name, new Long(tempFrame));
 
 				}
-
+				currentGameState.timer = gs.timer;
+				currentGameState.pauseTimer = gs.pauseTimer;
+				currentGameState.finalTime = gs.finalTime;
+				currentGameState.finish = gs.finish;
 
 			}
 
@@ -685,6 +720,7 @@ public class Server {
 					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\tread gameState: " + dp.getGameState() + "\n");
 					synchronized (parrent) {
 						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState()));
+						//System.out.println("server writing frame: " + dp.getGameState().frames.get(dp.getUsername()) + " input: " + dp.getGameState().inputs.get(dp.getUsername()));
 					}
 
 					if (parrent.getDataState().getState() != 100)

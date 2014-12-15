@@ -76,8 +76,8 @@ public class Player {
 		if (playerClient == null) {
 
 			playerClient = new Client();
-			GameState ps = new GameState();
-			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getPlatform(), playerCart.getJumpPoint(), playerCart.getImageString()));
+			GameState ps = new GameState(new Level(BlackFridayBlitz.LEVEL_LENGTH));
+			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getPlatform(), playerCart.getJumpPoint(), playerCart.getImageString(), playerCart.MAX_SCREEN_X));
 			if (playerClient.getCurrentState().getState() != 100 && playerClient.getCurrentState().getState() != 0)
 				return;
 			playerClient.setGameState(ps);

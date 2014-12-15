@@ -16,18 +16,18 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import project2.Speedup.SpeedupState;
+
 public class SinglePlayerGameState extends BasicGameState {
 
 	private Player player = null;
 
 	private Level level = null;
 
-	ArrayList<Speedup> speedups;
-	ArrayList<Powerup> powerups;
 	private long timer = 0;
-	private long pauseTimer;
-	private long finalTime;
-	private int cart;
+	private long pauseTimer = 0;
+	private long finalTime = 0;
+	private int cart = 0;
 	private int finish = 0;
 	private Image back;
 
@@ -51,9 +51,7 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 
-		level = new Level(10);
-		speedups =  level.getSpeedups();
-		powerups = level.getPowerups();
+		level = new Level(BlackFridayBlitz.LEVEL_LENGTH);
 		player = new Player(level.platformY.get(1), cart);
 		timer = 0;
 		finish = 0;
@@ -96,10 +94,10 @@ public class SinglePlayerGameState extends BasicGameState {
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
 		// Draw items
-		for(int i = 0; i < speedups.size(); i++)
-			speedups.get(i).render(g);
-		for(int i = 0; i < powerups.size(); i++)
-			powerups.get(i).render(g);
+		for(int i = 0; i < level.getSpeedups().size(); i++)
+			level.getSpeedups().get(i).getSpeedup(true).render(g);
+		for(int i = 0; i < level.powerups.size(); i++)
+			level.powerups.get(i).getPowerup(true).render(g);
 		
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
@@ -178,13 +176,14 @@ public class SinglePlayerGameState extends BasicGameState {
 				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
 			}
 		}
-		
-		
-		for(Speedup speedup : speedups) {
+
+		ArrayList<SpeedupState> newSpeedupStates = new ArrayList<SpeedupState>();
+		for(SpeedupState speedupState : level.getSpeedups()) {
+			Speedup speedup = speedupState.getSpeedup(true);
 			if(speedup.getActive() && speedup.getX() >= player.getPlayerCart().getWorldX() - player.getPlayerCart().getX()
 					&& speedup.getX() <= player.getPlayerCart().getWorldX() + 1000 - player.getPlayerCart().getX()) {
 				speedup.setX(speedup.getX() + (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) -player.getPlayerCart().getWorldX());
-				System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
+				//System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
 				
 				Collision c = speedup.collides(player.getPlayerCart());
 				speedup.setX(speedup.getX()- (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) + player.getPlayerCart().getWorldX());
@@ -194,8 +193,10 @@ public class SinglePlayerGameState extends BasicGameState {
 					player.getPlayerCart().addSpeedUp();
 				}
 			}
+			newSpeedupStates.add(new SpeedupState(speedup.getImageString(), speedup.getTimer(), speedup.getWorldX(), speedup.getWorldY(), speedup.getActive(), speedup.getCoarseGrainedWidth(), speedup.getCoarseGrainedHeight()));
+
 		}
-			
+		level.speedups = newSpeedupStates;	
 		
 		
 	}

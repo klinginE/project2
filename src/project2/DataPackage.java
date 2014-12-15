@@ -27,7 +27,7 @@ public class DataPackage implements Serializable {
 		username = name;
 		this.state = state;
 		message = msg;
-		gameState = new GameState();
+		gameState = null;
 
 	}
 
