@@ -54,7 +54,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		level = new Level(10);
 		speedups =  level.getSpeedups();
 		powerups = level.getPowerups();
-		player = new Player(level.platformY.get(player.getPlayerCart().getPlatform()), cart);
+		player = new Player(level.platformY.get(1), cart);
 		timer = 0;
 		finish = 0;
 		finalTime = 0;
