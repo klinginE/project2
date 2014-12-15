@@ -19,15 +19,14 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Player player = null;
 
 	private Level level = null;
-	private int platform;
 	private long timer = 0;
 	private long pauseTimer;
 	private long finalTime;
 	private int cart;
 	private int finish = 0;
 	private Image back;
-	
-	public void setPlayer(int c){
+
+	public void setPlayer(int c) {
 		cart = c;
 		return;
 	}
@@ -39,7 +38,7 @@ public class SinglePlayerGameState extends BasicGameState {
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-		platform = 1;
+		//platform = 1;
 		//player = new Player(level.platformY.get(platform), cart);
 		
 	}
@@ -48,7 +47,7 @@ public class SinglePlayerGameState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 
 		level = new Level(3);
-		player = new Player(level.platformY.get(platform), cart);
+		player = new Player(level.platformY.get(player.getPlayerCart().getPlatform()), cart);
 		timer = 0;
 		finish = 0;
 		finalTime = 0;
@@ -99,8 +98,8 @@ public class SinglePlayerGameState extends BasicGameState {
 		g.resetTransform();
 		
 		// draw powerup area
-		if (finalTime == 0){
-		back.draw(25,640);
+		if (25 + back.getWidth() + player.getPlayerCart().getWorldX() - player.getPlayerCart().getX() / 2.0f <= level.getLength() * 1000 && finish == 0) {
+			back.draw(25,640);
 		}
 		
 		//DEBUG: print mouse position
@@ -135,7 +134,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		if (finish == 1) {
 			input = null;
 		}
-		player.getPlayerCart().update(input, game, delta);
+		player.getPlayerCart().update(input, delta);
 		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 			player.getPlayerCart().setJumpPoint(440.0f);
 
@@ -156,15 +155,15 @@ public class SinglePlayerGameState extends BasicGameState {
 		}		
 		
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
-			if(platform < level.platformY.size() - 1) {
-				platform++;
-				player.getPlayerCart().setJumpPoint(level.platformY.get(platform));
+			if(player.getPlayerCart().getPlatform() < level.platformY.size() - 1) {
+				player.getPlayerCart().setPlatform(player.getPlayerCart().getPlatform() + 1);
+				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
 			}
 		}
 		if (input.isKeyPressed(Input.KEY_DOWN) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
-			if(platform > 0) {
-				platform--; 
-				player.getPlayerCart().setJumpPoint(level.platformY.get(platform));
+			if(player.getPlayerCart().getPlatform() > 0) {
+				player.getPlayerCart().setPlatform(player.getPlayerCart().getPlatform() - 1);
+				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
 			}
 		}
 		

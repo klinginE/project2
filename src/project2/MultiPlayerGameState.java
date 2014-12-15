@@ -12,11 +12,11 @@ import org.newdawn.slick.state.StateBasedGame;
 public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
+	private long frame = 0;
 	
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
-		GameState gameState = (GameState)(player.getPlayerClient().getGameState());
+		GameState gameState = player.getPlayerClient().getGameState();
 		if (gameState == null)
 			return;
 
@@ -84,15 +84,43 @@ public class MultiPlayerGameState extends BasicGameState {
 
 		// Draw the player
 		for (String user : gameState.playerCarts.keySet())
-			gameState.playerCarts.get(user).getCart().render(g);
+			gameState.playerCarts.get(user).getCart(true).render(g);
 
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 
-		//System.out.println("updateing state");
-		player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, game, delta);
+		while (true) {
+
+			DataPackage state = player.getPlayerClient().getCurrentState();
+			if (state == null)
+				return;
+			if (state.getState() != 100 && state.getState() != 0) {
+	
+				player.getPlayerClient().stopClient();
+				game.enterState(BlackFridayBlitz.TITLE_STATE);
+	
+			}
+			if (state.getGameState() == null)
+				return;
+	
+			long frameState = 0;
+
+			if (state.getGameState().frames.containsKey(player.getUsername()))
+				 frameState = state.getGameState().frames.get(player.getUsername()).longValue();
+
+			if (frame != frameState) {
+				frame = frameState;
+				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
+				break;
+			}
+			else if (frame == 0) {
+				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
+				break;
+			}
+
+		}
 
 	}
 

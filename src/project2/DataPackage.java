@@ -7,6 +7,7 @@ public class DataPackage implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MSG_100 = "All Good";
+	public static final String MSG_050 = "Server is the middle of hosting a game";
 	public static final String MSG_300 = "Client is diconnecting";
 	public static final String MSG_400 = "Server is diconnecting";
 	public static final String MSG_500 = "Server is shutting down";

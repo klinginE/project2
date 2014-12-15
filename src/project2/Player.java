@@ -58,7 +58,7 @@ public class Player {
 	public Cart getPlayerCart() {
 
 		if (playerClient != null && playerClient.getGameState() != null && playerClient.getGameState().playerCarts != null && playerClient.getGameState().playerCarts.get(getUsername()) != null)
-			playerCart = playerClient.getGameState().playerCarts.get(getUsername()).getCart();
+			playerCart = playerClient.getGameState().playerCarts.get(getUsername()).getCart(true);
 		return playerCart;
 
 	}
@@ -77,7 +77,9 @@ public class Player {
 
 			playerClient = new Client();
 			GameState ps = new GameState();
-			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getJumpPoint(), playerCart.getImageString()));
+			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getPlatform(), playerCart.getJumpPoint(), playerCart.getImageString()));
+			if (playerClient.getCurrentState().getState() != 100 && playerClient.getCurrentState().getState() != 0)
+				return;
 			playerClient.setGameState(ps);
 
 		}
