@@ -1,8 +1,10 @@
 package project2;
 
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import jig.Collision;
 import jig.ResourceManager;
 
 import org.newdawn.slick.Color;
@@ -19,6 +21,9 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Player player = null;
 
 	private Level level = null;
+
+	ArrayList<Speedup> speedups;
+	ArrayList<Powerup> powerups;
 	private long timer = 0;
 	private long pauseTimer;
 	private long finalTime;
@@ -46,7 +51,9 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 
-		level = new Level(3);
+		level = new Level(10);
+		speedups =  level.getSpeedups();
+		powerups = level.getPowerups();
 		player = new Player(level.platformY.get(player.getPlayerCart().getPlatform()), cart);
 		timer = 0;
 		finish = 0;
@@ -88,7 +95,12 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
-
+		// Draw items
+		for(int i = 0; i < speedups.size(); i++)
+			speedups.get(i).render(g);
+		for(int i = 0; i < powerups.size(); i++)
+			powerups.get(i).render(g);
+		
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
@@ -104,7 +116,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		
 		//DEBUG: print mouse position
 		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
-
+		g.drawString("speed: "+player.getPlayerCart().getCurrentSpeed(), 0, 50);
 		// Print time
 		if (timer > 3000){
 			g.setColor(Color.white);
@@ -117,7 +129,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		}
 		// Draw the player
 		player.getPlayerCart().render(g);
-
+		
 	}
 
 	@Override
@@ -167,7 +179,27 @@ public class SinglePlayerGameState extends BasicGameState {
 			}
 		}
 		
+		
+		for(Speedup speedup : speedups) {
+			if(speedup.getActive() && speedup.getX() >= player.getPlayerCart().getWorldX() - player.getPlayerCart().getX()
+					&& speedup.getX() <= player.getPlayerCart().getWorldX() + 1000 - player.getPlayerCart().getX()) {
+				speedup.setX(speedup.getX() + (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) -player.getPlayerCart().getWorldX());
+				System.out.println("collided with speedup: " +speedup.getX() +" " +speedup.getY() +"player: " +player.getPlayerCart().getX() +" " +player.getPlayerCart().getY());
+				
+				Collision c = speedup.collides(player.getPlayerCart());
+				speedup.setX(speedup.getX()- (player.getPlayerCart().getCoarseGrainedMaxX()/2.0f) + player.getPlayerCart().getWorldX());
+				
+				if(c != null) {
+					speedup.setActive(false);
+					player.getPlayerCart().addSpeedUp();
+				}
+			}
+		}
+			
+		
+		
 	}
+	
 	
 
 	@Override

@@ -28,6 +28,7 @@ public class Cart extends Entity {
 	private float worldY = 0.0f;
 	private int platform = 1;
 	private float jumpY = 0.0f;
+	private boolean keyleft, keyright;
 	private String imageString = "";
 
 	public static class CartState implements Serializable {
@@ -296,6 +297,7 @@ public class Cart extends Entity {
 				
 		
 			if (input.isKeyDown(Input.KEY_RIGHT)) {
+				keyright = true;
 				if(currentSpeed < 0)
 					currentSpeed += DECCELERATION_RATE;
 				else currentSpeed +=  ACCELERATION_RATE;
@@ -323,8 +325,11 @@ public class Cart extends Entity {
 				setY(jumpY);
 
 		}
-
-		worldX += ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f));
+			
+		float boost = 0.0f;
+		if(keyright)
+			boost = BOOST * numSpeedUps;
+		worldX += ((currentSpeed + boost + additionalSpeed) * (delta / 1000.0f));
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
 			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) + additionalSpeed) * (delta / 1000.0f)));
@@ -374,5 +379,6 @@ public class Cart extends Entity {
 		return worldY;
 
 	}
-
 }
+
+
