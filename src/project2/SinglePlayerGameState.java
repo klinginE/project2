@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import jig.Collision;
 import jig.ResourceManager;
 
 import org.newdawn.slick.Color;
@@ -21,15 +22,17 @@ public class SinglePlayerGameState extends BasicGameState {
 	private Player player = null;
 
 	private Level level = null;
+	ArrayList<Speedup> speedups;
+	ArrayList<Powerup> powerups;
+	ArrayList<Weapon> weapons;
 	private int platform;
 	private long timer = 0;
 	private long pauseTimer;
 	private long finalTime;
 	private int cart;
 	private int finish = 0;
-	private Image back;
-	private ArrayList<Powerup> powerups = new ArrayList<Powerup>();
 	Image[] itemIcon;
+	Image[] toggleIcon;
 	
 	public void setPlayer(int c){
 		cart = c;
@@ -45,10 +48,15 @@ public class SinglePlayerGameState extends BasicGameState {
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 		platform = 1;
 		itemIcon = new Image[4];
-		itemIcon[0] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
+		toggleIcon = new Image[6];
+		itemIcon[0] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BATTERY_PNG);
 		itemIcon[1] = ResourceManager.getImage(BlackFridayBlitz.WPICON_FIREWORK_PNG);
 		itemIcon[2] = ResourceManager.getImage(BlackFridayBlitz.WPICON_PLASTICBAG_PNG);
 		itemIcon[3] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
+		toggleIcon[0] = ResourceManager.getImage(BlackFridayBlitz.ARROWL_PNG);
+		toggleIcon[1] = ResourceManager.getImage(BlackFridayBlitz.ARROWR_PNG);
+		toggleIcon[2] = ResourceManager.getImage(BlackFridayBlitz.ARROWU_PNG);
+		toggleIcon[3] = ResourceManager.getImage(BlackFridayBlitz.ARROWD_PNG);
 		//player = new Player(level.platformY.get(platform), cart);
 		
 	}
@@ -56,7 +64,10 @@ public class SinglePlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 
-		level = new Level(3);
+		level = new Level(50);
+		speedups =  level.getSpeedups();
+		powerups = level.getPowerups();
+		weapons = new ArrayList<Weapon>();
 		player = new Player(level.platformY.get(platform), cart);
 		timer = 0;
 		finish = 0;
@@ -99,12 +110,12 @@ public class SinglePlayerGameState extends BasicGameState {
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
 		
-		// draw powerups
-		for(Iterator<Powerup> br = powerups.iterator(); br.hasNext();){
-			Powerup pow = br.next();
-			//pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
-			pow.render(g);		
-		}
+		
+		// draw collectibles
+		for(int i = 0; i < speedups.size(); i++)
+			speedups.get(i).render(g);
+		for(int i = 0; i < powerups.size(); i++)
+			powerups.get(i).render(g);
 
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
@@ -117,14 +128,29 @@ public class SinglePlayerGameState extends BasicGameState {
 		// draw powerup area
 		if (finalTime == 0){
 		back.draw(25,640);
+		}
 		if (player.getPowerup() != -1){
 			itemIcon[player.getPowerup()].draw(45, 660);
+			if (player.getPowerup() == 2){
+				if (player.getWeaponToggle() == 1){
+					toggleIcon[2].draw(65, 640);
+				} else { 
+					toggleIcon[3].draw(65, 726); 
+				}
+			}
+			if (player.getPowerup() == 3){
+				if (player.getWeaponToggle() == 1){
+					toggleIcon[0].draw(25, 680);
+				} else { 
+					toggleIcon[3].draw(65, 726); 
+				}			
 			}
 		}
 		
 		//DEBUG: print mouse position
 		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
-
+		g.drawString("speed: "+player.getPlayerCart().getCurrentSpeed(), 0, 50);
+		
 		// Print time
 		if (timer > 3000){
 			g.setColor(Color.white);
@@ -137,7 +163,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		}
 		// Draw the player
 		player.getPlayerCart().render(g);
-
+		
 	}
 
 	@Override
@@ -154,6 +180,13 @@ public class SinglePlayerGameState extends BasicGameState {
 		if (finish == 1) {
 			input = null;
 		}
+		for(Iterator<Weapon> br = weapons.iterator(); br.hasNext();){
+			Weapon wow = br.next();
+			wow.update(delta);
+			if (wow.end == 1)
+				br.remove();
+		}
+		
 		player.getPlayerCart().update(input, game, delta);
 		if (player.getPlayerCart().getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 			player.getPlayerCart().setJumpPoint(440.0f);
@@ -187,8 +220,13 @@ public class SinglePlayerGameState extends BasicGameState {
 			}
 		}
 		if (input.isKeyPressed(Input.KEY_SPACE) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint() && player.getPowerup() != -1) {
-			player.fireWeapon();
+			weapons.add(player.fireWeapon());
 		}
+		
+		if (input.isKeyPressed(Input.KEY_TAB) && player.getPowerup() != -1) {
+			player.toggleWeapon();
+		}
+		
 		
 		for(Iterator<Powerup> br = powerups.iterator(); br.hasNext();){
 			Powerup pow = br.next();
@@ -202,7 +240,20 @@ public class SinglePlayerGameState extends BasicGameState {
 			pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
 		}
 		
+		
+		for(Iterator<Speedup> br = speedups.iterator(); br.hasNext();){
+			Speedup zoom = br.next();
+			
+			zoom.setX(zoom.getX() - (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
+			//System.out.println(zoom.getX()+" ,"+ player.getPlayerCart().getX());
+			if (player.getPlayerCart().collides(zoom) != null && zoom.getActive()){
+				zoom.setActive(false);
+				player.getPlayerCart().addSpeedUp();		
+			}		
+			zoom.setX(zoom.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
+		}		
 	}
+	
 	
 
 	@Override

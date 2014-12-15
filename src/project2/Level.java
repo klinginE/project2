@@ -8,7 +8,8 @@ public class Level {
 
 	int length, numXpixels, dspawnPoint;
 	ArrayList<Float> platformY;
-	ArrayList<Speedup> speedups; //coords of speedups
+	ArrayList<Speedup> speedups;
+	ArrayList<Powerup> powerups;
 	Random random = new Random();
 	
 
@@ -17,6 +18,7 @@ public class Level {
 		
 		this.length = length;
 		speedups = new ArrayList<Speedup>();
+		powerups = new ArrayList<Powerup>();
 		platformY = new ArrayList<Float>();
 		platformY.add(520.0f); //floor
 		platformY.add(358.0f); //1st platform
@@ -30,22 +32,28 @@ public class Level {
 		numXpixels = length*1000; 
 		int spawnPoints = numXpixels/250;
 		
-		/*for(int i = 0; i < platformY.size(); i++) {
-			for(int j = 0; i < spawnPoints; j++) {
+		for(int i = 0; i < platformY.size(); i++) {
+			//System.out.println("i:" +i);
+			for(int j = 5; j < spawnPoints - 5; j++) {
+				//System.out.println("j: " +j);
 				int randomNumber = random.nextInt(100);	
-				if(randomNumber >= 75 && randomNumber < 85)
-					speedups.add( new Speedup(BlackFridayBlitz.SPEEDUP_PNG, i*numXpixels, platformY.get(i)));
+				if(randomNumber >= 75 && randomNumber < 85) {
+					//System.out.println("spawning speedup at " +j*250 + ", " +platformY.get(i));
+					speedups.add( new Speedup(BlackFridayBlitz.SPEEDUP_PNG, j*250, platformY.get(i)-20));
+					}
 				if(randomNumber >= 85 && randomNumber < 100)
-					//powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, i*numXpixels, platformY.get(i)));
+					powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, j*250, platformY.get(i)-43));
 					;
 			}
-		}	*/
+		}	
 	}
 
 	public ArrayList<Speedup> getSpeedups() {
 		return speedups;
 	}
-
+	public ArrayList<Powerup> getPowerups() {
+		return powerups;
+	}
 
 	public int getLength() {
 		return length;

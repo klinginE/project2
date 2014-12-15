@@ -2,6 +2,7 @@ package project2;
 
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Vector;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -42,6 +43,11 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String WPICON_FIREWORK_PNG = "resource/firework.png";
 	public static final String WPICON_PLASTICBAG_PNG = "resource/fallingplasticbag.png";
 	public static final String WPICON_BATTERY_PNG = "resource/battery.png";
+	public static final String ARROWL_PNG = "resource/arrowL.png";
+	public static final String ARROWR_PNG = "resource/arrowR.png";
+	public static final String ARROWU_PNG = "resource/arrowU.png";
+	public static final String ARROWD_PNG = "resource/arrowD.png";
+
 
 	public BlackFridayBlitz(String name) {
 
@@ -73,6 +79,10 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(WPICON_FIREWORK_PNG);
 		ResourceManager.loadImage(WPICON_PLASTICBAG_PNG);
 		ResourceManager.loadImage(WPICON_BATTERY_PNG);
+		ResourceManager.loadImage(ARROWL_PNG);
+		ResourceManager.loadImage(ARROWR_PNG);
+		ResourceManager.loadImage(ARROWU_PNG);
+		ResourceManager.loadImage(ARROWD_PNG);
 		addState(new TitleState());
 		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
@@ -98,5 +108,5 @@ public class BlackFridayBlitz extends StateBasedGame {
 		}
 
 	}
-
+	
 }
