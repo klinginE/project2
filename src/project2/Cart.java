@@ -57,8 +57,9 @@ public class Cart extends Entity {
 		public int platform_s = 1;
 		public float jumpY_s = 0.0f;
 		public String imageString_s = "";
+		public boolean keyleft_s, keyright_s;
 
-		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float bboost, float wx, float wy, int plat, float jy, String iStr, float maxScreen) {
+		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float bboost, float wx, float wy, int plat, float jy, String iStr, float maxScreen, boolean kleft, boolean kright) {
 
 			super();
 			x_s = x;
@@ -74,6 +75,8 @@ public class Cart extends Entity {
 			jumpY_s = jy;
 			imageString_s = iStr;
 			MAX_SCREEN_X_S = maxScreen;
+			keyleft_s = kleft;
+			keyright_s = kright;
 
 		}
 
@@ -99,6 +102,8 @@ public class Cart extends Entity {
 			c.setPlatform(platform_s);
 			c.setJumpPoint(jumpY_s);
 			c.MAX_SCREEN_X = MAX_SCREEN_X_S;
+			c.keyleft = keyleft_s;
+			c.keyright = keyright_s;
 			return c;
 
 		}
@@ -395,6 +400,12 @@ public class Cart extends Entity {
 
 	public float getMaxSpeed() {
 		return 1000;
+	}
+	public boolean getKeyleft() {
+		return keyleft;
+	}
+	public boolean getKeyright() {
+		return keyright;
 	}
 }
 

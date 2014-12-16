@@ -2,7 +2,6 @@ package project2;
 
 import jig.Entity;
 import jig.ResourceManager;
-import jig.Vector;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;

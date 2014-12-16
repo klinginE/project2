@@ -3,6 +3,7 @@ package project2;
 import java.io.Serializable;
 import java.util.Random;
 
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 
 import jig.ConvexPolygon;
@@ -15,16 +16,16 @@ public class Powerup extends Entity {
 	private float worldY = 0.0f;
 	private boolean active = true;
 	private String imageString = "";
-	private final Random spawn = new Random();
+	private static final Random spawn = new Random();
 
 	public static class PowerupState implements Serializable {
 
 		private static final long serialVersionUID = 2547080137547610618L;
+
 		public float worldX_s = 0.0f;
 		public float worldY_s = 0.0f;
 		public boolean active_s = true;
 		public String imageString_s = "";
-		public int type_s = 0;
 		public float width_s = 0.0f;
 		public float height_s = 0.0f;
 
@@ -81,6 +82,12 @@ public class Powerup extends Entity {
 		setX(worldX);
 		setY(worldY);
 
+	}
+
+	@Override
+	public void render(Graphics g) {
+		if(active)
+			super.render(g);
 	}
 
 	public float getWorldX() {

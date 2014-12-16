@@ -10,19 +10,19 @@ import project2.Speedup.SpeedupState;
 
 public class Level {
 
-	int length, numXpixels, dspawnPoint;
-	ArrayList<SpeedupState> speedups;
-	ArrayList<PowerupState> powerups;
-	Random random = new Random();
+	private int length, numXpixels, dspawnPoint;
+	private ArrayList<SpeedupState> speedups;
+	private ArrayList<PowerupState> powerups;
+	private static final Random random = new Random();
 	public static final float[] platformY = {520, 358 ,213, 70};
 	
 	public static class LevelState implements Serializable {
 
 		private static final long serialVersionUID = 5240679637926703874L;
-		int length_s, numXpixels_s, dspawnPoint_s;
-		ArrayList<SpeedupState> speedups_s;
-		ArrayList<PowerupState> powerups_s;
-		Random random_s = new Random();
+
+		public int length_s, numXpixels_s, dspawnPoint_s;
+		public ArrayList<SpeedupState> speedups_s;
+		public ArrayList<PowerupState> powerups_s;
 
 		public LevelState(int len, int numXpix, int dspawnP, ArrayList<SpeedupState> spups, ArrayList<PowerupState> powups) {
 
@@ -42,7 +42,6 @@ public class Level {
 			lvl.dspawnPoint = dspawnPoint_s;
 			lvl.speedups = speedups_s;
 			lvl.powerups = powerups_s;
-			lvl.random = random_s;
 			return lvl;
 
 		}
@@ -86,8 +85,20 @@ public class Level {
 	public ArrayList<PowerupState> getPowerups() {
 		return powerups;
 	}
+	public void setSpeedups(ArrayList<SpeedupState> spup) {
+		speedups = spup;
+	}
+	public void setPowerups(ArrayList<PowerupState> powup) {
+		powerups = powup;
+	}
 
 	public int getLength() {
 		return length;
+	}
+	public int getNumXpixels() {
+		return numXpixels;
+	}
+	public int getDspawnPoint() {
+		return dspawnPoint;
 	}
 }

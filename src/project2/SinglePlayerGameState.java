@@ -111,8 +111,8 @@ public class SinglePlayerGameState extends BasicGameState {
 		// Draw items
 		for(int i = 0; i < level.getSpeedups().size(); i++)
 			level.getSpeedups().get(i).getSpeedup(true).render(g);
-		for(int i = 0; i < level.powerups.size(); i++)
-			level.powerups.get(i).getPowerup(true).render(g);
+		for(int i = 0; i < level.getPowerups().size(); i++)
+			level.getPowerups().get(i).getPowerup(true).render(g);
 
 		//Draw weapons
 		for(int i = 0; i < weapons.size(); i++)
@@ -244,7 +244,7 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		}
 
-		level.speedups = newSpeedupStates;
+		level.setSpeedups(newSpeedupStates);
 
 		if (input.isKeyPressed(Input.KEY_TAB) && player.getPowerup() != -1) {
 			player.toggleWeapon();
@@ -258,20 +258,20 @@ public class SinglePlayerGameState extends BasicGameState {
 		}	
 
 		ArrayList<PowerupState> newPowerupStates = new ArrayList<PowerupState>();
-		for(Iterator<PowerupState> br = level.powerups.iterator(); br.hasNext();){
+		for(Iterator<PowerupState> br = level.getPowerups().iterator(); br.hasNext();){
 			PowerupState powState = br.next();
 			Powerup pow = powState.getPowerup(true);
 			
 			pow.setX(pow.getX() - (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
 			//System.out.println(pow.getX()+" ,"+ player.getPlayerCart().getX());
-			if (player.getPlayerCart().collides(pow) != null && player.getPowerup() == -1){
+			if (player.getPlayerCart().collides(pow) != null && player.getPowerup() == -1 && pow.getActive()){
 				player.setPowerup(pow.pickup());
-				br.remove();		
+				//br.remove();		
 			}		
 			pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
 			newPowerupStates.add(new PowerupState(pow.getImageString(), pow.getWorldX(), pow.getWorldY(), pow.getActive(), pow.getCoarseGrainedWidth(), pow.getCoarseGrainedHeight()));
 		}
-		level.powerups = newPowerupStates;
+		level.setPowerups(newPowerupStates);
 		
 	}
 	

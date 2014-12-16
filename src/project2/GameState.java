@@ -28,7 +28,7 @@ public class GameState implements Serializable {
 		playerCarts = new HashMap<String, CartState>();
 		inputs = new HashMap<String, HashMap<String, Boolean>>();
 		frames = new HashMap<String, Long>();
-		level = new LevelState(l.length, l.numXpixels, l.dspawnPoint, l.speedups, l.powerups);
+		level = new LevelState(l.getLength(), l.getNumXpixels(), l.getDspawnPoint(), l.getSpeedups(), l.getPowerups());
 
 	}
 	public GameState() {
@@ -43,7 +43,7 @@ public class GameState implements Serializable {
 
 	public void addGame(String username, Cart cart, GameContainer container, long frame) {
 
-		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getBatteryBoost(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString(), cart.MAX_SCREEN_X));
+		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getBatteryBoost(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString(), cart.MAX_SCREEN_X, cart.getKeyleft(), cart.getKeyright()));
 		frames.put(username, new Long(frame));
 
 		HashMap<String, Boolean> inputMap = new HashMap<String, Boolean>();
@@ -81,13 +81,13 @@ public class GameState implements Serializable {
 
 	}
 
-	public String toString() {
+	/*public String toString() {
 
 		return playerCarts.toString() + "\n" + inputs.toString() + "\n" + frames.toString() + "\n" + level.length_s + "\n" + timer;
 
-	}
+	}*/
 
-	public static GameState toObject(String gs) {
+	/*public static GameState toObject(String gs) {
 
 		String[] parts = gs.split("\n");
 		String carts = parts[0].substring(1);
@@ -158,6 +158,6 @@ public class GameState implements Serializable {
 		newGs.timer = time;
 		return newGs;
 
-	}
+	}*/
 
 }

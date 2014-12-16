@@ -1,20 +1,15 @@
 package project2;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Random;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
-
-
 
 public class Speedup extends Entity {
 

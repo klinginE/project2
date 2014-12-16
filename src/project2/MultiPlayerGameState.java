@@ -83,8 +83,8 @@ public class MultiPlayerGameState extends BasicGameState {
 		// Draw items
 		for(int i = 0; i < gameState.level.getLevel().getSpeedups().size(); i++)
 			gameState.level.getLevel().getSpeedups().get(i).getSpeedup(true).render(g);
-		for(int i = 0; i < gameState.level.getLevel().powerups.size(); i++)
-			gameState.level.getLevel().powerups.get(i).getPowerup(true).render(g);
+		for(int i = 0; i < gameState.level.getLevel().getPowerups().size(); i++)
+			gameState.level.getLevel().getPowerups().get(i).getPowerup(true).render(g);
 		
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
