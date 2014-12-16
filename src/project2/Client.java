@@ -29,51 +29,43 @@ public class Client {
 	private Socket socket;
 	private int port = 4444;
 	private String ip = "";
-	private String username = "";	
+	private String username = "";
+	public int userId = 0;
 	private volatile boolean isRunning = false;
-	private Thread receiveThread = null;
-	private Thread sendThread = null;
+	private ReceiveThread receiveThread = null;
+	private SendThread sendThread = null;
 	private volatile DataPackage currentState = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 
 	private class SendThread extends Thread {
 
-		private volatile long lastKnownFrame = -1;
+		public boolean okToWrite = true;
 
 		@Override
 		public void run() {
 
 			while (isRunning) {
 
+				if (!okToWrite)
+					continue;
 				try {
 
 					DataPackage dataState = null;
 					synchronized(currentState) {
 						dataState = currentState;
 					}
-					long frame = lastKnownFrame;
-					GameState gs = dataState.getGameState();
-					if (dataState != null &&
-						gs != null &&
-						gs.frames != null &&
-						gs.frames.containsKey(dataState.getUsername()) &&
-						gs.frames.get(dataState.getUsername()) != null)
-						frame = gs.frames.get(dataState.getUsername()).longValue();
-
-					if (frame == lastKnownFrame)
-						continue;
-					lastKnownFrame = frame;
 
 					oos.flush();
 					DataPackage dp = null;
 
-					if (dataState.getGameState().inputs.get(dataState.getUsername()).get("up").booleanValue() == true)
+					if (dataState != null && dataState.getGameState() != null && dataState.getGameState().inputs.get(dataState.getUsername()).get("up").booleanValue() == true)
 						System.out.println("Client writing frame: " + dataState.getGameState().frames.get(dataState.getUsername()) + " input: " + dataState.getGameState().inputs.get(dataState.getUsername()));
 					dp = new DataPackage(dataState.getUsername(), dataState.getState(), dataState.getMessage(), dataState.getGameState());
 					//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\twrite game data: " + currentState.getGameState() + "\n");
 
 					oos.writeObject(dp);
+					okToWrite = false;
 					//System.out.println("AFTER WRITE");
 					oos.flush();
 
@@ -98,31 +90,21 @@ public class Client {
 
 	private class ReceiveThread extends Thread {
 
-		private volatile long lastKnownFrame = -1;
-
+		public boolean okToRead = true;
+	
 		@Override
 		public void run() {
 
 			while (isRunning) {
 
+				if (!okToRead)
+					continue;
 				try {
 
 					//System.out.println("BEFRORE READ");
 					DataPackage dp = null;
 					dp = (DataPackage)ois.readObject();
-
-					long frame = lastKnownFrame;
-					GameState gs = dp.getGameState();
-					if (dp != null &&
-						dp.getGameState() != null &&
-						gs.frames != null &&
-						gs.frames.containsKey(dp.getUsername()) &&
-						gs.frames.get(dp.getUsername()) != null)
-						frame = gs.frames.get(dp.getUsername()).longValue();
-
-					if (frame == lastKnownFrame)
-						continue;
-					lastKnownFrame = frame;
+					okToRead = false;
 
 					synchronized (currentState) {
 
@@ -188,8 +170,9 @@ public class Client {
 				oos.flush();
 
 				DataPackage responseData = (DataPackage)ois.readObject();
-				if (responseData.getState() == 0) {
+				if (responseData.getState() >= 0 && responseData.getState() <= 3) {
 					nameOkay = true;
+					userId = responseData.getState();
 				}
 				else if (responseData.getState() == 200)
 					nameOkay = false;
@@ -300,23 +283,20 @@ public class Client {
 	public void updateGameState (String username, Cart cart, GameContainer container, long frame) {
 
 		synchronized (currentState) {
-			GameState gs = new GameState();
-			gs.playerCarts = new HashMap<String, CartState>(currentState.getGameState().playerCarts);
-			gs.inputs = new HashMap<String, HashMap<String, Boolean>>(currentState.getGameState().inputs);
-			gs.frames = new HashMap<String, Long>(currentState.getGameState().frames);
-			gs.level = currentState.getGameState().level;
-			gs.timer = currentState.getGameState().timer;
-			gs.pauseTimer = currentState.getGameState().pauseTimer;
-			gs.finalTime = currentState.getGameState().finalTime;
-			gs.finish = currentState.getGameState().finish;
-			gs.addGame(username, cart, container, frame);
-
-			if (gs.inputs.get(getUsername()).get("up").booleanValue() == true)
-				System.out.println("update frame: " + frame + " input: " + gs.inputs.get(getUsername()));
-			currentState.setGameState(gs);
+			currentState.getGameState().addGame(username, cart, container, frame);
 		}
 
 	}
+
+	public void setOkToRead() {
+		
+		receiveThread.okToRead = true;
+		
+	}
+	public void setOkToWrite() {
+		sendThread.okToWrite = true;
+	}
+	
 	public static void main(String[] args) {
 
 		try {

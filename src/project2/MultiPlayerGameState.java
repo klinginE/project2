@@ -27,7 +27,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 
 		Level level = new Level(3);
-		player = new Player(level.platformY.get(1), 0);
+		player = new Player(level.platformY.get(1));
 		player.connectToServer();
 
 	}
@@ -43,7 +43,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		if (gameState == null)
 			return;
 
-		Cart myCart = player.getPlayerCart();
+		Cart myCart = gameState.playerCarts.get(player.getUsername()).getCart(true); //player.getPlayerCart();
 		if (myCart == null)
 			return;
 
@@ -62,7 +62,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		float scaleY = (screenHeight - 100.0f) / (float)background.getHeight();
 
 		// Translate background
-		g.translate(-1.0f * (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X), 0.0f);
+		g.translate(-1.0f * (myCart.getWorldX() - Cart.MIN_SCREEN_X), 0.0f);
 
 		// Draw background
 		g.scale(1.0f, scaleY);
@@ -92,18 +92,19 @@ public class MultiPlayerGameState extends BasicGameState {
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
 		g.drawImage(checkout, (float)((float)((float)gameState.level.getLevel().getLength() * (float)background.getWidth() + (float)flag.getWidth()) / scaleY), 0.0f);
+		g.scale(1.0f / scaleY, 1.0f / scaleY);
 
 		// Undo transforms
 		g.resetTransform();
 		
 		// draw powerup area
-		if (25 + back.getWidth() + player.getPlayerCart().getWorldX() - player.getPlayerCart().getX() / 2.0f <= gameState.level.getLevel().getLength() * 1000 && gameState.finish == 0) {
+		if (25 + back.getWidth() + myCart.getWorldX() - myCart.getX() / 2.0f <= gameState.level.getLevel().getLength() * 1000 && gameState.finish == 0) {
 			back.draw(25,640);
 		}
 		
 		//DEBUG: print mouse position
 		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
-		g.drawString("speed: "+player.getPlayerCart().getCurrentSpeed(), 0, 50);
+		g.drawString("speed: "+myCart.getCurrentSpeed(), 0, 50);
 		// Print time
 		if (gameState.timer > 3000){
 			g.setColor(Color.white);
@@ -116,16 +117,25 @@ public class MultiPlayerGameState extends BasicGameState {
 		}
 
 		// Draw the player
-		for (String user : gameState.playerCarts.keySet())
-			gameState.playerCarts.get(user).getCart(true).render(g);
+		for (String user : gameState.playerCarts.keySet()) {
+			if (!user.equals(player.getUsername())) {
+				Cart c = gameState.playerCarts.get(user).getCart(true);
+				c.setX(c.getWorldX() + c.getX() - myCart.getWorldX());
+				c.render(g);
+			}
+			else
+				gameState.playerCarts.get(user).getCart(true).render(g);
+		}
 
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 
-		while (true) {
+		boolean frameChanged = false;
+		do {
 
+			player.getPlayerClient().setOkToRead();
 			DataPackage state = player.getPlayerClient().getCurrentState();
 			if (state == null)
 				return;
@@ -144,18 +154,24 @@ public class MultiPlayerGameState extends BasicGameState {
 				 frameState = state.getGameState().frames.get(player.getUsername()).longValue();
 
 			if (frame != frameState) {
+
 				frame = frameState;
+				frameChanged = true;
 				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
-				if (state.getGameState().inputs.get(player.getUsername()).get("up").booleanValue() == true)
+				player.getPlayerClient().setOkToWrite();
+				if (player.getPlayerClient().getGameState().inputs.get(player.getUsername()).get("up").booleanValue() == true)
 					System.out.println("Multi Player frame: " + frame + " input: " + state.getGameState().inputs);
-				break;
+
 			}
-			else if (frame == 0) {
-				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frame);
-				break;
+			else if (frameState == 0) {
+				frameChanged = true;
+				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
+				player.getPlayerClient().setOkToWrite();
 			}
 
-		}
+			
+
+		} while(!frameChanged);
 
 	}
 

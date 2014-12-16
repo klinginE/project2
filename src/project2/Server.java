@@ -66,7 +66,7 @@ public class Server {
 	public ServerSocket socket = null;
 
 	// Sever data
-	private final int MAX_CLIENTS = 1;
+	private final int MAX_CLIENTS = 2;
 	private int numClients = 0;
 	public final String MSG_000 = "Welcome to the server";
 	public final String MSG_200 = "Invalid Username";
@@ -167,11 +167,12 @@ public class Server {
 
 					for (String key : myState.frames.keySet()) {
 	
-						if (myState.finish == 1) {
+						Cart c = myState.playerCarts.get(key).getCart(false);
+						if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200) {
 							myState.inputs.put(key, null);
+							c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
 						}
 	
-						Cart c = myState.playerCarts.get(key).getCart(false);
 						HashMap<String, Boolean> inputs = myState.inputs.get(key);
 						c.update(inputs, delta);
 
@@ -180,9 +181,9 @@ public class Server {
 
 						if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200) {
 		
-							if (myState.finish == 0) {
+							myState.finish++;
+							if (myState.finish == myState.playerCarts.size() - 1) {
 	
-								myState.finish = 1;
 								myState.finalTime = myState.timer - 3000;
 								myState.pauseTimer = myState.timer + 3000;
 	
@@ -193,9 +194,8 @@ public class Server {
 								//game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
 	
 							}
-							c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
-							c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200);
 
+							c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200);
 							myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
 							continue;
 	
@@ -588,7 +588,7 @@ public class Server {
 							continue;
 
 						}
-						newClientPackage = new DataPackage(username, 0, MSG_000);
+						newClientPackage = new DataPackage(username, numClients - 1, MSG_000);
 
 						oos.flush();
 						oos.writeObject(newClientPackage);

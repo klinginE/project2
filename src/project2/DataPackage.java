@@ -1,6 +1,10 @@
 package project2;
 
 import java.io.Serializable;
+import java.util.HashMap;
+
+import project2.Cart.CartState;
+import project2.Level.LevelState;
 
 public class DataPackage implements Serializable {
 
@@ -36,7 +40,19 @@ public class DataPackage implements Serializable {
 		username = name;
 		message = msg;
 		this.state = state;
-		gameState = gs;
+
+		if (gameState != null && gs != null) {
+			gameState.playerCarts = gs.playerCarts;
+			gameState.frames = gs.frames;
+			gameState.level = gs.level;
+			gameState.timer = gs.timer;
+			gameState.pauseTimer = gs.pauseTimer;
+			gameState.finalTime = gs.finalTime;
+			gameState.finish = gs.finish;
+		}
+		else
+			gameState = gs;
+
 	}
 
 	public void setGameState(GameState state) {
