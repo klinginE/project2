@@ -2,7 +2,6 @@ package project2;
 
 import jig.Entity;
 import jig.ResourceManager;
-import jig.Vector;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -13,6 +12,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 
 	public static final int MAX_WINDOW_WIDTH = 1000;
 	public static final int MAX_WINDOW_HEIGHT = 740;
+	public static final int LEVEL_LENGTH = 4;//270
 	public static final int TITLE_STATE = 0;
 	public static final int MENU_STATE = 1;
 	public static final int SINGLE_PLAYER_GAME_STATE_ID = 2;
@@ -102,7 +102,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
 		addState(new SinglePlayerResultsState());
-		//addState(new MultiPlayerGameState());
+		addState(new MultiPlayerGameState());
 		//addState(new MultiPlayerResultsState());
 
 	}

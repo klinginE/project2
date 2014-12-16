@@ -1,33 +1,62 @@
 package project2;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
+
+import project2.Powerup.PowerupState;
+import project2.Speedup.SpeedupState;
 
 
 public class Level {
 
-	int length, numXpixels, dspawnPoint;
-	//ArrayList<Float> platformY;
-	ArrayList<Speedup> speedups;
-	ArrayList<Powerup> powerups;
-	Random random = new Random();
-	public static final float[] platformY = {520, 358, 213, 70};
+
+	private int length, numXpixels, dspawnPoint;
+	private ArrayList<SpeedupState> speedups;
+	private ArrayList<PowerupState> powerups;
+	private static final Random random = new Random();
+	public static final float[] platformY = {520, 358 ,213, 70};
 	
+	public static class LevelState implements Serializable {
 
+		private static final long serialVersionUID = 5240679637926703874L;
 
+		public int length_s, numXpixels_s, dspawnPoint_s;
+		public ArrayList<SpeedupState> speedups_s;
+		public ArrayList<PowerupState> powerups_s;
+
+		public LevelState(int len, int numXpix, int dspawnP, ArrayList<SpeedupState> spups, ArrayList<PowerupState> powups) {
+
+			super();
+			length_s = len;
+			numXpixels_s = numXpix;
+			dspawnPoint_s = dspawnP;
+			speedups_s = spups;
+			powerups_s = powups;
+
+		}
+		public Level getLevel() {
+			
+			Level lvl = new Level();
+			lvl.length = length_s;
+			lvl.numXpixels = numXpixels_s;
+			lvl.dspawnPoint = dspawnPoint_s;
+			lvl.speedups = speedups_s;
+			lvl.powerups = powerups_s;
+			return lvl;
+
+		}
+		
+	}
+
+	public Level() {
+		super();
+	}
 	public Level(int length) {
 		
 		this.length = length;
-		speedups = new ArrayList<Speedup>();
-		powerups = new ArrayList<Powerup>();
-//		platformY = new ArrayList<Float>();
-//		platformY.add(520.0f); //floor
-//		platformY.add(358.0f); //1st platform
-//		platformY.add(213.0f); //2nd platform
-//		platformY.add(70.0f); //3rd platform
-		
-		
-		
+		speedups = new ArrayList<SpeedupState>();
+		powerups = new ArrayList<PowerupState>();
 		
 		//speedups.add(new Speedup(BlackFridayBlitz.SPEEDUP_PNG, 800, platformY.get(1)));
 		numXpixels = length*1000; 
@@ -40,24 +69,37 @@ public class Level {
 				int randomNumber = random.nextInt(100);	
 				if(randomNumber >= 75 && randomNumber < 85) {
 					//System.out.println("spawning speedup at " +j*250 + ", " +platformY.get(i));
-					speedups.add( new Speedup(BlackFridayBlitz.SPEEDUP_PNG, j*250, platformY[i]-20));
+					Speedup spup = new Speedup(BlackFridayBlitz.SPEEDUP_PNG, 0, j*250, platformY[i]-20);
+					speedups.add(new SpeedupState(spup.getImageString(), spup.getTimer(), spup.getWorldX(), spup.getWorldY(), spup.getActive(), spup.getCoarseGrainedWidth(), spup.getCoarseGrainedHeight()));
 					}
-				if(randomNumber >= 85 && randomNumber < 100)
-					//System.out.println("spawning powerup at " +j*250 + ", " +platformY.get(i));
-
-					powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, j*250, platformY[i]-20));
+				if(randomNumber >= 85 && randomNumber < 100) {
+					Powerup powup = new Powerup(BlackFridayBlitz.POWERUP_PNG, j*250, platformY[i]-20);
+					powerups.add(new PowerupState(powup.getImageString(), powup.getWorldX(), powup.getWorldY(), powup.getActive(), powup.getCoarseGrainedWidth(), powup.getCoarseGrainedHeight()));
+				}
 			}
 		}	
 	}
 
-	public ArrayList<Speedup> getSpeedups() {
+	public ArrayList<SpeedupState> getSpeedups() {
 		return speedups;
 	}
-	public ArrayList<Powerup> getPowerups() {
+	public ArrayList<PowerupState> getPowerups() {
 		return powerups;
+	}
+	public void setSpeedups(ArrayList<SpeedupState> spup) {
+		speedups = spup;
+	}
+	public void setPowerups(ArrayList<PowerupState> powup) {
+		powerups = powup;
 	}
 
 	public int getLength() {
 		return length;
+	}
+	public int getNumXpixels() {
+		return numXpixels;
+	}
+	public int getDspawnPoint() {
+		return dspawnPoint;
 	}
 }
