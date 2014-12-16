@@ -23,6 +23,7 @@ public class Cart extends Entity {
 	private static final float DECCELERATION_RATE = 16.0f;
 
 	private float currentSpeed = 0.0f;
+	private float batteryBoost = 0.0f;
 	private int numSpeedUps = 0;
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
@@ -50,13 +51,14 @@ public class Cart extends Entity {
 		public float height_s = 0.0f;
 		public int numSpeedUps_s = 0;
 		public float currentSpeed_s = 0.0f;
+		public float batteryBoost_s = 0.0f;
 		public float worldX_s = 0.0f;
 		public float worldY_s = 0.0f;
 		public int platform_s = 1;
 		public float jumpY_s = 0.0f;
 		public String imageString_s = "";
 
-		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float wx, float wy, int plat, float jy, String iStr, float maxScreen) {
+		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float bboost, float wx, float wy, int plat, float jy, String iStr, float maxScreen) {
 
 			super();
 			x_s = x;
@@ -65,6 +67,7 @@ public class Cart extends Entity {
 			height_s = height;
 			numSpeedUps_s = numSpeed;
 			currentSpeed_s = currSpeed;
+			batteryBoost_s = bboost;
 			worldX_s = wx;
 			worldY_s = wy;
 			platform_s = plat;
@@ -92,6 +95,7 @@ public class Cart extends Entity {
 			c.setY(y_s);
 			c.setNumSpeedUps(numSpeedUps_s);
 			c.setCurrentSpeed(currentSpeed_s);
+			c.setBatteryBoost(batteryBoost_s);
 			c.setPlatform(platform_s);
 			c.setJumpPoint(jumpY_s);
 			c.MAX_SCREEN_X = MAX_SCREEN_X_S;
@@ -197,6 +201,7 @@ public class Cart extends Entity {
 			numSpeedUps++;
 
 	}
+
 	public void setNumSpeedUps(int num) {
 
 		numSpeedUps = num;
@@ -283,10 +288,10 @@ public class Cart extends Entity {
 
 	public void update(Input input, int delta) {
 
-		if (currentSpeed > MAX_SPEED)
-			currentSpeed = MAX_SPEED;
-		if (currentSpeed < (-1.0f * MAX_SPEED))
-			currentSpeed = (-1.0f * MAX_SPEED);
+		if (currentSpeed > MAX_SPEED + BOOST * numSpeedUps + batteryBoost)
+			currentSpeed = MAX_SPEED + BOOST * numSpeedUps + batteryBoost;
+		if (currentSpeed < (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost)))
+			currentSpeed = (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost));
 
 		if (input != null) {
 			if(input.isKeyDown(Input.KEY_LEFT)) {
@@ -328,8 +333,9 @@ public class Cart extends Entity {
 			
 		float boost = 0.0f;
 		if(keyright)
-			boost = BOOST * numSpeedUps;
+			boost = BOOST * numSpeedUps + batteryBoost;
 		worldX += ((currentSpeed + boost) * (delta / 1000.0f));
+
 		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
 			setX(getX() + ((currentSpeed + (BOOST * numSpeedUps) ) * (delta / 1000.0f)));
@@ -363,6 +369,13 @@ public class Cart extends Entity {
 
 	}
 
+	public float getBatteryBoost() {
+		return batteryBoost;
+	}
+	public void setBatteryBoost(float bboost) {
+		batteryBoost = bboost;
+	}
+	
 	public float getWorldX() {
 
 		return worldX;
@@ -378,6 +391,10 @@ public class Cart extends Entity {
 
 		return worldY;
 
+	}
+
+	public float getMaxSpeed() {
+		return 1000;
 	}
 }
 

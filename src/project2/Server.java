@@ -196,17 +196,17 @@ public class Server {
 							}
 
 							c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200);
-							myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
+							myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
 							continue;
 	
 						}
 						
 						if (inputs.get("up") && c.getY() == c.getJumpPoint()) {
 	
-							if(c.getPlatform() < myState.level.platformY_s.size() - 1) {
+							if(c.getPlatform() < Level.platformY.length - 1) {
 	
 								c.setPlatform(c.getPlatform() + 1);
-								c.setJumpPoint(myState.level.platformY_s.get(c.getPlatform()));
+								c.setJumpPoint(Level.platformY[c.getPlatform()]);
 	
 							}
 	
@@ -217,7 +217,7 @@ public class Server {
 							if(c.getPlatform() > 0) {
 	
 								c.setPlatform(c.getPlatform() - 1);
-								c.setJumpPoint(myState.level.platformY_s.get(c.getPlatform()));
+								c.setJumpPoint(Level.platformY[c.getPlatform()]);
 	
 							}
 	
@@ -243,7 +243,7 @@ public class Server {
 
 						}
 						myState.level.speedups_s = newSpeedupStates;
-						myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
+						myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X));
 
 					}
 

@@ -40,6 +40,22 @@ public class BlackFridayBlitz extends StateBasedGame {
 	public static final String BACK_PNG = "resource/back.png";
 	public static final String RECEIPT_JPG = "resource/receipt.jpg";
 	public static final String RECEIPT_FONT = "resource/fakereceipt.ttf";
+	public static final String WPICON_BOWLING_BALL_PNG = "resource/bowlingball.png";
+	public static final String WPICON_FIREWORK_PNG = "resource/firework.png";
+	public static final String WPICON_PLASTICBAG_PNG = "resource/fallingplasticbag.png";
+	public static final String WPICON_BATTERY_PNG = "resource/battery.png";
+	public static final String WP_AURA_PNG = "resource/aura.png";
+	public static final String WP_BALL_PNG = "resource/bowlingball_anim.png";
+	public static final String WP_BAGUP_PNG = "resource/floatingbag.png";
+	public static final String WP_BAGDOWN_PNG = "resource/fallingplasticbag_anim.png";
+	public static final String WP_BAGREST_PNG = "resource/bagatrest.png";
+	public static final String WP_ROCKET_PNG = "resource/rocket.png";
+	public static final String WP_FIREWORKS_PNG = "resource/fireworks.png";
+	public static final String ARROWL_PNG = "resource/arrowL.png";
+	public static final String ARROWR_PNG = "resource/arrowR.png";
+	public static final String ARROWU_PNG = "resource/arrowU.png";
+	public static final String ARROWD_PNG = "resource/arrowD.png";
+
 
 	public BlackFridayBlitz(String name) {
 
@@ -56,6 +72,7 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(CHECKERED_FLAG_PNG);
 		ResourceManager.loadImage(TRAFFICLIGHT_PNG);
 		ResourceManager.loadImage(SPEEDUP_PNG);
+		ResourceManager.loadImage(POWERUP_PNG);
 		ResourceManager.loadImage(CHECKOUT_JPG);
 		ResourceManager.loadImage(PLAYER1_PNG);
 		ResourceManager.loadImage(PLAYER2_PNG);
@@ -64,10 +81,26 @@ public class BlackFridayBlitz extends StateBasedGame {
 		ResourceManager.loadImage(TITLE_PNG);
 		ResourceManager.loadImage(TITLEBG_JPG);
 		ResourceManager.loadImage(BUTTON_PNG);
+		ResourceManager.loadImage(BUTTON2_PNG);
 		ResourceManager.loadImage(BACK_PNG);
 		ResourceManager.loadImage(RECEIPT_JPG);
-		//addState(new MenuState());
+		ResourceManager.loadImage(WPICON_BOWLING_BALL_PNG);
+		ResourceManager.loadImage(WPICON_FIREWORK_PNG);
+		ResourceManager.loadImage(WPICON_PLASTICBAG_PNG);
+		ResourceManager.loadImage(WPICON_BATTERY_PNG);
+		ResourceManager.loadImage(WP_AURA_PNG);
+		ResourceManager.loadImage(WP_BALL_PNG);
+		ResourceManager.loadImage(WP_BAGUP_PNG);
+		ResourceManager.loadImage(WP_BAGDOWN_PNG);
+		ResourceManager.loadImage(WP_BAGREST_PNG);
+		ResourceManager.loadImage(WP_ROCKET_PNG);
+		ResourceManager.loadImage(WP_FIREWORKS_PNG);
+		ResourceManager.loadImage(ARROWL_PNG);
+		ResourceManager.loadImage(ARROWR_PNG);
+		ResourceManager.loadImage(ARROWU_PNG);
+		ResourceManager.loadImage(ARROWD_PNG);
 		addState(new TitleState());
+		//addState(new MenuState());
 		addState(new SinglePlayerGameState());
 		addState(new SinglePlayerResultsState());
 		addState(new MultiPlayerGameState());

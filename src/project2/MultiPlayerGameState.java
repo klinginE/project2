@@ -17,7 +17,6 @@ public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
 	private long frame = 0;
-	private boolean render = true;
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
@@ -26,8 +25,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 
-		Level level = new Level(3);
-		player = new Player(level.platformY.get(1));
+		player = new Player(Level.platformY[1]);
 		player.connectToServer();
 
 	}

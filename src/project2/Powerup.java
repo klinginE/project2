@@ -1,6 +1,7 @@
 package project2;
 
 import java.io.Serializable;
+import java.util.Random;
 
 import org.newdawn.slick.Image;
 
@@ -14,6 +15,7 @@ public class Powerup extends Entity {
 	private float worldY = 0.0f;
 	private boolean active = true;
 	private String imageString = "";
+	private final Random spawn = new Random();
 
 	public static class PowerupState implements Serializable {
 
@@ -22,6 +24,7 @@ public class Powerup extends Entity {
 		public float worldY_s = 0.0f;
 		public boolean active_s = true;
 		public String imageString_s = "";
+		public int type_s = 0;
 		public float width_s = 0.0f;
 		public float height_s = 0.0f;
 
@@ -91,6 +94,10 @@ public class Powerup extends Entity {
 	}
 	public String getImageString() {
 		return imageString;
+	}
+	public int pickup(){		
+		active = false;
+		return spawn.nextInt(4);
 	}
 
 }
