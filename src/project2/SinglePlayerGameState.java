@@ -33,7 +33,6 @@ public class SinglePlayerGameState extends BasicGameState {
 	private int finish = 0;
 	Image[] itemIcon;
 	Image[] toggleIcon;
-	private Image back;
 
 	public void setPlayer(int c) {
 		cart = c;
@@ -66,8 +65,9 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		level = new Level(50);
 		speedups =  level.getSpeedups();
+		powerups = level.getPowerups();
 		weapons = new ArrayList<Weapon>();
-		player = new Player(level.platformY.get(1), cart);
+		player = new Player(Level.platformY[1], cart);
 		timer = 0;
 		finish = 0;
 		finalTime = 0;
@@ -110,11 +110,14 @@ public class SinglePlayerGameState extends BasicGameState {
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
 		
 		
-		// draw collectibles
+		// draw collectables
 		for(int i = 0; i < speedups.size(); i++)
 			speedups.get(i).render(g);
 		for(int i = 0; i < powerups.size(); i++)
 			powerups.get(i).render(g);
+		//Draw weapons
+		for(int i = 0; i < weapons.size(); i++)
+			weapons.get(i).render(g);
 
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
@@ -127,22 +130,22 @@ public class SinglePlayerGameState extends BasicGameState {
 		// draw powerup area
 		if (25 + back.getWidth() + player.getPlayerCart().getWorldX() - player.getPlayerCart().getX() / 2.0f <= level.getLength() * 1000 && finish == 0) {
 			back.draw(25,640);
-		}
-		if (player.getPowerup() != -1){
-			itemIcon[player.getPowerup()].draw(45, 660);
-			if (player.getPowerup() == 2){
-				if (player.getWeaponToggle() == 1){
-					toggleIcon[2].draw(65, 640);
-				} else { 
-					toggleIcon[3].draw(65, 726); 
+			if (player.getPowerup() != -1){
+				itemIcon[player.getPowerup()].draw(45, 660);
+				if (player.getPowerup() == 2){
+					if (player.getWeaponToggle() == 1){
+						toggleIcon[2].draw(65, 640);
+					} else { 
+						toggleIcon[3].draw(65, 726); 
+					}
 				}
-			}
-			if (player.getPowerup() == 3){
-				if (player.getWeaponToggle() == 1){
-					toggleIcon[0].draw(25, 680);
-				} else { 
-					toggleIcon[3].draw(65, 726); 
-				}			
+				if (player.getPowerup() == 3){
+					if (player.getWeaponToggle() == 1){
+						toggleIcon[0].draw(25, 680);
+					} else { 
+						toggleIcon[3].draw(65, 726); 
+					}			
+				}
 			}
 		}
 		
@@ -160,6 +163,7 @@ public class SinglePlayerGameState extends BasicGameState {
 			}
 			g.resetTransform();
 		}
+		
 		// Draw the player
 		player.getPlayerCart().render(g);
 		
@@ -178,12 +182,6 @@ public class SinglePlayerGameState extends BasicGameState {
 		}
 		if (finish == 1) {
 			input = null;
-		}
-		for(Iterator<Weapon> br = weapons.iterator(); br.hasNext();){
-			Weapon wow = br.next();
-			wow.update(delta);
-			if (wow.end == 1)
-				br.remove();
 		}
 		
 		player.getPlayerCart().update(input, delta);
@@ -207,25 +205,35 @@ public class SinglePlayerGameState extends BasicGameState {
 		}
 		
 		if (input.isKeyPressed(Input.KEY_UP) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
-			if(player.getPlayerCart().getPlatform() < level.platformY.size() - 1) {
+			if(player.getPlayerCart().getPlatform() < Level.platformY.length - 1) {
 				player.getPlayerCart().setPlatform(player.getPlayerCart().getPlatform() + 1);
-				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
+				player.getPlayerCart().setJumpPoint(Level.platformY[player.getPlayerCart().getPlatform()]);
 			}
 		}
 		if (input.isKeyPressed(Input.KEY_DOWN) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint()) {
 			if(player.getPlayerCart().getPlatform() > 0) {
 				player.getPlayerCart().setPlatform(player.getPlayerCart().getPlatform() - 1);
-				player.getPlayerCart().setJumpPoint(level.platformY.get(player.getPlayerCart().getPlatform()));
+				player.getPlayerCart().setJumpPoint(Level.platformY[player.getPlayerCart().getPlatform()]);
 			}
 		}
 		if (input.isKeyPressed(Input.KEY_SPACE) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint() && player.getPowerup() != -1) {
-			weapons.add(player.fireWeapon());
+			if (player.getPowerup() == 0 && player.getPlayerCart().getBatteryBoost() != 0){
+			} else {
+				weapons.add(player.fireWeapon());
+			}
 		}
 		
 		if (input.isKeyPressed(Input.KEY_TAB) && player.getPowerup() != -1) {
 			player.toggleWeapon();
 		}
 		
+		
+		for(Iterator<Weapon> br = weapons.iterator(); br.hasNext();){
+			Weapon wow = br.next();
+			wow.update(delta);
+			if (wow.end == 1)
+				br.remove();
+		}	
 		
 		for(Iterator<Powerup> br = powerups.iterator(); br.hasNext();){
 			Powerup pow = br.next();
