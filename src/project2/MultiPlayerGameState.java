@@ -23,7 +23,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 
 		Level level = new Level(3);
-		player = new Player(level.platformY.get(1), 0);
+		player = new Player(Level.platformY[1], 0);
 		player.connectToServer();
 
 	}
