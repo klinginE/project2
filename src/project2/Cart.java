@@ -1,13 +1,13 @@
 package project2;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
-import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.state.StateBasedGame;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
 
@@ -22,20 +22,19 @@ public class Cart extends Entity {
 	private static final float BOOST_ACCEL = .3f;
 	private static final float ACCELERATION_RATE = 4.0f;
 	private static final float DECCELERATION_RATE = 16.0f;
-
+	private float boost = 0;
 	private float currentSpeed = 0.0f;
+	private float batteryBoost = 0.0f;
 	private int numSpeedUps = 0;
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
+	private int platform = 1;
 	private float jumpY = 0.0f;
 	private boolean keyleft, keyright;
 	private String imageString = "";
 
 	public static class CartState implements Serializable {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 4599756143520475030L;
 
 		public static final float MAX_SPEED_S = MAX_SPEED;
@@ -53,12 +52,14 @@ public class Cart extends Entity {
 		public float height_s = 0.0f;
 		public int numSpeedUps_s = 0;
 		public float currentSpeed_s = 0.0f;
+		public float batteryBoost_s = 0.0f;
 		public float worldX_s = 0.0f;
 		public float worldY_s = 0.0f;
+		public int platform_s = 1;
 		public float jumpY_s = 0.0f;
 		public String imageString_s = "";
 
-		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float wx, float wy, float jy, String iStr) {
+		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float bboost, float wx, float wy, int plat, float jy, String iStr) {
 
 			super();
 			x_s = x;
@@ -67,20 +68,35 @@ public class Cart extends Entity {
 			height_s = height;
 			numSpeedUps_s = numSpeed;
 			currentSpeed_s = currSpeed;
+			batteryBoost_s = bboost;
 			worldX_s = wx;
 			worldY_s = wy;
+			platform_s = plat;
 			jumpY_s = jy;
 			imageString_s = iStr;
 
 		}
 
-		public Cart getCart() {
+		public String toString() {
 
-			Cart c = new Cart(imageString_s, worldX_s, worldY_s);
+			String s = "{" + x_s + "," + y_s + "," + width_s + "," + height_s + "," + numSpeedUps_s + "," + currentSpeed_s + "," + worldX_s + "," + worldY_s + "," + platform_s + "," + jumpY_s + "," + imageString_s + "}";
+			return s;
+
+		}
+
+		public Cart getCart(boolean withImage) {
+
+			Cart c = null;
+			if (withImage)
+				c = new Cart(imageString_s, worldX_s, worldY_s);
+			else
+				c = new Cart(imageString_s, worldX_s, worldY_s, width_s, height_s);
 			c.setX(x_s);
 			c.setY(y_s);
 			c.setNumSpeedUps(numSpeedUps_s);
 			c.setCurrentSpeed(currentSpeed_s);
+			c.setBatteryBoost(batteryBoost_s);
+			c.setPlatform(platform_s);
 			c.setJumpPoint(jumpY_s);
 			return c;
 
@@ -117,6 +133,32 @@ public class Cart extends Entity {
 
 	}
 
+	public Cart(String cartImage, float w_x, float w_y, float width, float height) {
+
+		super();
+		addShape(new ConvexPolygon(width, height));
+		worldX = w_x;
+		worldY = w_y;
+		setX(worldX);
+		setY(worldY);
+		jumpY = getY();
+		imageString = cartImage;
+		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
+
+			if (getX() > MAX_SCREEN_X)
+				setX(MAX_SCREEN_X);
+			if (getX() < MIN_SCREEN_X)
+				setX(MIN_SCREEN_X);
+
+		}
+		if (worldX < MIN_WORLD_X) {
+
+			worldX = MIN_WORLD_X;
+			currentSpeed = 0;
+
+		}
+
+	}
 	@Override
 	public void render(Graphics g) {
 
@@ -129,9 +171,20 @@ public class Cart extends Entity {
 
 	}
 
+	public int getPlatform() {
+
+		return platform;
+
+	}
+	public void setPlatform(int p) {
+
+		platform = p;
+
+	}
+
 	public void setJumpPoint(float jPoint) {
 
-			jumpY = jPoint;
+		jumpY = jPoint;
 
 	}
 
@@ -147,6 +200,7 @@ public class Cart extends Entity {
 			numSpeedUps++;
 
 	}
+
 	public void setNumSpeedUps(int num) {
 
 		numSpeedUps = num;
@@ -168,9 +222,14 @@ public class Cart extends Entity {
 
 	}
 
-	public void update(Input input, StateBasedGame game, int delta) {
+	public void update(Input input, long delta) {
 
 		float additionalSpeed = 0.0f;
+		if (currentSpeed > MAX_SPEED + BOOST * numSpeedUps + batteryBoost)
+			currentSpeed = MAX_SPEED + BOOST * numSpeedUps + batteryBoost;
+		if (currentSpeed < (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost)))
+			currentSpeed = (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost));
+
 		if (input != null) {
 			if(input.isKeyDown(Input.KEY_LEFT)) {
 				if(currentSpeed > 0) 
@@ -180,25 +239,48 @@ public class Cart extends Entity {
 				
 		
 			if (input.isKeyDown(Input.KEY_RIGHT)) {
-				keyright = true;
 				if(currentSpeed < 0)
 					currentSpeed += DECCELERATION_RATE;
-				else currentSpeed +=  ACCELERATION_RATE + numSpeedUps * BOOST_ACCEL;
+				else currentSpeed +=  ACCELERATION_RATE;
 			
 			}
 			if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
 				if(currentSpeed > 0)
 					currentSpeed -= ACCELERATION_RATE;
 				else currentSpeed += ACCELERATION_RATE;
-				if(currentSpeed <= 4 && currentSpeed >= -4) //set to 0 to stop toggle
-					currentSpeed = 0;
 				
 			}
+		}
+		}
+
+	public void update(HashMap<String, Boolean> inputs, long delta) {
+
+		float additionalSpeed = 0.0f;
+		if (currentSpeed > MAX_SPEED + BOOST * numSpeedUps + batteryBoost)
+			currentSpeed = MAX_SPEED + BOOST * numSpeedUps + batteryBoost;
+		if (currentSpeed < (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost)))
+			currentSpeed = (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost));
+
+		if (inputs != null) {
+			if(inputs.get("left").booleanValue()) {
+				if(currentSpeed > 0) 
+					currentSpeed -= DECCELERATION_RATE;
+				else currentSpeed -= ACCELERATION_RATE;
+			}
+				
+		
+			if (inputs.get("right").booleanValue()) {
+				if(currentSpeed < 0)
+					currentSpeed += DECCELERATION_RATE;
+				else currentSpeed +=  ACCELERATION_RATE;
 			
-			if (currentSpeed > MAX_SPEED + (numSpeedUps * BOOST))
-				currentSpeed = MAX_SPEED + (numSpeedUps * BOOST);
-			if (currentSpeed < (-1.0f * MAX_SPEED)) // can't boost backwards
-				currentSpeed = (-1.0f * MAX_SPEED);
+			}
+			if(!inputs.get("right").booleanValue() && !inputs.get("left").booleanValue()) {
+				if(currentSpeed > 0)
+					currentSpeed -= ACCELERATION_RATE;
+				else currentSpeed += ACCELERATION_RATE;
+				
+			}
 
 		}
 		if (getY() > jumpY) {
@@ -215,28 +297,25 @@ public class Cart extends Entity {
 				setY(jumpY);
 
 		}
-			
-		float boost = 0.0f;
-		if(keyright)
-			boost = BOOST * numSpeedUps;
-		worldX += ((currentSpeed + additionalSpeed) * (delta / 1000.0f));
-		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
-			setX(getX() + ((currentSpeed + additionalSpeed) * (delta / 1000.0f)));
-			if (getX() > MAX_SCREEN_X)
-				setX(MAX_SCREEN_X);
-			if (getX() < MIN_SCREEN_X)
-				setX(MIN_SCREEN_X);
+		boost = BOOST * numSpeedUps + batteryBoost;
+	worldX += ((currentSpeed + boost + additionalSpeed) * (delta / 1000.0f));
+	if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
+		setX(getX() + ((currentSpeed + additionalSpeed) * (delta / 1000.0f)));
+		if (getX() > MAX_SCREEN_X)
+			setX(MAX_SCREEN_X);
+		if (getX() < MIN_SCREEN_X)
+			setX(MIN_SCREEN_X);
+
+	}	
+		
+	if (worldX < MIN_WORLD_X) {
+		worldX = MIN_WORLD_X;
+		currentSpeed = 0;
 		}
-		if (worldX < MIN_WORLD_X) {
-
-			worldX = MIN_WORLD_X;
-			currentSpeed = 0;
-
-		}
-
 	}
+
 
 	public float getCurrentSpeed() {
 
@@ -253,6 +332,13 @@ public class Cart extends Entity {
 
 	}
 
+	public float getBatteryBoost() {
+		return batteryBoost;
+	}
+	public void setBatteryBoost(float bboost) {
+		batteryBoost = bboost;
+	}
+	
 	public float getWorldX() {
 
 		return worldX;
@@ -268,6 +354,10 @@ public class Cart extends Entity {
 
 		return worldY;
 
+	}
+
+	public float getMaxSpeed() {
+		return 1000;
 	}
 }
 

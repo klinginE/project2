@@ -9,11 +9,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -23,8 +21,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
@@ -37,6 +35,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+
+import jig.Entity;
+
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
+
+import project2.Cart.CartState;
 
 /**
  * CLIENT STATES:
@@ -55,7 +63,7 @@ public class Server {
 	public ServerSocket socket = null;
 
 	// Sever data
-	private final int MAX_CLIENTS = 4;
+	private final int MAX_CLIENTS = 1;
 	private int numClients = 0;
 	public final String MSG_000 = "Welcome to the server";
 	public final String MSG_200 = "Invalid Username";
@@ -74,58 +82,277 @@ public class Server {
 	// Thread data
 	public volatile boolean serverIsRunning = false;
 	public AcceptThread acceptThread = null;
-	public GameThread gameThread = null;
+	public GameThread serverGameThread = null;
 
 	private class GameThread extends Thread {
 
-		private GameState currentGameState = null;
+		ServerBlackFridayBlitz serverGame = null;
 
-		public void setGameState(GameState gs) {
+		private class ServerBlackFridayBlitz extends StateBasedGame {
 
-			currentGameState = gs;
+			public ServerBlackFridayBlitz(String name) {
+
+				super(name);
+				Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+
+			}
+
+			@Override
+			public void initStatesList(GameContainer contianer) throws SlickException {
+
+				addState(new SeverMultiPlayerGameState());
+
+			}
 
 		}
-		public GameState getGameState() {
 
-			return currentGameState;
+		private class SeverMultiPlayerGameState extends BasicGameState {
+
+			private GameState currentGameState = null;
+			private volatile long frame = 0;
+			private int finish = 0;
+			private float finalTimer = 0.0f;
+			private float pauseTimer = 0.0f;
+
+			@Override
+			public void init(GameContainer container, StateBasedGame game) throws SlickException {
+
+				currentGameState = new GameState();
+				frame = 0;
+
+			}
+
+			@Override
+			public void render(GameContainer contianer, StateBasedGame game, Graphics g) throws SlickException {}
+
+			@Override
+			public void update(GameContainer contianer, StateBasedGame game, int delta) throws SlickException {
+
+				//System.out.println("Frame: " + frame);
+				synchronized(currentGameState) {
+
+					if (currentGameState == null ||
+						currentGameState.playerCarts == null ||
+						currentGameState.playerCarts.size() < MAX_CLIENTS)
+						return;
+
+				}
+
+				boolean framesCorrect = true;
+				synchronized(currentGameState) {
+
+					for (String key : currentGameState.frames.keySet()) {
+
+						if (frame != currentGameState.frames.get(key).longValue()) {
+							framesCorrect = false;
+							break;
+						}
+
+					}
+
+				}
+				if (!framesCorrect)
+					return;
+
+				frame++;
+
+				//System.out.println("delta: " + delta);
+				synchronized(currentGameState) {
+
+					currentGameState.timer += delta;
+					if (currentGameState.timer >= 3000l) {
+	
+						for (String key : currentGameState.frames.keySet()) {
+		
+							if (finish == 1) {
+								currentGameState.inputs.put(key, null);
+							}
+		
+							Cart c = currentGameState.playerCarts.get(key).getCart(false);
+							HashMap<String, Boolean> inputs = currentGameState.inputs.get(key);
+							c.update(inputs, delta);
+							if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
+								c.setJumpPoint(440.0f);
+			
+							/*if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 200) {//level.getLength()
+			
+								if (finish == 0) {
+		
+									finish = 1;
+									finalTimer = currentGameState.timer - 3000;
+									pauseTimer = currentGameState.timer + 3000;
+		
+								}
+								if (currentGameState.timer > pauseTimer) {
+		
+									//((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(cart, finalTime);
+									//game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
+		
+								}
+								c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
+								c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 200);//level.getLength()
+								return;
+		
+							}*/
+							
+							if (inputs.get("up") && c.getY() == c.getJumpPoint()) {
+		
+								if(c.getPlatform() < 3) {//level.platformY.size() - 1
+		
+									c.setPlatform(c.getPlatform() + 1);
+									c.setJumpPoint(200.0f);//level.platformY.get(platform)
+		
+								}
+		
+							}
+		
+							if (inputs.get("down") && c.getY() == c.getJumpPoint()) {
+		
+								if(c.getPlatform() > 0) {
+		
+									c.setPlatform(c.getPlatform() - 1);
+									c.setJumpPoint(400.0f);//level.platformY.get(platform)
+		
+								}
+		
+							}
+	
+							currentGameState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString()));
+	
+						}
+
+					}
+
+				}
+
+				synchronized(list_clientThreads) {
+
+					for (ClientThread ct : list_clientThreads) {
+						GameState gs = new GameState();
+						synchronized(currentGameState) {
+							gs.playerCarts = new HashMap<String, CartState>(currentGameState.playerCarts);
+							gs.inputs = new HashMap<String, HashMap<String, Boolean>>(currentGameState.inputs);
+							gs.frames = new HashMap<String, Long>(currentGameState.frames);
+							gs.frames.put(ct.getDataState().getUsername(), new Long(frame));
+							gs.timer = currentGameState.timer;
+							//System.out.println("server timer: " + currentGameState.timer);
+						}
+						ct.setGameState(gs);
+					}
+
+				}
+
+			}
+
+			public synchronized void resetState() {
+
+				synchronized(currentGameState) {
+					currentGameState = new GameState();
+				}
+				frame = 0;
+				finish = 0;
+				finalTimer = 0.0f;
+				pauseTimer = 0.0f;
+
+			}
+
+			public synchronized void mergeGameState(String name, GameState gs) {
+
+				//System.out.println("state: " + gs.playerCarts.size());
+				synchronized(currentGameState) {
+					currentGameState.playerCarts.put(name, gs.playerCarts.get(name));
+				}
+				//System.out.println("state2: " + currentGameState.playerCarts.size());
+
+				synchronized(currentGameState) {
+					currentGameState.inputs.put(name, gs.inputs.get(name));
+				}
+
+				synchronized(currentGameState) {
+
+					long tempFrame = gs.frames.get(name).longValue();
+					//System.out.println("Frame from client: " + tempFrame);
+					currentGameState.frames.put(name, new Long(tempFrame));
+
+				}
+
+
+			}
+
+			public synchronized GameState getGameState() {
+
+				return currentGameState;
+
+			}
+
+			public synchronized long getFrame() {
+
+				return frame;
+
+			}
+
+			@Override
+			public int getID() {
+				return 0;
+			}
 
 		}
 
+		public GameThread() {
+
+			serverGame = new ServerBlackFridayBlitz("ServerBlackFridayBlitz");
+			try {
+				serverGame.initStatesList(null);
+				serverGame.getState(0).init(null, serverGame);
+			}
+			catch (SlickException e) {
+				e.printStackTrace();
+			}
+			serverGame.enterState(0);
+
+		}
+
+		public void mergeGameState(String name, GameState gs) {
+
+			((SeverMultiPlayerGameState)serverGame.getState(0)).mergeGameState(name, gs);
+
+		}
+		public long getFrame() {
+
+			return ((SeverMultiPlayerGameState)serverGame.getState(0)).getFrame();
+
+		}
+		
+		public void resetState() {
+
+			((SeverMultiPlayerGameState)serverGame.getState(0)).resetState();
+
+		}
+
+		private long lastTime  = System.currentTimeMillis();
 		@Override
 		public void run() {
 
-			while (serverIsRunning) { 
+			lastTime  = System.currentTimeMillis();
+			while (serverIsRunning) {
 
-				/*if (currentGameState == null || currentGameState.playerCarts == null)
-					continue;
+				try {
+					Thread.sleep(16l);
+				}
+				catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 
-				for (String key : currentGameState.playerCarts.keySet()) {
-	
-					currentGameState.timer += (long)currentGameState.deltas.get(key).intValue();
-					if (currentGameState.timer < 3000l) {
-
-						currentGameState.containers.get(key).getInput().clearControlPressedRecord();
-						currentGameState.containers.get(key).getInput().clearKeyPressedRecord();
-						return;
-
-					}
-					Cart c = currentGameState.playerCarts.get(key);
-					//c.update(currentGameState.containers.get(key), currentGameState.games.get(key), currentGameState.deltas.get(key));
-					if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
-						c.setJumpPoint(400.0f);
-					if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128) {
-						c.MAX_SCREEN_X = BlackFridayBlitz.MAX_WINDOW_WIDTH - 300;
-						c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * 2 + 128);
-						return;
-					}
-	
-					Input input = currentGameState.containers.get(key).getInput();
-					if (input.isKeyPressed(Input.KEY_UP) && c.getY() == c.getJumpPoint())
-						c.setJumpPoint(c.getY() - 175.0f);
-					if (input.isKeyPressed(Input.KEY_DOWN) && c.getY() == c.getJumpPoint())
-						c.setJumpPoint(c.getY() + 175.0f);
-	
-				}*/
+				try {
+					long currentTime = System.currentTimeMillis();
+					long time = currentTime - lastTime;
+					lastTime  = currentTime;
+					//System.out.println("delta: " + time);
+					serverGame.update(null, (int)time);
+				}
+				catch (SlickException e) {
+					e.printStackTrace();
+				}
 
 			}
 
@@ -140,7 +367,7 @@ public class Server {
 
 		private ReceiveThread receiveThread = null;
 		private SendThread sendThread = null;
-		//private GameThread gameThreadReference = null;
+		private GameThread gameThreadReference = null;
 
 		private DataPackage dataState = null;
 
@@ -149,7 +376,7 @@ public class Server {
 
 		protected volatile boolean clientIsRunning = false;
 
-		public ClientThread(Socket s, String username, ObjectOutputStream oos, ObjectInputStream ois, Server m) {
+		public ClientThread(Socket s, String username, ObjectOutputStream oos, ObjectInputStream ois, Server m, GameThread game) {
 
 			main = m;
 			socket = s;
@@ -165,7 +392,7 @@ public class Server {
 			receiveThread.setName("Receive Thread");
 			receiveThread.setDaemon(true);
 
-			//gameThreadReference = game;
+			gameThreadReference = game;
 
 			clientIsRunning = true;
 
@@ -205,12 +432,25 @@ public class Server {
 		}
 
 		public synchronized void setDataState(DataPackage dataState) {
+
 			synchronized (this.dataState) {
 
 				this.dataState = dataState;
-				//gameThreadReference.setGameState((GameState)this.dataState.getGameData());
+				//System.out.println("server calling gameThread merge");
+				gameThreadReference.mergeGameState(this.dataState.getUsername(), this.dataState.getGameState());
 
 			}
+
+		}
+		
+		public synchronized void setGameState(GameState gs) {
+
+			synchronized (dataState) {
+
+				dataState.setGameState(gs);
+
+			}
+
 		}
 
 		public synchronized ObjectOutputStream getOos() {
@@ -238,13 +478,13 @@ public class Server {
     private class AcceptThread extends Thread {
 
     	private Server main = null;
-    	//private GameThread gameThread = null;
+    	private GameThread acceptGameThread = null;
 
-		public AcceptThread(Server m) {
+		public AcceptThread(Server m, GameThread game) {
 
 			super();
 			main = m;
-			//gameThread = game;
+			acceptGameThread = game;
 
 		}
 
@@ -263,8 +503,9 @@ public class Server {
 					if (newClientSocket == null)
 						continue;
 
-					ObjectInputStream ois = new ObjectInputStream(newClientSocket.getInputStream());
 					ObjectOutputStream oos = new ObjectOutputStream(newClientSocket.getOutputStream());
+					oos.flush();
+					ObjectInputStream ois = new ObjectInputStream(newClientSocket.getInputStream());
 
 					DataPackage dp = null;
 					String username = "";
@@ -302,7 +543,18 @@ public class Server {
 
 					if (count < 2) {
 
-						DataPackage newClientPackage = new DataPackage(username, 0, MSG_000);
+						DataPackage newClientPackage = null;
+						if (acceptGameThread != null && acceptGameThread.getFrame() != 0) {
+
+							newClientPackage = new DataPackage(username, 50, DataPackage.MSG_050);
+							oos.flush();
+							oos.writeObject(newClientPackage);
+							oos.flush();
+							continue;
+
+						}
+						newClientPackage = new DataPackage(username, 0, MSG_000);
+
 						oos.flush();
 						oos.writeObject(newClientPackage);
 						oos.flush();
@@ -310,7 +562,7 @@ public class Server {
 						synchronized (list_clientsModel) {
 							list_clientsModel.addElement(dp.getUsername() + " - " + newClientSocket.getInetAddress().getHostAddress() + " - " + newClientSocket.getInetAddress().getHostName());
 						}
-						ClientThread newClient = new ClientThread(newClientSocket, username, oos, ois, main);
+						ClientThread newClient = new ClientThread(newClientSocket, username, oos, ois, main, acceptGameThread);
 						newClient.setName("Client Thread");
 						newClient.start();
 						list_clientThreads.add(newClient);
@@ -336,6 +588,7 @@ public class Server {
 	private class SendThread extends Thread {
 
 		private ClientThread parrent = null;
+		private volatile long lastKnownFrame = -1;
 
 		public SendThread(ClientThread parrent) {
 
@@ -349,28 +602,40 @@ public class Server {
 			while(serverIsRunning && parrent.clientIsRunning) {
 
 				try {
-					Thread.sleep(16l);
-				}
-				catch (InterruptedException e1) {}
-
-				try {
 
 					parrent.getOos().flush();
-					//System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\twrite gameState: " + parrent.getDataState().getGameData() + "\n");
-					DataPackage dp = null;
+					//System.out.println("write username: " + parrent.getDataState().getUsername() + "\twrite state: " + parrent.getDataState().getState() + "\twrite message: " + parrent.getDataState().getMessage() + "\twrite gameState: " + parrent.getDataState().getGameState() + "\n");
+
+					DataPackage currentState = null;
 					synchronized (parrent) {
-						dp = new DataPackage(parrent.getDataState().getUsername(), parrent.getDataState().getState(), parrent.getDataState().getMessage(), parrent.getDataState().getGameState());
+						 currentState = parrent.getDataState();
 					}
+					DataPackage dp = null;
+					long frame = lastKnownFrame;
+					GameState gs = currentState.getGameState();
+
+					if (currentState != null &&
+						currentState.getGameState() != null &&
+						gs != null &&
+						gs.frames.containsKey(currentState.getUsername()) &&
+						gs.frames.get(currentState.getUsername()) != null)
+						frame = gs.frames.get(currentState.getUsername()).longValue();
+
+					if (frame == lastKnownFrame)
+						continue;
+					lastKnownFrame = frame;
+					dp = new DataPackage(currentState.getUsername(), currentState.getState(), currentState.getMessage(), currentState.getGameState());
 					parrent.getOos().writeObject(dp);
+
 					//System.out.println("AFTER WRITE");
 					parrent.getOos().flush();
-					if (parrent.getDataState().getState() != 100)
+					if (currentState.getState() != 100)
 						parrent.clientIsRunning = false;
 
 				}
 				catch (IOException e) {
 
-					System.out.println("WRITE ERROR: " + e.getMessage());
+					//System.out.println("WRITE ERROR: " + e.getMessage());
 					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
 					parrent.getDataState().setMessage(DataPackage.MSG_400);
@@ -386,6 +651,7 @@ public class Server {
 	private class ReceiveThread extends Thread {
 
 		private ClientThread parrent = null;
+		private volatile long lastKnownFrame = -1;
 
 		public ReceiveThread(ClientThread parrent) {
 
@@ -403,18 +669,31 @@ public class Server {
 					//System.out.println("BEFORE READ");
 					DataPackage dp = null;
 					dp = (DataPackage)parrent.getOis().readObject();
+					long frame = lastKnownFrame;
+					GameState gs = dp.getGameState();
+					if (dp != null &&
+						dp.getGameState() != null &&
+						gs.frames != null &&
+						gs.frames.containsKey(dp.getUsername()) &&
+						gs.frames.get(dp.getUsername()) != null)
+						frame = gs.frames.get(dp.getUsername()).longValue();
 
-					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\tread gameState: " + dp.getGameData() + "\n");
+					if (frame == lastKnownFrame)
+						continue;
+					lastKnownFrame = frame;
+
+					//System.out.println("read username: " + dp.getUsername() + "\tread state: " + dp.getState() + "\tread message: " + dp.getMessage() + "\tread gameState: " + dp.getGameState() + "\n");
 					synchronized (parrent) {
 						parrent.setDataState(new DataPackage(dp.getUsername(), dp.getState(), dp.getMessage(), dp.getGameState()));
 					}
+
 					if (parrent.getDataState().getState() != 100)
 						parrent.clientIsRunning = false;
 
 				}
 				catch (IOException|ClassNotFoundException e) {
 
-					System.out.println("READ ERROR: " + e.getMessage());
+					//System.out.println("READ ERROR: " + e.getMessage());
 					parrent.clientIsRunning = false;
 					parrent.getDataState().setState(400);
 					parrent.getDataState().setMessage(DataPackage.MSG_400);
@@ -468,6 +747,8 @@ public class Server {
 				catch (Exception e) {}
 				list_clientThreads.remove(index);
 				numClients--;
+				if (numClients <= 1)
+					serverGameThread.resetState();
 
 			}
 
@@ -529,6 +810,10 @@ public class Server {
 				catch (IOException e1) {}
 				try {
 					acceptThread.join(100l);
+				}
+				catch (InterruptedException e) {}
+				try {
+					serverGameThread.join(100l);
 				}
 				catch (InterruptedException e) {}
 				System.exit(0);
@@ -688,6 +973,7 @@ public class Server {
 		synchronized (list_clientThreads) {
 
 			int size = list_clientThreads.size();
+
 			for (int i = 0; i < size; i++) {
 
 				if (i >= 0 && i < list_clientThreads.size() &&
@@ -714,11 +1000,14 @@ public class Server {
 
 		    socket = new ServerSocket();
 		    socket.bind(new InetSocketAddress(PORT));
-			serverIsRunning = true;
-			//gameThread = new GameThread();
-			//gameThread.start();
 
-			acceptThread = new AcceptThread(this);
+			serverIsRunning = true;
+
+			serverGameThread = new GameThread();
+			serverGameThread.setName("Game Thread");
+			serverGameThread.start();
+
+			acceptThread = new AcceptThread(this, serverGameThread);
 			acceptThread.setDaemon(true);
 			acceptThread.setName("Accept Thread");
 			acceptThread.start();

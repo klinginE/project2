@@ -2,6 +2,8 @@ package project2;
 
 
 
+import jig.ResourceManager;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -11,7 +13,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class TitleState extends BasicGameState {
-	Image bg;
+	private Image bg;
 	Image button;
 	Image button2;
 	Image title;
@@ -30,16 +32,16 @@ public class TitleState extends BasicGameState {
 		@Override
 		public void init(GameContainer container, StateBasedGame game)
 				throws SlickException {
-			bg = new Image(BlackFridayBlitz.TITLEBG_JPG);
-			back = new Image(BlackFridayBlitz.BACK_PNG);
-			button = new Image(BlackFridayBlitz.BUTTON_PNG);
-			button2 = new Image(BlackFridayBlitz.BUTTON2_PNG);
-			title = new Image(BlackFridayBlitz.TITLE_PNG);
+			bg = ResourceManager.getImage(BlackFridayBlitz.TITLEBG_JPG);
+			back =ResourceManager.getImage(BlackFridayBlitz.BACK_PNG);
+			button = ResourceManager.getImage(BlackFridayBlitz.BUTTON_PNG);
+			button2 = ResourceManager.getImage(BlackFridayBlitz.BUTTON2_PNG);
+			title = ResourceManager.getImage(BlackFridayBlitz.TITLE_PNG);
 			cartImg = new Image[4];
-			cartImg[0] = new Image(BlackFridayBlitz.PLAYER1_PNG);
-			cartImg[1] = new Image(BlackFridayBlitz.PLAYER2_PNG);
-			cartImg[2] = new Image(BlackFridayBlitz.PLAYER3_PNG);
-			cartImg[3] = new Image(BlackFridayBlitz.PLAYER4_PNG);
+			cartImg[0] = ResourceManager.getImage(BlackFridayBlitz.PLAYER1_PNG);
+			cartImg[1] = ResourceManager.getImage(BlackFridayBlitz.PLAYER2_PNG);
+			cartImg[2] = ResourceManager.getImage(BlackFridayBlitz.PLAYER3_PNG);
+			cartImg[3] = ResourceManager.getImage(BlackFridayBlitz.PLAYER4_PNG);
 			
 		}
 		
@@ -93,6 +95,9 @@ public class TitleState extends BasicGameState {
 					if (players == 0){
 						((SinglePlayerGameState)game.getState(BlackFridayBlitz.SINGLE_PLAYER_GAME_STATE_ID)).setPlayer(cart);
 						game.enterState(BlackFridayBlitz.SINGLE_PLAYER_GAME_STATE_ID);
+					}
+					else {
+						game.enterState(BlackFridayBlitz.MULTI_PLAYER_GAME_STATE_ID);
 					}
 				}
 			}

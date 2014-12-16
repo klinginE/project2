@@ -1,5 +1,7 @@
 package project2;
 
+import java.util.Random;
+
 import org.newdawn.slick.Image;
 
 import jig.Entity;
@@ -10,19 +12,31 @@ public class Powerup extends Entity {
 	private float worldX = 0.0f;
 	private float worldY = 0.0f;
 	private boolean active;
+	Random spawn = new Random();
+	Image image;
+	int type;
+	
 
 	
 	public Powerup(String PowerupImage, float w_x, float w_y) {
 
 		super();
 		active = true;
-		Image i = ResourceManager.getImage(PowerupImage);
-		addImageWithBoundingBox(i);
+		image = ResourceManager.getImage(PowerupImage);
+		addImageWithBoundingBox(image);
 		worldX = w_x;
 		worldY = w_y;
 		setX(worldX);
-		setY(worldY);		
+		setY(worldY);	
+
+		
+		
+		
 	}	
 	
+	public int pickup(){		
+		active = false;
+		return spawn.nextInt(4);
+	}
 	
 }
