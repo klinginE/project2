@@ -44,8 +44,8 @@ public class Level {
 					}
 				if(randomNumber >= 85 && randomNumber < 100)
 					//System.out.println("spawning powerup at " +j*250 + ", " +platformY.get(i));
+
 					powerups.add( new Powerup(BlackFridayBlitz.POWERUP_PNG, j*250, platformY[i]-20));
-					;
 			}
 		}	
 	}
