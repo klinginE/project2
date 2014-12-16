@@ -65,7 +65,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		// Draw background
 		g.scale(1.0f, scaleY);
 		//int numPannels = level.getLength();//270
-		for (int i = 0; i < gameState.level.getLevel().getLength(); i++)
+		for (int i = 0; i < myLevel.getLength(); i++)
 			g.drawImage(background, (float)(i * background.getWidth()), 0.0f);
 		g.scale(1.0f, 1.0f/scaleY);
 
@@ -79,30 +79,35 @@ public class MultiPlayerGameState extends BasicGameState {
 			g.drawImage(ResourceManager.getImage(BlackFridayBlitz.TRAFFICLIGHT_PNG).getSubImage(96, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
 
 		// Draw flag
-		g.drawImage(flag, (float)(gameState.level.getLevel().getLength() * background.getWidth()), 0.0f);
+		g.drawImage(flag, (float)(myLevel.getLength() * background.getWidth()), 0.0f);
 		// Draw items
-		for(int i = 0; i < gameState.level.getLevel().getSpeedups().size(); i++)
-			gameState.level.getLevel().getSpeedups().get(i).getSpeedup(true).render(g);
-		for(int i = 0; i < gameState.level.getLevel().getPowerups().size(); i++)
-			gameState.level.getLevel().getPowerups().get(i).getPowerup(true).render(g);
+		for(int i = 0; i < myLevel.getSpeedups().size(); i++)
+			myLevel.getSpeedups().get(i).getSpeedup(true).render(g);
+		for(int i = 0; i < myLevel.getPowerups().size(); i++)
+			myLevel.getPowerups().get(i).getPowerup(true).render(g);
 		
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
-		g.drawImage(checkout, (float)((float)((float)gameState.level.getLevel().getLength() * (float)background.getWidth() + (float)flag.getWidth()) / scaleY), 0.0f);
+		g.drawImage(checkout, (float)((float)((float)myLevel.getLength() * (float)background.getWidth() + (float)flag.getWidth()) / scaleY), 0.0f);
 		g.scale(1.0f / scaleY, 1.0f / scaleY);
 
 		// Undo transforms
 		g.resetTransform();
 		
 		// draw powerup area
-		if (25 + back.getWidth() + myCart.getWorldX() - myCart.getX() / 2.0f <= gameState.level.getLevel().getLength() * 1000 && gameState.finish == 0) {
+		if (25 + back.getWidth() + myCart.getWorldX() - myCart.getX() / 2.0f <= myLevel.getLength() * 1000 && gameState.finish == 0) {
 			back.draw(25,640);
 		}
 		
 		//DEBUG: print mouse position
 		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
 		g.drawString("speed: "+myCart.getCurrentSpeed(), 0, 50);
+		// draw progress bar
+		g.setColor(Color.white);
+		g.drawLine(175, 700, 775, 700);
+		g.drawImage(ResourceManager.getImage(player.getPlayerCart().getImageString()), 150 + 600.0f/(float)(myLevel.getNumXpixels()+200)*player.getPlayerCart().getWorldX(), 650);
+				
 		// Print time
 		if (gameState.timer > 3000){
 			g.setColor(Color.white);
