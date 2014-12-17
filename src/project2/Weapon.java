@@ -1,16 +1,18 @@
 package project2;
 
+import java.io.Serializable;
+
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 
+import project2.Cart.CartState;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Shape;
 
 public class Weapon extends Entity{
-	
-	
+
 	/*
 	 * 
 	 * TYPE 0 : BATTERY
@@ -22,41 +24,120 @@ public class Weapon extends Entity{
 	
 	int type;
 	int toggle;
-	float worldX;
-	float worldY;
+	float worldX = 0.0f;
+	float worldY = 0.0f;
 	int timer = 0;
 	int end = 0;
+	int lastKnownFrame = 0;
 	Cart owner;
+	String username = "";
 	private Animation i;
 	int platform;
 	int targetPlatform;
 	int falling = 0;
 	int rising = 0;
-	Image image;
-	Shape shape;
-	private int fall = 0;
-	private int down = 0;
-	
+	int fall = 0;
+	int down = 0;
+	private Shape shape;
+	private Image image;
 
-	public Weapon(Cart playerCart, int type, int weaponToggle, Player player) {
-		super(playerCart.getWorldX() + Cart.MIN_SCREEN_X, playerCart.getY());
+	public static class WeaponState implements Serializable {
+
+		private static final long serialVersionUID = -8132863400619235281L;
+
+		public int type_s;
+		public int togle_s;
+		public float x_s;
+		public float y_s;
+		public float worldX_s;
+		public float worldY_s;
+		public int timer_s = 0;
+		public int end_s = 0;
+		public int lastKnownFrame_s = 0;
+		public float height_s = 0;
+		public float width_s = 0;
+		public int platform_s;
+		public int targetPlatform_s;
+		public int falling_s = 0;
+		public int rising_s = 0;
+		public int fall_s = 0;
+		public int down_s = 0;
+		public CartState owner_s;
+		public String username_s = "";
+
+		public WeaponState(int t, int tog, float x, float y, float w_x, float w_y, int time, int e, int lastFrame, float height, float width, int plat, int targPlat, int falling, int rise, int fall, int down, CartState own, String username) {
+
+			type_s = t;
+			togle_s = tog;
+			x_s = x;
+			y_s = y;
+			worldX_s = w_x;
+			worldY_s = w_y;
+			timer_s = time;
+			end_s = e;
+			lastKnownFrame_s = lastFrame;
+			height_s = height;
+			width_s = width;
+			platform_s = plat;
+			targetPlatform_s = targPlat;
+			falling_s = falling;
+			rising_s = rise;
+			fall_s = fall;
+			down_s = down;
+			owner_s = own;
+			username_s = username;
+
+		}
+
+		public Weapon getWeapon(boolean withImage) {
+
+			Weapon wep = null;
+			if (withImage)
+				wep = new Weapon(owner_s.getCart(true), x_s, y_s, worldX_s, worldY_s, username_s, type_s, togle_s, lastKnownFrame_s, true);
+			else {
+				wep = new Weapon(owner_s.getCart(false), x_s, y_s, worldX_s, worldY_s, username_s, type_s, togle_s, lastKnownFrame_s, false);
+				wep.addShape(new ConvexPolygon(width_s, height_s));
+			}
+
+			wep.timer = timer_s;
+			wep.end = end_s;
+			wep.platform = platform_s;
+			wep.targetPlatform = platform_s;
+			wep.falling = falling_s;
+			wep.rising = rising_s;
+			wep.fall = fall_s;
+			wep.down = down_s;
+
+			return wep;
+
+		}
+
+	}
+
+	public Weapon(Cart playerCart, float x, float y, float wx, float wy, String user, int type, int weaponToggle, int frame, boolean createAnimations) {
+		//super(playerCart.getWorldX() + Cart.MIN_SCREEN_X, playerCart.getY());
+		super(x, y);
+		username = user;
 		this.type = type;
 		toggle = weaponToggle;
 		owner = playerCart;
-		worldX = playerCart.getWorldX();
-		worldY = playerCart.getWorldY();
+		worldX = wx;
+		worldY = wy;
 		platform = playerCart.getPlatform();
-		init();
+		lastKnownFrame = frame;
+		if (createAnimations)
+			init(lastKnownFrame);
 		
 		
 	}
 
 
-	private void init() {
+	private void init(int frame) {
 		if (type == 0){
 			setX(owner.getWorldX() + owner.getCoarseGrainedMinX() - owner.getCoarseGrainedWidth() - 3);
 			i = new Animation(ResourceManager.getSpriteSheet(BlackFridayBlitz.WP_AURA_PNG, 81, 104), 0, 0, 3, 0, true, 50, true);
 			//addShape(new ConvexPolygon(81, 104));
+			i.setCurrentFrame(frame);
 			addAnimation(i);
 			i.setLooping(true);
 			owner.setBatteryBoost(500.0f);
@@ -64,6 +145,7 @@ public class Weapon extends Entity{
 		}
 		if (type == 1){
 			i = new Animation(ResourceManager.getSpriteSheet(BlackFridayBlitz.WP_ROCKET_PNG, 73, 20), 0, 0, 1, 0, true, 50, true);
+			i.setCurrentFrame(frame);
 			shape = new ConvexPolygon(50, 52);
 			addShape(shape);
 			addAnimation(i);
@@ -80,6 +162,7 @@ public class Weapon extends Entity{
 				
 			} else { //up and drop
 				i = new Animation(ResourceManager.getSpriteSheet(BlackFridayBlitz.WP_BAGDOWN_PNG, 52, 60), 0, 0, 3, 0, true, 50, true);
+				i.setCurrentFrame(frame);
 				shape = new ConvexPolygon(50, 52);
 				addShape(shape);
 				i.setLooping(true);
@@ -98,8 +181,11 @@ public class Weapon extends Entity{
 			setX(owner.getWorldX() + owner.getCoarseGrainedMinX() - owner.getCoarseGrainedWidth());
 			setY(getY() + 7);
 			i = new Animation(ResourceManager.getSpriteSheet(BlackFridayBlitz.WP_BALL_PNG, 50, 52), 0, 0, 3, 0, true, 50, true);
+			i.setCurrentFrame(frame);
 			addAnimation(i);
 			i.setLooping(true);
+			shape = new ConvexPolygon(50, 52);
+			addShape(shape);
 			if (platform > 0) {
 			targetPlatform = platform - 1;
 			} else {targetPlatform = platform;}
@@ -108,12 +194,20 @@ public class Weapon extends Entity{
 			}
 		}
 	}
-	
+
+	public void setOwner(Cart c) {
+		owner = c;
+	}
+	public String getUsername() {
+		return username;
+	}
+
 	public void update(int delta){	
 		timer += delta;
 			
 		//BATTERY
 		if (type == 0){
+
 			setX(owner.getWorldX() + owner.getCoarseGrainedMinX() - owner.getCoarseGrainedWidth() - 3);
 			setY(owner.getY() - 7);
 			if (timer > 2000 && owner.getBatteryBoost() > 0){

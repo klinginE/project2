@@ -1,5 +1,7 @@
 package project2;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import jig.ResourceManager;
@@ -14,6 +16,8 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import project2.Cart.CartState;
+import project2.Powerup.PowerupState;
+import project2.Weapon.WeaponState;
 
 public class MultiPlayerGameState extends BasicGameState {
 
@@ -21,6 +25,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	private long frame = 0;
 	Image[] itemIcon;
 	Image[] toggleIcon;
+	ArrayList<Weapon> weapons;
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
@@ -39,6 +44,7 @@ public class MultiPlayerGameState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 
+		weapons = new ArrayList<Weapon>();
 		player = new Player(Level.platformY[1]);
 		player.connectToServer();
 
@@ -100,7 +106,12 @@ public class MultiPlayerGameState extends BasicGameState {
 			gameState.level.getLevel().getSpeedups().get(i).getSpeedup(true).render(g);
 		for(int i = 0; i < gameState.level.getLevel().getPowerups().size(); i++)
 			gameState.level.getLevel().getPowerups().get(i).getPowerup(true).render(g);
-		
+
+		for (String key : gameState.weapons.keySet()) {
+			for (WeaponState w : gameState.weapons.get(key))
+				w.getWeapon(true).render(g);
+		}
+
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
@@ -206,23 +217,81 @@ public class MultiPlayerGameState extends BasicGameState {
 					((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(type, state.getGameState().finalTime.get(key));
 				}
 				player.getPlayerClient().stopClient();
-				System.out.println("entering results");
 				game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
 			}
 
 			if (state.getGameState() == null)
 				return;
-	
+
+			
+			ArrayList<WeaponState> weaponStates = state.getGameState().weapons.get(player.getUsername());
+			if (weaponStates != null) {
+				weapons = new ArrayList<Weapon>();
+				for (WeaponState ws : weaponStates)
+					weapons.add(ws.getWeapon(true));
+			}
 			long frameState = 0;
 
 			if (state.getGameState().frames.containsKey(player.getUsername()))
 				 frameState = state.getGameState().frames.get(player.getUsername()).longValue();
 
-			if (frame != frameState) {
+			if (state.getGameState().timer >= 3000l && frame != frameState) {
 
+				if (state.getGameState().finalTime.get(player.getUsername()) == 0)  {
+					Input input = container.getInput();
+					if (input.isKeyPressed(Input.KEY_SPACE) && player.getPlayerCart().getY() == player.getPlayerCart().getJumpPoint() && player.getPowerup() != -1) {
+						if (player.getPowerup() == 0 && player.getPlayerCart().getBatteryBoost() != 0){
+						} else {
+							Weapon temp = player.fireWeapon();
+							weapons.add(temp);
+							state.getGameState().playerCarts.put(player.getUsername(), new CartState(player.playerCart.getX(), player.playerCart.getY(), player.playerCart.getCoarseGrainedWidth(), player.playerCart.getCoarseGrainedHeight(), player.playerCart.getNumSpeedUps(), player.playerCart.getCurrentSpeed(), player.playerCart.getBatteryBoost(), player.playerCart.getWorldX(), player.playerCart.getWorldY(), player.playerCart.getPlatform(), player.playerCart.getJumpPoint(), player.playerCart.getImageString(), player.playerCart.MAX_SCREEN_X, player.playerCart.getKeyleft(), player.playerCart.getKeyright()));
+						}
+					}
+					if (input.isKeyPressed(Input.KEY_TAB) && player.getPowerup() != -1) {
+						player.toggleWeapon();
+					}
+				}
+				ArrayList<Weapon> modWeapons = new ArrayList<Weapon>();
+				for(Iterator<Weapon> br = weapons.iterator(); br.hasNext();){
+					Weapon wow = br.next();
+					if (wow.getUsername().equals(player.getUsername()))
+						wow.setOwner(state.getGameState().playerCarts.get(player.getUsername()).getCart(true));
+					wow.update(delta);
+					player.playerCart = wow.owner;
+					state.getGameState().playerCarts.put(player.getUsername(), new CartState(player.playerCart.getX(), player.playerCart.getY(), player.playerCart.getCoarseGrainedWidth(), player.playerCart.getCoarseGrainedHeight(), player.playerCart.getNumSpeedUps(), player.playerCart.getCurrentSpeed(), player.playerCart.getBatteryBoost(), player.playerCart.getWorldX(), player.playerCart.getWorldY(), player.playerCart.getPlatform(), player.playerCart.getJumpPoint(), player.playerCart.getImageString(), player.playerCart.MAX_SCREEN_X, player.playerCart.getKeyleft(), player.playerCart.getKeyright()));
+					if (wow.end == 1)
+						br.remove();
+					else
+						modWeapons.add(wow);
+				}
+				weapons = modWeapons;
+
+				ArrayList<PowerupState> newPowerupStates = new ArrayList<PowerupState>();
+				for(PowerupState br : state.getGameState().level.getLevel().getPowerups()){
+					Powerup pow = br.getPowerup(true);
+					
+					pow.setX(pow.getX() - (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));
+					//System.out.println(pow.getX()+" ,"+ player.getPlayerCart().getX());
+					if (player.getPlayerCart().collides(pow) != null && player.getPowerup() == -1 && pow.getActive()){
+						player.setPowerup(pow.pickup());
+						pow.setActive(false);
+						//br.remove();		
+					}		
+					pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));					
+					newPowerupStates.add(new PowerupState(pow.getImageString(), pow.getWorldX(), pow.getWorldY(), pow.getActive(), pow.getCoarseGrainedWidth(), pow.getCoarseGrainedHeight()));
+				}
+				state.getGameState().level.getLevel().setPowerups(newPowerupStates);
+
+			}
+
+			ArrayList<WeaponState> newWeapons = new ArrayList<WeaponState>();
+			for (Weapon temp : weapons)
+				newWeapons.add(new WeaponState(temp.type, temp.toggle, temp.getX(), temp.getY(), temp.worldX, temp.worldY, temp.timer, temp.end, temp.lastKnownFrame, temp.getCoarseGrainedHeight(), temp.getCoarseGrainedWidth(), temp.platform, temp.targetPlatform, temp.falling, temp.rising, temp.fall, temp.down, new CartState(temp.owner.getX(), temp.owner.getY(), temp.owner.getCoarseGrainedWidth(), temp.owner.getCoarseGrainedHeight(), temp.owner.getNumSpeedUps(), temp.owner.getCurrentSpeed(), temp.owner.getBatteryBoost(), temp.owner.getWorldX(), temp.owner.getWorldY(), temp.owner.getPlatform(), temp.owner.getJumpPoint(), temp.owner.getImageString(), temp.owner.MAX_SCREEN_X, temp.owner.getKeyleft(), temp.owner.getKeyright()), temp.username));
+
+			if (frame != frameState) {
 				frame = frameState;
 				frameChanged = true;
-				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
+				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState, state.getGameState().level.getLevel().getPowerups(), newWeapons);
 				player.getPlayerClient().setOkToWrite();
 //				if (player.getPlayerClient().getGameState().inputs.get(player.getUsername()).get("up").booleanValue() == true)
 //					System.out.println("Multi Player frame: " + frame + " input: " + state.getGameState().inputs);
@@ -230,7 +299,7 @@ public class MultiPlayerGameState extends BasicGameState {
 			}
 			else if (frameState == 0) {
 				frameChanged = true;
-				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
+				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState, state.getGameState().level.getLevel().getPowerups(), newWeapons);
 				player.getPlayerClient().setOkToWrite();
 			}
 

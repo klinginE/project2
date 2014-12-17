@@ -24,7 +24,7 @@ public class Powerup extends Entity {
 
 		public float worldX_s = 0.0f;
 		public float worldY_s = 0.0f;
-		public boolean active_s = true;
+		public boolean active_s = false;
 		public String imageString_s = "";
 		public float width_s = 0.0f;
 		public float height_s = 0.0f;
@@ -98,6 +98,9 @@ public class Powerup extends Entity {
 	}
 	public boolean getActive() {
 		return active;
+	}
+	public void setActive(boolean act) {
+		active = act;
 	}
 	public String getImageString() {
 		return imageString;

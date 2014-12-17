@@ -1,6 +1,7 @@
 package project2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.newdawn.slick.GameContainer;
@@ -8,6 +9,8 @@ import org.newdawn.slick.Input;
 
 import project2.Cart.CartState;
 import project2.Level.LevelState;
+import project2.Powerup.PowerupState;
+import project2.Weapon.WeaponState;
 
 public class GameState implements Serializable {
 
@@ -17,6 +20,7 @@ public class GameState implements Serializable {
 	public HashMap<String, HashMap<String, Boolean>> inputs = null;
 	public HashMap<String, Long> frames = null;
 	public HashMap<String, Long> finalTime = null;
+	public HashMap<String, ArrayList<WeaponState>> weapons = null;
 	public LevelState level = null;
 	public long timer = 0;
 	public long pauseTimer = 0;
@@ -31,6 +35,7 @@ public class GameState implements Serializable {
 		frames = new HashMap<String, Long>();
 		level = new LevelState(l.getLength(), l.getNumXpixels(), l.getDspawnPoint(), l.getSpeedups(), l.getPowerups());
 		finalTime = new HashMap<String, Long>();
+		weapons = new HashMap<String, ArrayList<WeaponState>>();
 
 	}
 	public GameState() {
@@ -41,13 +46,18 @@ public class GameState implements Serializable {
 		frames = new HashMap<String, Long>();
 		level = null;
 		finalTime = new HashMap<String, Long>();
+		weapons = new HashMap<String, ArrayList<WeaponState>>();
 
 	}
 
-	public void addGame(String username, Cart cart, GameContainer container, long frame) {
+	public void addGame(String username, Cart cart, GameContainer container, long frame, ArrayList<PowerupState>powUps, ArrayList<WeaponState> weapons) {
 
 		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getBatteryBoost(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString(), cart.MAX_SCREEN_X, cart.getKeyleft(), cart.getKeyright()));
 		frames.put(username, new Long(frame));
+		Level l = level.getLevel();
+		l.setPowerups(powUps);
+		level = new LevelState(l.getLength(), l.getNumXpixels(), l.getDspawnPoint(), l.getSpeedups(), l.getPowerups());
+		this.weapons.put(username, weapons);
 
 		HashMap<String, Boolean> inputMap = new HashMap<String, Boolean>();
 		Input i = container.getInput();

@@ -48,6 +48,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import project2.Cart.CartState;
 import project2.Speedup.SpeedupState;
+import project2.Weapon.WeaponState;
 
 /**
  * CLIENT STATES:
@@ -187,6 +188,26 @@ public class Server {
 						HashMap<String, Boolean> inputs = myState.inputs.get(key);
 						c.update(inputs, delta);
 
+						HashMap<String, ArrayList<WeaponState>> newWeapons = new HashMap<String, ArrayList<WeaponState>>();
+						for (String wKey : myState.weapons.keySet()) {
+							ArrayList<WeaponState> newWeaponState = new ArrayList<WeaponState>();
+							if (wKey.equals(key))
+								continue;
+							for (WeaponState ws : myState.weapons.get(wKey)) {
+								Weapon w = ws.getWeapon(false);
+								if (w.type != 0 && w.end != 1 && w.collides(c) != null) {
+									System.out.println("They collieded");
+									c.setCurrentSpeed(c.getCurrentSpeed() - 500);
+									c.setNumSpeedUps(c.getNumSpeedUps() - 2);
+									w.end = 1;
+									//ws = new WeaponState(ws.type_s, ws.togle_s, ws.x_s, ws.y_s, ws.worldX_s, ws.worldY_s, ws.timer_s, w.end, ws.lastKnownFrame_s, ws.height_s, ws.width_s, ws.platform_s, ws.targetPlatform_s, ws.falling_s, ws.rising_s, ws.fall_s, ws.down_s, ws.owner_s, ws.username_s);
+								}
+								else
+									newWeaponState.add(ws);
+							}
+							newWeapons.put(wKey, newWeaponState);
+						}
+
 						if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 							c.setJumpPoint(440.0f);
 
@@ -264,6 +285,7 @@ public class Server {
 							gs.inputs = new HashMap<String, HashMap<String, Boolean>>(currentGameState.inputs);
 							gs.frames = new HashMap<String, Long>(currentGameState.frames);
 							gs.finalTime = new HashMap<String, Long>(currentGameState.finalTime);
+							gs.weapons = new HashMap<String, ArrayList<WeaponState>>(currentGameState.weapons);
 							gs.frames.put(ct.getDataState().getUsername(), new Long(frame));
 							gs.level = currentGameState.level;
 							gs.timer = currentGameState.timer;
@@ -309,6 +331,9 @@ public class Server {
 				}
 				synchronized(currentGameState) {
 					currentGameState.level = gs.level;
+				}
+				synchronized(currentGameState) {
+					currentGameState.weapons.put(name, gs.weapons.get(name));
 				}
 
 				synchronized(currentGameState) {

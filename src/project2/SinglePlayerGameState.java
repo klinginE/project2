@@ -1,6 +1,5 @@
 package project2;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -109,11 +108,6 @@ public class SinglePlayerGameState extends BasicGameState {
 
 		// Draw flag
 		g.drawImage(flag, (float)(level.getLength() * background.getWidth()), 0.0f);
-		
-		// draw progress bar
-				g.setColor(Color.white);
-				g.drawLine(150, 700, 750, 700);
-				g.drawImage(ResourceManager.getImage(player.getPlayerCart().getImageString()), 150 + 600.0f/(float)(level.getNumXpixels()+200)*player.getPlayerCart().getWorldX(), 650);
 		
 		// Draw items
 		for(int i = 0; i < level.getSpeedups().size(); i++)
@@ -276,6 +270,7 @@ public class SinglePlayerGameState extends BasicGameState {
 			//System.out.println(pow.getX()+" ,"+ player.getPlayerCart().getX());
 			if (player.getPlayerCart().collides(pow) != null && player.getPowerup() == -1 && pow.getActive()){
 				player.setPowerup(pow.pickup());
+				pow.setActive(false);
 				//br.remove();		
 			}		
 			pow.setX(pow.getX() + (player.getPlayerCart().getWorldX() - Cart.MIN_SCREEN_X));

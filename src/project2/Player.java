@@ -4,7 +4,7 @@ import project2.Cart.CartState;
 
 public class Player {
 
-	private Cart playerCart = null;
+	public Cart playerCart = null;
 	private Client playerClient = null;
 	private int type = -1;
 	int weaponToggle = 0;
@@ -41,10 +41,13 @@ public class Player {
 
 	}
 	
-	public Weapon fireWeapon(){
-			Weapon temp = new Weapon(playerCart, type, weaponToggle, this);
-			type = -1;
-			return temp;
+	public Weapon fireWeapon() {
+
+		Weapon temp = new Weapon(playerCart, playerCart.getWorldX() + Cart.MIN_SCREEN_X, playerCart.getY(), playerCart.getWorldX() + Cart.MIN_SCREEN_X, playerCart.getY(), getUsername(), type, weaponToggle, 0, true);
+		playerCart = temp.owner;
+		type = -1;
+		return temp;
+
 	}
 	
 
