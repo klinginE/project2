@@ -107,7 +107,7 @@ public class Powerup extends Entity {
 	}
 	public int pickup(){		
 		active = false;
-		return spawn.nextInt(4);
+		return 0;//spawn.nextInt(4);
 	}
 
 }

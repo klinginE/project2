@@ -72,7 +72,7 @@ public class Level {
 					Speedup spup = new Speedup(BlackFridayBlitz.SPEEDUP_PNG, 0, j*250, platformY[i]-20);
 					speedups.add(new SpeedupState(spup.getImageString(), spup.getTimer(), spup.getWorldX(), spup.getWorldY(), spup.getActive(), spup.getCoarseGrainedWidth(), spup.getCoarseGrainedHeight()));
 					}
-				if(randomNumber >= 85 && randomNumber < 100) {
+				if(randomNumber >= 98 && randomNumber < 100) {
 					Powerup powup = new Powerup(BlackFridayBlitz.POWERUP_PNG, j*250, platformY[i]-20);
 					powerups.add(new PowerupState(powup.getImageString(), powup.getWorldX(), powup.getWorldY(), powup.getActive(), powup.getCoarseGrainedWidth(), powup.getCoarseGrainedHeight()));
 				}
