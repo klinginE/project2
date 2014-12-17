@@ -3,6 +3,7 @@ package project2;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.awt.Color;
 
@@ -20,26 +21,26 @@ public class SinglePlayerResultsState extends BasicGameState {
 	
 	Image bg;
 	Image receipt;
-	int player;
+	ArrayList<Integer> player = null;
 	UnicodeFont font;
 	Font awtFont;
-	String finalTime = "";
+	ArrayList<String> finalTime = null;
 	
 	
 	public void setTime(int player, long time){
-		finalTime = String.format("%02d:%02d.%02d", 
+		finalTime.add(String.format("%02d:%02d.%02d", 
 			    TimeUnit.MILLISECONDS.toMinutes(time),
 			    TimeUnit.MILLISECONDS.toSeconds(time) - 
 			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)),
-			     (time - (TimeUnit.MILLISECONDS.toSeconds(time) * 1000)));	
-		this.player = player;
+			     (time - (TimeUnit.MILLISECONDS.toSeconds(time) * 1000))));	
+		this.player.add(new Integer(player));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void enter(GameContainer arg0, StateBasedGame arg1)
 			throws SlickException {
-			
+		
 		bg = new Image(BlackFridayBlitz.CHECKOUT_JPG);
 		try {
 			awtFont = Font.createFont(java.awt.Font.TRUETYPE_FONT, ResourceLoader.getResourceAsStream(BlackFridayBlitz.RECEIPT_FONT));
@@ -69,17 +70,23 @@ public class SinglePlayerResultsState extends BasicGameState {
 		bg.draw(0,0);
 		receipt.draw(348, 100);
 		g.setFont(font);
-		if (player == 0){
-			g.drawString("Grandpa", 393, 290);
-		} else if (player == 1) {
-			g.drawString("Zombie", 393, 290);
-		} else if (player == 2) {
-			g.drawString("Robot", 393, 290);
-		} else if (player == 3) {
-			g.drawString("Scarecrow", 393, 290);
+		int yOffset = 0;
+		for (String str : finalTime) {
+
+			if (player.get(yOffset) == 0){
+				g.drawString("Grandpa", 393, 290 + yOffset * 20);
+			} else if (player.get(yOffset) == 1) {
+				g.drawString("Zombie", 393, 290 + yOffset * 20);
+			} else if (player.get(yOffset) == 2) {
+				g.drawString("Robot", 393, 290 + yOffset * 20);
+			} else if (player.get(yOffset) == 3) {
+				g.drawString("Scarecrow", 393, 290 + yOffset * 20);
+			}
+
+			g.drawString(str, 473, 290 + yOffset * 20);
+			yOffset++;
+
 		}
-		
-		g.drawString(finalTime, 473, 290);
 		
 	}
 
@@ -90,6 +97,7 @@ public class SinglePlayerResultsState extends BasicGameState {
 		int posY = container.getInput().getMouseY();
 		if (((posX > 44 + 348) && (posX < 260 + 348)) && ((posY > 389+100) && (posY < 453+100))){
 			if (container.getInput().isMousePressed(0)){
+				reset();
 				game.enterState(BlackFridayBlitz.TITLE_STATE);
 			}
 		}
@@ -105,7 +113,13 @@ public class SinglePlayerResultsState extends BasicGameState {
 	public void init(GameContainer arg0, StateBasedGame arg1)
 			throws SlickException {
 		// TODO Auto-generated method stub
-		
+		finalTime = new ArrayList<String>();
+		player = new ArrayList<Integer>();
 	}
+	public void reset() {
+		finalTime = new ArrayList<String>();
+		player = new ArrayList<Integer>();
+	}
+	
 
 }

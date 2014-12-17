@@ -59,8 +59,8 @@ public class Client {
 					oos.flush();
 					DataPackage dp = null;
 
-					if (dataState != null && dataState.getGameState() != null && dataState.getGameState().inputs.get(dataState.getUsername()).get("up").booleanValue() == true)
-						System.out.println("Client writing frame: " + dataState.getGameState().frames.get(dataState.getUsername()) + " input: " + dataState.getGameState().inputs.get(dataState.getUsername()));
+//					if (dataState != null && dataState.getGameState() != null && dataState.getGameState().inputs.get(dataState.getUsername()).get("up").booleanValue() == true)
+//						System.out.println("Client writing frame: " + dataState.getGameState().frames.get(dataState.getUsername()) + " input: " + dataState.getGameState().inputs.get(dataState.getUsername()));
 					dp = new DataPackage(dataState.getUsername(), dataState.getState(), dataState.getMessage(), dataState.getGameState());
 					//System.out.println("write username: " + currentState.getUsername() + "\twrite state: " + currentState.getState() + "\twrite message: " + currentState.getMessage() + "\twrite game data: " + currentState.getGameState() + "\n");
 
@@ -258,6 +258,9 @@ public class Client {
 
 	}
 
+	public boolean getIsRunning() {
+		return isRunning;
+	}
 	public DataPackage getCurrentState() {
 
 		return currentState;

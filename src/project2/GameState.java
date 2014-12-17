@@ -16,11 +16,12 @@ public class GameState implements Serializable {
 	public HashMap<String, CartState> playerCarts = null;
 	public HashMap<String, HashMap<String, Boolean>> inputs = null;
 	public HashMap<String, Long> frames = null;
+	public HashMap<String, Long> finalTime = null;
 	public LevelState level = null;
 	public long timer = 0;
 	public long pauseTimer = 0;
-	public long finalTime = 0;
 	public int finish = 0;
+	public boolean done = false;
 
 	public GameState(Level l) {
 
@@ -29,6 +30,7 @@ public class GameState implements Serializable {
 		inputs = new HashMap<String, HashMap<String, Boolean>>();
 		frames = new HashMap<String, Long>();
 		level = new LevelState(l.getLength(), l.getNumXpixels(), l.getDspawnPoint(), l.getSpeedups(), l.getPowerups());
+		finalTime = new HashMap<String, Long>();
 
 	}
 	public GameState() {
@@ -38,6 +40,7 @@ public class GameState implements Serializable {
 		inputs = new HashMap<String, HashMap<String, Boolean>>();
 		frames = new HashMap<String, Long>();
 		level = null;
+		finalTime = new HashMap<String, Long>();
 
 	}
 
@@ -78,6 +81,7 @@ public class GameState implements Serializable {
 		else
 			inputMap.put("tab", new Boolean(false));
 		inputs.put(username, inputMap);
+		finalTime.put(username, new Long(0l));
 
 	}
 

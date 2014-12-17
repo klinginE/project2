@@ -13,6 +13,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import project2.Cart.CartState;
+
 public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
@@ -106,8 +108,8 @@ public class MultiPlayerGameState extends BasicGameState {
 		// Print time
 		if (gameState.timer > 3000){
 			g.setColor(Color.white);
-			if (gameState.finalTime != 0){
-				g.drawString("Time: " + realTime(gameState.finalTime), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
+			if (gameState.timer != 0){
+				g.drawString("Time: " + realTime(gameState.timer), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
 			} else {
 				g.drawString("Time: " + realTime(gameState.timer - 3000), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);
 			}
@@ -133,16 +135,45 @@ public class MultiPlayerGameState extends BasicGameState {
 		boolean frameChanged = false;
 		do {
 
+			if (!player.getPlayerClient().getIsRunning()) {
+
+				//System.out.println("changing state from: " + this.getID() + "  to: " + BlackFridayBlitz.TITLE_STATE + " with object: " + game.getState(BlackFridayBlitz.TITLE_STATE) + " that has a state of: " + game.getState(BlackFridayBlitz.TITLE_STATE).getID());
+				player.getPlayerClient().stopClient();
+				game.enterState(BlackFridayBlitz.TITLE_STATE);
+				//System.out.println("Should not have reached this line of code");
+				System.exit(1);
+
+			}
 			player.getPlayerClient().setOkToRead();
 			DataPackage state = player.getPlayerClient().getCurrentState();
 			if (state == null)
 				return;
 			if (state.getState() != 100 && state.getState() != 0) {
-	
+
 				player.getPlayerClient().stopClient();
 				game.enterState(BlackFridayBlitz.TITLE_STATE);
 	
 			}
+
+			if (state.getGameState().done) {
+				for (String key : state.getGameState().playerCarts.keySet()) {
+					Cart c = state.getGameState().playerCarts.get(key).getCart(true);
+					int type = 0;
+					if (c.getImageString().equals(BlackFridayBlitz.PLAYER1_PNG))
+						type = 0;
+					else if (c.getImageString().equals(BlackFridayBlitz.PLAYER2_PNG))
+						type = 1;
+					else if (c.getImageString().equals(BlackFridayBlitz.PLAYER3_PNG))
+						type = 2;
+					else
+						type = 3;
+					((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(type, state.getGameState().finalTime.get(key));
+				}
+				player.getPlayerClient().stopClient();
+				System.out.println("entering results");
+				game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
+			}
+
 			if (state.getGameState() == null)
 				return;
 	
@@ -157,8 +188,8 @@ public class MultiPlayerGameState extends BasicGameState {
 				frameChanged = true;
 				player.getPlayerClient().updateGameState(player.getUsername(), player.getPlayerCart(), container, frameState);
 				player.getPlayerClient().setOkToWrite();
-				if (player.getPlayerClient().getGameState().inputs.get(player.getUsername()).get("up").booleanValue() == true)
-					System.out.println("Multi Player frame: " + frame + " input: " + state.getGameState().inputs);
+//				if (player.getPlayerClient().getGameState().inputs.get(player.getUsername()).get("up").booleanValue() == true)
+//					System.out.println("Multi Player frame: " + frame + " input: " + state.getGameState().inputs);
 
 			}
 			else if (frameState == 0) {

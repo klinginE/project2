@@ -165,6 +165,17 @@ public class Server {
 				
 				if (myState.timer >= 3000l) {
 
+					//System.out.println("Finish: " + myState.finish);
+					if (myState.timer >= myState.pauseTimer && myState.pauseTimer != 0l) {
+
+						myState.done = true;
+
+					}
+
+					if (myState.finish == myState.playerCarts.size()) {
+						myState.pauseTimer = myState.timer + 3000l;
+						myState.finish++;
+					}
 					for (String key : myState.frames.keySet()) {
 	
 						Cart c = myState.playerCarts.get(key).getCart(false);
@@ -181,18 +192,9 @@ public class Server {
 
 						if (c.getWorldX() >= BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200) {
 		
-							myState.finish++;
-							if (myState.finish == myState.playerCarts.size() - 1) {
-	
-								myState.finalTime = myState.timer - 3000;
-								myState.pauseTimer = myState.timer + 3000;
-	
-							}
-							if (myState.timer > myState.pauseTimer) {
-	
-								//((SinglePlayerResultsState)game.getState(BlackFridayBlitz.SP_RESULTS_STATE)).setTime(cart, finalTime);
-								//game.enterState(BlackFridayBlitz.SP_RESULTS_STATE);
-	
+							if (myState.finalTime.get(key).longValue() == 0l) {
+								myState.finalTime.put(key, new Long(myState.timer - 3000l));
+								myState.finish++;
 							}
 
 							c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200);
@@ -261,13 +263,13 @@ public class Server {
 							gs.playerCarts = new HashMap<String, CartState>(currentGameState.playerCarts);
 							gs.inputs = new HashMap<String, HashMap<String, Boolean>>(currentGameState.inputs);
 							gs.frames = new HashMap<String, Long>(currentGameState.frames);
+							gs.finalTime = new HashMap<String, Long>(currentGameState.finalTime);
 							gs.frames.put(ct.getDataState().getUsername(), new Long(frame));
 							gs.level = currentGameState.level;
 							gs.timer = currentGameState.timer;
 							gs.pauseTimer = currentGameState.pauseTimer;
-							gs.finalTime = currentGameState.finalTime;
 							gs.finish = currentGameState.finish;
-							//System.out.println("server timer: " + currentGameState.timer);
+							gs.done = currentGameState.done;
 						}
 						ct.setGameState(gs);
 					}
@@ -282,6 +284,15 @@ public class Server {
 					currentGameState = new GameState();
 				}
 				frame = 0;
+				synchronized(list_clientThreads) {
+
+					for (ClientThread ct : list_clientThreads) {
+						ct.clientIsRunning = false;
+						ct.getDataState().setState(400);
+						ct.getDataState().setMessage(DataPackage.MSG_400);
+					}
+
+				}
 
 			}
 
@@ -301,6 +312,11 @@ public class Server {
 				}
 
 				synchronized(currentGameState) {
+					if (currentGameState.finalTime == null || currentGameState.finalTime.get(name) == null || currentGameState.finalTime.get(name).longValue() == 0)
+						currentGameState.finalTime.put(name, gs.finalTime.get(name));
+				}
+
+				synchronized(currentGameState) {
 
 					long tempFrame = gs.frames.get(name).longValue();
 					//System.out.println("Frame from client: " + tempFrame);
@@ -309,7 +325,6 @@ public class Server {
 				}
 				currentGameState.timer = gs.timer;
 				currentGameState.pauseTimer = gs.pauseTimer;
-				currentGameState.finalTime = gs.finalTime;
 				currentGameState.finish = gs.finish;
 
 			}
