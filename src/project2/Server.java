@@ -67,7 +67,7 @@ public class Server {
 	public ServerSocket socket = null;
 
 	// Sever data
-	private final int MAX_CLIENTS = 2;
+	private final int MAX_CLIENTS = 4;
 	private int numClients = 0;
 	public final String MSG_000 = "Welcome to the server";
 	public final String MSG_200 = "Invalid Username";
@@ -188,7 +188,7 @@ public class Server {
 						HashMap<String, Boolean> inputs = myState.inputs.get(key);
 						c.update(inputs, delta);
 
-						HashMap<String, ArrayList<WeaponState>> newWeapons = new HashMap<String, ArrayList<WeaponState>>();
+						/*HashMap<String, ArrayList<WeaponState>> newWeapons = new HashMap<String, ArrayList<WeaponState>>();
 						for (String wKey : myState.weapons.keySet()) {
 							ArrayList<WeaponState> newWeaponState = new ArrayList<WeaponState>();
 							if (wKey.equals(key))
@@ -206,7 +206,7 @@ public class Server {
 									newWeaponState.add(ws);
 							}
 							newWeapons.put(wKey, newWeaponState);
-						}
+						}*/
 
 						if (c.getX() >= ((float)BlackFridayBlitz.MAX_WINDOW_WIDTH) / 3.0f)
 							c.setJumpPoint(440.0f);

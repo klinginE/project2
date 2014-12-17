@@ -154,7 +154,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		// Print time
 		if (gameState.timer > 3000){
 			g.setColor(Color.white);
-			if (gameState.timer != 0){
+			if (gameState.finalTime.get(player.getUsername()) != 0){
 				g.drawString("Time: " + realTime(gameState.finalTime.get(player.getUsername())), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
 			} else {
 				g.drawString("Time: " + realTime(gameState.timer - 3000), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);
