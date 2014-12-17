@@ -233,33 +233,31 @@ public class Cart extends Entity {
 
 	public void update(HashMap<String, Boolean> inputs, long delta) {
 
-		float additionalSpeed = 0.0f;
-		if (currentSpeed > MAX_SPEED + BOOST * numSpeedUps + batteryBoost)
-			currentSpeed = MAX_SPEED + BOOST * numSpeedUps + batteryBoost;
-		if (currentSpeed < (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost)))
-			currentSpeed = (-1.0f * (MAX_SPEED + BOOST * numSpeedUps + batteryBoost));
-
+		boost = batteryBoost + BOOST * numSpeedUps;
+		if (currentSpeed > MAX_SPEED + BOOST * numSpeedUps)
+			currentSpeed = MAX_SPEED + BOOST * numSpeedUps;
+		if(currentSpeed < 0)
+			currentSpeed = 0;
+		
+		
 		if (inputs != null) {
 			if(inputs.get("left").booleanValue()) {
-				if(currentSpeed > 0) 
 					currentSpeed -= DECCELERATION_RATE;
-				else currentSpeed -= ACCELERATION_RATE;
+					if(currentSpeed < 0)
+						currentSpeed = 0;
 			}
-				
-		
-			if (inputs.get("right").booleanValue()) {
-				if(currentSpeed < 0)
-					currentSpeed += DECCELERATION_RATE;
-				else currentSpeed +=  ACCELERATION_RATE;
-			
-			}
-			if(!inputs.get("right").booleanValue() && !inputs.get("left").booleanValue()) {
-				if(currentSpeed > 0)
-					currentSpeed -= ACCELERATION_RATE;
-				else currentSpeed += ACCELERATION_RATE;
+			if(inputs.get("right").booleanValue()) {
+				if(getBatteryBoost() > 0) 
+					currentSpeed += ACCELERATION_RATE + (numSpeedUps * BOOST_ACCEL) + BATTERY_ACCEL;
+				else currentSpeed += ACCELERATION_RATE + (numSpeedUps * BOOST_ACCEL);
+			}		
+			if(!inputs.get("right").booleanValue() && !inputs.get("right").booleanValue()) {
+				currentSpeed -= ACCELERATION_RATE;
+				if(currentSpeed <= ACCELERATION_RATE && currentSpeed >= -1*DECCELERATION_RATE)
+					currentSpeed = 0;
 				
 			}
-
+			worldX += ((currentSpeed + batteryBoost) * (delta / 1000.0f));
 		}
 		if (getY() > jumpY) {
 
@@ -275,25 +273,28 @@ public class Cart extends Entity {
 				setY(jumpY);
 
 		}
+	
+	if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
 
-		boost = BOOST * numSpeedUps + batteryBoost;
-		worldX += ((currentSpeed + boost) * (delta / 1000.0f));
-		if (getX() >= MIN_SCREEN_X || getX() <= MAX_SCREEN_X) {
-			setX(getX() + ((currentSpeed + boost) * (delta / 1000.0f)));
+
+			setX(getX() + ((currentSpeed) * (delta / 1000.0f)));
 			if (getX() > MAX_SCREEN_X)
 				setX(MAX_SCREEN_X);
 			if (getX() < MIN_SCREEN_X)
 				setX(MIN_SCREEN_X);
+
 		}
 		if (worldX < MIN_WORLD_X) {
+
 			worldX = MIN_WORLD_X;
 			currentSpeed = 0;
+
 		}
 
 	}
 
 	public void update(Input input, int delta) {
-			boost = batteryBoost + BOOST * numSpeedUps;
+		boost = batteryBoost + BOOST * numSpeedUps;
 		if (currentSpeed > MAX_SPEED + BOOST * numSpeedUps)
 			currentSpeed = MAX_SPEED + BOOST * numSpeedUps;
 		if(currentSpeed < 0)
