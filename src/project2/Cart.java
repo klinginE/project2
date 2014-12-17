@@ -298,37 +298,26 @@ public class Cart extends Entity {
 			currentSpeed = MAX_SPEED + BOOST * numSpeedUps;
 		if(currentSpeed < 0)
 			currentSpeed = 0;
-		/*if (currentSpeed < (-1.0f * MAX_SPEED))
-			currentSpeed = (-1.0f * MAX_SPEED);
-		*/
+		
 		
 		if (input != null) {
 			if(input.isKeyDown(Input.KEY_LEFT)) {
-				if(currentSpeed > 0) 
 					currentSpeed -= DECCELERATION_RATE;
-				//else currentSpeed -= ACCELERATION_RATE;
+					if(currentSpeed < 0)
+						currentSpeed = 0;
 			}
 			if(input.isKeyDown(Input.KEY_RIGHT)) {
-				if(currentSpeed < 0) 
-					currentSpeed += DECCELERATION_RATE;
-				else if(getBatteryBoost() > 0) 
+				if(getBatteryBoost() > 0) 
 					currentSpeed += ACCELERATION_RATE + (numSpeedUps * BOOST_ACCEL) + BATTERY_ACCEL;
 				else currentSpeed += ACCELERATION_RATE + (numSpeedUps * BOOST_ACCEL);
 			}		
 			if(!input.isKeyDown(Input.KEY_RIGHT) && !input.isKeyDown(Input.KEY_LEFT)) {
-				if(currentSpeed > 0)
-					currentSpeed -= ACCELERATION_RATE;
-				else currentSpeed += ACCELERATION_RATE;
-				if(currentSpeed <= ACCELERATION_RATE && currentSpeed >= -1*ACCELERATION_RATE)
+				currentSpeed -= ACCELERATION_RATE;
+				if(currentSpeed <= ACCELERATION_RATE && currentSpeed >= -1*DECCELERATION_RATE)
 					currentSpeed = 0;
-				//boost = batteryBoost;
-				worldX += ((currentSpeed + batteryBoost) * (delta / 1000.0f));
 				
 			}
-			else {
-				//boost = BOOST * numSpeedUps + batteryBoost;
-				worldX += ((currentSpeed + batteryBoost) * (delta / 1000.0f));
-			}
+			worldX += ((currentSpeed + batteryBoost) * (delta / 1000.0f));
 		}
 		if (getY() > jumpY) {
 
