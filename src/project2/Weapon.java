@@ -2,7 +2,6 @@ package project2;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
 
 import jig.ConvexPolygon;
 import jig.Entity;

@@ -19,9 +19,21 @@ public class MultiPlayerGameState extends BasicGameState {
 
 	private Player player = null;
 	private long frame = 0;
+	Image[] itemIcon;
+	Image[] toggleIcon;
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
+		itemIcon = new Image[4];
+		toggleIcon = new Image[6];
+		itemIcon[0] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BATTERY_PNG);
+		itemIcon[1] = ResourceManager.getImage(BlackFridayBlitz.WPICON_FIREWORK_PNG);
+		itemIcon[2] = ResourceManager.getImage(BlackFridayBlitz.WPICON_PLASTICBAG_PNG);
+		itemIcon[3] = ResourceManager.getImage(BlackFridayBlitz.WPICON_BOWLING_BALL_PNG);
+		toggleIcon[0] = ResourceManager.getImage(BlackFridayBlitz.ARROWL_PNG);
+		toggleIcon[1] = ResourceManager.getImage(BlackFridayBlitz.ARROWR_PNG);
+		toggleIcon[2] = ResourceManager.getImage(BlackFridayBlitz.ARROWU_PNG);
+		toggleIcon[3] = ResourceManager.getImage(BlackFridayBlitz.ARROWD_PNG);
 	}
 
 	@Override
@@ -82,6 +94,7 @@ public class MultiPlayerGameState extends BasicGameState {
 
 		// Draw flag
 		g.drawImage(flag, (float)(gameState.level.getLevel().getLength() * background.getWidth()), 0.0f);
+
 		// Draw items
 		for(int i = 0; i < gameState.level.getLevel().getSpeedups().size(); i++)
 			gameState.level.getLevel().getSpeedups().get(i).getSpeedup(true).render(g);
@@ -92,24 +105,47 @@ public class MultiPlayerGameState extends BasicGameState {
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
 		g.drawImage(checkout, (float)((float)((float)gameState.level.getLevel().getLength() * (float)background.getWidth() + (float)flag.getWidth()) / scaleY), 0.0f);
-		g.scale(1.0f / scaleY, 1.0f / scaleY);
 
 		// Undo transforms
 		g.resetTransform();
 		
 		// draw powerup area
-		if (25 + back.getWidth() + myCart.getWorldX() - myCart.getX() / 2.0f <= gameState.level.getLevel().getLength() * 1000 && gameState.finish == 0) {
+		if (myCart.getWorldX() <= gameState.level.getLevel().getLength() * 1000) {
 			back.draw(25,640);
+			if (player.getPowerup() != -1){
+				itemIcon[player.getPowerup()].draw(45, 660);
+				if (player.getPowerup() == 2){
+					if (player.getWeaponToggle() == 1){
+						toggleIcon[2].draw(65, 640);
+					} else { 
+						toggleIcon[3].draw(65, 726); 
+					}
+				}
+				if (player.getPowerup() == 3){
+					if (player.getWeaponToggle() == 1){
+						toggleIcon[0].draw(25, 680);
+					} else { 
+						toggleIcon[3].draw(65, 726); 
+					}			
+				}
+			}
 		}
 		
 		//DEBUG: print mouse position
 		g.drawString((input.getMouseX() + ", " + input.getMouseY()), 0, 30);
 		g.drawString("speed: "+myCart.getCurrentSpeed(), 0, 50);
+		// draw progress bar
+		g.setColor(Color.white);
+		g.drawLine(150, 700, 750, 700);
+		for (String user: gameState.playerCarts.keySet()) {
+			g.drawImage(ResourceManager.getImage(gameState.playerCarts.get(user).getCart(true).getImageString()), 150 + 600.0f/(float)(gameState.level.getLevel().getNumXpixels()+200)*gameState.playerCarts.get(user).getCart(true).getWorldX(), 650);
+		}
+				
 		// Print time
 		if (gameState.timer > 3000){
 			g.setColor(Color.white);
 			if (gameState.timer != 0){
-				g.drawString("Time: " + realTime(gameState.timer), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
+				g.drawString("Time: " + realTime(gameState.finalTime.get(player.getUsername())), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);	
 			} else {
 				g.drawString("Time: " + realTime(gameState.timer - 3000), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH - 200.0f, 676.0f);
 			}
