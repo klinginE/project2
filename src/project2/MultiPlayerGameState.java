@@ -243,7 +243,7 @@ public class MultiPlayerGameState extends BasicGameState {
 						} else {
 							Weapon temp = player.fireWeapon();
 							weapons.add(temp);
-							state.getGameState().playerCarts.put(player.getUsername(), new CartState(player.playerCart.getX(), player.playerCart.getY(), player.playerCart.getCoarseGrainedWidth(), player.playerCart.getCoarseGrainedHeight(), player.playerCart.getNumSpeedUps(), player.playerCart.getCurrentSpeed(), player.playerCart.getBatteryBoost(), player.playerCart.getWorldX(), player.playerCart.getWorldY(), player.playerCart.getPlatform(), player.playerCart.getJumpPoint(), player.playerCart.getImageString(), player.playerCart.MAX_SCREEN_X, player.playerCart.getKeyleft(), player.playerCart.getKeyright()));
+							state.getGameState().playerCarts.put(player.getUsername(), new CartState(player.playerCart.getX(), player.playerCart.getY(), player.playerCart.getCoarseGrainedWidth(), player.playerCart.getCoarseGrainedHeight(), player.playerCart.getNumSpeedUps(), player.playerCart.getCurrentSpeed(), player.playerCart.getBatteryBoost(), player.playerCart.getWorldX(), player.playerCart.getWorldY(), player.playerCart.getPlatform(), player.playerCart.getJumpPoint(), player.playerCart.getImageString(), player.playerCart.MAX_SCREEN_X, player.playerCart.getKeyleft(), player.playerCart.getKeyright(), player.playerCart.getBoost()));
 						}
 					}
 					if (input.isKeyPressed(Input.KEY_TAB) && player.getPowerup() != -1) {
@@ -257,7 +257,7 @@ public class MultiPlayerGameState extends BasicGameState {
 						wow.setOwner(state.getGameState().playerCarts.get(player.getUsername()).getCart(true));
 					wow.update(delta);
 					player.playerCart = wow.owner;
-					state.getGameState().playerCarts.put(player.getUsername(), new CartState(player.playerCart.getX(), player.playerCart.getY(), player.playerCart.getCoarseGrainedWidth(), player.playerCart.getCoarseGrainedHeight(), player.playerCart.getNumSpeedUps(), player.playerCart.getCurrentSpeed(), player.playerCart.getBatteryBoost(), player.playerCart.getWorldX(), player.playerCart.getWorldY(), player.playerCart.getPlatform(), player.playerCart.getJumpPoint(), player.playerCart.getImageString(), player.playerCart.MAX_SCREEN_X, player.playerCart.getKeyleft(), player.playerCart.getKeyright()));
+					state.getGameState().playerCarts.put(player.getUsername(), new CartState(player.playerCart.getX(), player.playerCart.getY(), player.playerCart.getCoarseGrainedWidth(), player.playerCart.getCoarseGrainedHeight(), player.playerCart.getNumSpeedUps(), player.playerCart.getCurrentSpeed(), player.playerCart.getBatteryBoost(), player.playerCart.getWorldX(), player.playerCart.getWorldY(), player.playerCart.getPlatform(), player.playerCart.getJumpPoint(), player.playerCart.getImageString(), player.playerCart.MAX_SCREEN_X, player.playerCart.getKeyleft(), player.playerCart.getKeyright(), player.playerCart.getBoost()));
 					if (wow.end == 1)
 						br.remove();
 					else
@@ -285,7 +285,7 @@ public class MultiPlayerGameState extends BasicGameState {
 
 			ArrayList<WeaponState> newWeapons = new ArrayList<WeaponState>();
 			for (Weapon temp : weapons)
-				newWeapons.add(new WeaponState(temp.type, temp.toggle, temp.getX(), temp.getY(), temp.worldX, temp.worldY, temp.timer, temp.end, temp.lastKnownFrame, temp.getCoarseGrainedHeight(), temp.getCoarseGrainedWidth(), temp.platform, temp.targetPlatform, temp.falling, temp.rising, temp.fall, temp.down, new CartState(temp.owner.getX(), temp.owner.getY(), temp.owner.getCoarseGrainedWidth(), temp.owner.getCoarseGrainedHeight(), temp.owner.getNumSpeedUps(), temp.owner.getCurrentSpeed(), temp.owner.getBatteryBoost(), temp.owner.getWorldX(), temp.owner.getWorldY(), temp.owner.getPlatform(), temp.owner.getJumpPoint(), temp.owner.getImageString(), temp.owner.MAX_SCREEN_X, temp.owner.getKeyleft(), temp.owner.getKeyright()), temp.username));
+				newWeapons.add(new WeaponState(temp.type, temp.toggle, temp.getX(), temp.getY(), temp.worldX, temp.worldY, temp.timer, temp.end, temp.lastKnownFrame, temp.getCoarseGrainedHeight(), temp.getCoarseGrainedWidth(), temp.platform, temp.targetPlatform, temp.falling, temp.rising, temp.fall, temp.down, new CartState(temp.owner.getX(), temp.owner.getY(), temp.owner.getCoarseGrainedWidth(), temp.owner.getCoarseGrainedHeight(), temp.owner.getNumSpeedUps(), temp.owner.getCurrentSpeed(), temp.owner.getBatteryBoost(), temp.owner.getWorldX(), temp.owner.getWorldY(), temp.owner.getPlatform(), temp.owner.getJumpPoint(), temp.owner.getImageString(), temp.owner.MAX_SCREEN_X, temp.owner.getKeyleft(), temp.owner.getKeyright(), temp.owner.getBoost()), temp.username));
 
 			if (frame != frameState) {
 				frame = frameState;

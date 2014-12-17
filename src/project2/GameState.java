@@ -52,7 +52,7 @@ public class GameState implements Serializable {
 
 	public void addGame(String username, Cart cart, GameContainer container, long frame, ArrayList<PowerupState>powUps, ArrayList<WeaponState> weapons) {
 
-		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getBatteryBoost(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString(), cart.MAX_SCREEN_X, cart.getKeyleft(), cart.getKeyright()));
+		playerCarts.put(username, new CartState(cart.getX(), cart.getY(), cart.getCoarseGrainedWidth(), cart.getCoarseGrainedHeight(), cart.getNumSpeedUps(), cart.getCurrentSpeed(), cart.getBatteryBoost(), cart.getWorldX(), cart.getWorldY(), cart.getPlatform(), cart.getJumpPoint(), cart.getImageString(), cart.MAX_SCREEN_X, cart.getKeyleft(), cart.getKeyright(), cart.getBoost()));
 		frames.put(username, new Long(frame));
 		Level l = level.getLevel();
 		l.setPowerups(powUps);

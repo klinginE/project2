@@ -102,7 +102,7 @@ public class Player {
 				playerCart = new Cart(BlackFridayBlitz.PLAYER4_PNG, 0, playerCart.getY());
 			}
 
-			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getBatteryBoost(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getPlatform(), playerCart.getJumpPoint(), playerCart.getImageString(), playerCart.MAX_SCREEN_X, playerCart.getKeyleft(), playerCart.getKeyright()));
+			ps.playerCarts.put(getUsername(), new CartState(playerCart.getX(), playerCart.getY(), playerCart.getCoarseGrainedWidth(), playerCart.getCoarseGrainedHeight(), playerCart.getNumSpeedUps(), playerCart.getCurrentSpeed(), playerCart.getBatteryBoost(), playerCart.getWorldX(), playerCart.getWorldY(), playerCart.getPlatform(), playerCart.getJumpPoint(), playerCart.getImageString(), playerCart.MAX_SCREEN_X, playerCart.getKeyleft(), playerCart.getKeyright(), playerCart.getBoost()));
 
 			if (playerClient.getCurrentState().getState() != 100 && playerClient.getCurrentState().getState() != 0)
 				return;

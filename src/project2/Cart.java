@@ -54,6 +54,7 @@ public class Cart extends Entity {
 		public int numSpeedUps_s = 0;
 		public float currentSpeed_s = 0.0f;
 		public float batteryBoost_s = 0.0f;
+		public float boost_s = 0.0f;
 		public float worldX_s = 0.0f;
 		public float worldY_s = 0.0f;
 		public int platform_s = 1;
@@ -61,7 +62,7 @@ public class Cart extends Entity {
 		public String imageString_s = "";
 		public boolean keyleft_s, keyright_s;
 
-		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float bboost, float wx, float wy, int plat, float jy, String iStr, float maxScreen, boolean kleft, boolean kright) {
+		public CartState(float x, float y, float width, float height, int numSpeed, float currSpeed, float bboost, float wx, float wy, int plat, float jy, String iStr, float maxScreen, boolean kleft, boolean kright, float b) {
 
 			super();
 			x_s = x;
@@ -79,6 +80,7 @@ public class Cart extends Entity {
 			MAX_SCREEN_X_S = maxScreen;
 			keyleft_s = kleft;
 			keyright_s = kright;
+			boost_s = b;
 
 		}
 
@@ -106,6 +108,7 @@ public class Cart extends Entity {
 			c.MAX_SCREEN_X = MAX_SCREEN_X_S;
 			c.keyleft = keyleft_s;
 			c.keyright = keyright_s;
+			c.boost = boost_s;
 			return c;
 
 		}
@@ -372,6 +375,9 @@ public class Cart extends Entity {
 
 	public float getBatteryBoost() {
 		return batteryBoost;
+	}
+	public float getBoost() {
+		return boost;
 	}
 	public void setBatteryBoost(float bboost) {
 		batteryBoost = bboost;

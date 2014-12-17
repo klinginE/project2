@@ -219,7 +219,7 @@ public class Server {
 							}
 
 							c.setWorldX(BlackFridayBlitz.MAX_WINDOW_WIDTH * myState.level.length_s + 200);
-							myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X, c.getKeyleft(), c.getKeyright()));
+							myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X, c.getKeyleft(), c.getKeyright(), c.getBoost()));
 							continue;
 	
 						}
@@ -266,7 +266,7 @@ public class Server {
 
 						}
 						myState.level.speedups_s = newSpeedupStates;
-						myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X, c.getKeyleft(), c.getKeyright()));
+						myState.playerCarts.put(key, new CartState(c.getX(), c.getY(), c.getCoarseGrainedWidth(), c.getCoarseGrainedHeight(), c.getNumSpeedUps(), c.getCurrentSpeed(), c.getBatteryBoost(), c.getWorldX(), c.getWorldY(), c.getPlatform(), c.getJumpPoint(), c.getImageString(), c.MAX_SCREEN_X, c.getKeyleft(), c.getKeyright(), c.getBoost()));
 
 					}
 
