@@ -1,10 +1,6 @@
 package project2;
 
 import java.io.Serializable;
-import java.util.HashMap;
-
-import project2.Cart.CartState;
-import project2.Level.LevelState;
 
 public class DataPackage implements Serializable {
 
@@ -48,7 +44,10 @@ public class DataPackage implements Serializable {
 			gameState.timer = gs.timer;
 			gameState.pauseTimer = gs.pauseTimer;
 			gameState.finalTime = gs.finalTime;
-			gameState.finish = gs.finish;
+			gameState.finish = gs.finish;//added from here down
+			gameState.inputs = gs.inputs;
+			gameState.weapons = gs.weapons;
+			gameState.done = gs.done;
 		}
 		else
 			gameState = gs;

@@ -67,7 +67,7 @@ public class Server {
 	public ServerSocket socket = null;
 
 	// Sever data
-	private final int MAX_CLIENTS = 4;
+	private final int MAX_CLIENTS = 2;
 	private int numClients = 0;
 	public final String MSG_000 = "Welcome to the server";
 	public final String MSG_200 = "Invalid Username";

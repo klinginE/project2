@@ -285,7 +285,7 @@ public class MultiPlayerGameState extends BasicGameState {
 
 			ArrayList<WeaponState> newWeapons = new ArrayList<WeaponState>();
 			for (Weapon temp : weapons)
-				newWeapons.add(new WeaponState(temp.type, temp.toggle, temp.getX(), temp.getY(), temp.worldX, temp.worldY, temp.timer, temp.end, temp.lastKnownFrame, temp.getCoarseGrainedHeight(), temp.getCoarseGrainedWidth(), temp.platform, temp.targetPlatform, temp.falling, temp.rising, temp.fall, temp.down, new CartState(temp.owner.getX(), temp.owner.getY(), temp.owner.getCoarseGrainedWidth(), temp.owner.getCoarseGrainedHeight(), temp.owner.getNumSpeedUps(), temp.owner.getCurrentSpeed(), temp.owner.getBatteryBoost(), temp.owner.getWorldX(), temp.owner.getWorldY(), temp.owner.getPlatform(), temp.owner.getJumpPoint(), temp.owner.getImageString(), temp.owner.MAX_SCREEN_X, temp.owner.getKeyleft(), temp.owner.getKeyright(), temp.owner.getBoost()), temp.username));
+				newWeapons.add(new WeaponState(temp.type, temp.toggle, temp.getX(), temp.getY(), temp.worldX, temp.worldY, temp.timer, temp.end, temp.getCurrentAnimationFrame(), temp.getCoarseGrainedHeight(), temp.getCoarseGrainedWidth(), temp.platform, temp.targetPlatform, temp.falling, temp.rising, temp.fall, temp.down, new CartState(temp.owner.getX(), temp.owner.getY(), temp.owner.getCoarseGrainedWidth(), temp.owner.getCoarseGrainedHeight(), temp.owner.getNumSpeedUps(), temp.owner.getCurrentSpeed(), temp.owner.getBatteryBoost(), temp.owner.getWorldX(), temp.owner.getWorldY(), temp.owner.getPlatform(), temp.owner.getJumpPoint(), temp.owner.getImageString(), temp.owner.MAX_SCREEN_X, temp.owner.getKeyleft(), temp.owner.getKeyright(), temp.owner.getBoost()), temp.username));
 
 			if (frame != frameState) {
 				frame = frameState;

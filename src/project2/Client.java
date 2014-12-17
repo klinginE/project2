@@ -8,14 +8,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.newdawn.slick.GameContainer;
 
-import project2.Cart.CartState;
 import project2.Powerup.PowerupState;
 import project2.Weapon.WeaponState;
 

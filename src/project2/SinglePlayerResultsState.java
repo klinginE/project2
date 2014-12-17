@@ -92,7 +92,7 @@ public class SinglePlayerResultsState extends BasicGameState {
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-		BlackFridayBlitz bb = (BlackFridayBlitz)game;
+
 		int posX = container.getInput().getMouseX();
 		int posY = container.getInput().getMouseY();
 		if (((posX > 44 + 348) && (posX < 260 + 348)) && ((posY > 389+100) && (posY < 453+100))){

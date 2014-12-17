@@ -201,6 +201,11 @@ public class Weapon extends Entity{
 	public String getUsername() {
 		return username;
 	}
+	public int getCurrentAnimationFrame() {
+		if (i != null)
+			return i.getFrame();
+		return 0;
+	}
 
 	public void update(int delta){	
 		timer += delta;
