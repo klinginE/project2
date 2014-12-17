@@ -154,7 +154,7 @@ public class SinglePlayerGameState extends BasicGameState {
 		g.drawString("speed: "+(int)player.getPlayerCart().getCurrentSpeed(), 0, 50);
 		// draw progress bar
 		g.setColor(Color.white);
-		g.drawLine(150, 700, 750, 700);
+		g.drawLine(175, 700, 775, 700);
 		g.drawImage(ResourceManager.getImage(player.getPlayerCart().getImageString()), 150 + 600.0f/(float)(level.getNumXpixels()+200)*player.getPlayerCart().getWorldX(), 650);
 		// Print time
 		if (timer > 3000){

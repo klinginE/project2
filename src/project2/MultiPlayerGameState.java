@@ -85,7 +85,7 @@ public class MultiPlayerGameState extends BasicGameState {
 		// Draw background
 		g.scale(1.0f, scaleY);
 		//int numPannels = level.getLength();//270
-		for (int i = 0; i < gameState.level.getLevel().getLength(); i++)
+		for (int i = 0; i < myLevel.getLength(); i++)
 			g.drawImage(background, (float)(i * background.getWidth()), 0.0f);
 		g.scale(1.0f, 1.0f/scaleY);
 
@@ -99,29 +99,28 @@ public class MultiPlayerGameState extends BasicGameState {
 			g.drawImage(ResourceManager.getImage(BlackFridayBlitz.TRAFFICLIGHT_PNG).getSubImage(96, 0, 32, 64), (float)BlackFridayBlitz.MAX_WINDOW_WIDTH / 2.0f, 50.0f);
 
 		// Draw flag
-		g.drawImage(flag, (float)(gameState.level.getLevel().getLength() * background.getWidth()), 0.0f);
-
+		g.drawImage(flag, (float)(myLevel.getLength() * background.getWidth()), 0.0f);
 		// Draw items
-		for(int i = 0; i < gameState.level.getLevel().getSpeedups().size(); i++)
-			gameState.level.getLevel().getSpeedups().get(i).getSpeedup(true).render(g);
-		for(int i = 0; i < gameState.level.getLevel().getPowerups().size(); i++)
-			gameState.level.getLevel().getPowerups().get(i).getPowerup(true).render(g);
+		for(int i = 0; i < myLevel.getSpeedups().size(); i++)
+			myLevel.getSpeedups().get(i).getSpeedup(true).render(g);
+		for(int i = 0; i < myLevel.getPowerups().size(); i++)
+			myLevel.getPowerups().get(i).getPowerup(true).render(g);
 
 		for (String key : gameState.weapons.keySet()) {
 			for (WeaponState w : gameState.weapons.get(key))
 				w.getWeapon(true).render(g);
 		}
-
 		// Draw Checkout
 		scaleY = (float)(screenHeight / (float)checkout.getHeight());
 		g.scale(scaleY, scaleY);
-		g.drawImage(checkout, (float)((float)((float)gameState.level.getLevel().getLength() * (float)background.getWidth() + (float)flag.getWidth()) / scaleY), 0.0f);
+		g.drawImage(checkout, (float)((float)((float)myLevel.getLength() * (float)background.getWidth() + (float)flag.getWidth()) / scaleY), 0.0f);
 
 		// Undo transforms
 		g.resetTransform();
 		
 		// draw powerup area
 		if (myCart.getWorldX() <= gameState.level.getLevel().getLength() * 1000) {
+
 			back.draw(25,640);
 			if (player.getPowerup() != -1){
 				itemIcon[player.getPowerup()].draw(45, 660);
