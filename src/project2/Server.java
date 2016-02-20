@@ -354,6 +354,7 @@ public class Server {
 
 			}
 
+			@SuppressWarnings("unused")
 			public synchronized GameState getGameState() {
 
 				return currentGameState;

@@ -16,6 +16,7 @@ public class Powerup extends Entity {
 	private float worldY = 0.0f;
 	private boolean active = true;
 	private String imageString = "";
+	@SuppressWarnings("unused")
 	private static final Random spawn = new Random();
 
 	public static class PowerupState implements Serializable {

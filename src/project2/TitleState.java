@@ -1,7 +1,5 @@
 package project2;
 
-
-
 import jig.ResourceManager;
 
 import org.newdawn.slick.Color;
